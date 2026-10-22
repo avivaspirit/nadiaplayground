@@ -2514,41 +2514,126 @@ class GameRenderer {
     const stroke = this.darkenColor(fur, 0.3);
     ctx.lineWidth = 2.5;
 
-    // Classic Pet Society Head: Chubby rounded oval
-    ctx.fillStyle = fur;
-    ctx.strokeStyle = stroke;
-    ctx.beginPath();
-    ctx.ellipse(0, -12, 34, 30, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    // Panda Eye Patches
-    if (species.id === 'panda') {
-      ctx.fillStyle = '#2b2d42';
+    if (species.id === 'seal') {
+      // AUTHENTIC BOBA THE SEAL HEAD (faithful to seal.js)
+      ctx.fillStyle = fur || '#e8f2f9';
+      ctx.strokeStyle = stroke || '#7b9cb8';
+      ctx.lineWidth = 2.6;
       ctx.beginPath();
-      ctx.ellipse(-14, -13, 10, 13, -0.3, 0, Math.PI * 2);
-      ctx.ellipse(14, -13, 10, 13, 0.3, 0, Math.PI * 2);
+      ctx.moveTo(0, -42);
+      ctx.bezierCurveTo(28, -42, 36, -26, 36, -8);
+      ctx.bezierCurveTo(36, 12, 24, 18, 0, 19);
+      ctx.bezierCurveTo(-24, 18, -36, 12, -36, -8);
+      ctx.bezierCurveTo(-36, -26, -28, -42, 0, -42);
+      ctx.closePath();
       ctx.fill();
+      ctx.stroke();
+
+      // Forehead glossy highlight arc
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.lineWidth = 3.5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-14, -36);
+      ctx.quadraticCurveTo(0, -40, 14, -36);
+      ctx.stroke();
+
+      // Ear indents on the sides
+      ctx.fillStyle = stroke || '#7b9cb8';
+      ctx.beginPath();
+      ctx.ellipse(-33, -12, 1.8, 3, 0, 0, Math.PI * 2);
+      ctx.ellipse(33, -12, 1.8, 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Signature Authentic White Muzzle Patch (Boba's heart muzzle!)
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#b5cde0';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(-18, -8);
+      ctx.bezierCurveTo(-24, -8, -25, 2, -15, 5);
+      ctx.bezierCurveTo(-7, 6.5, 0, 2, 0, -3);
+      ctx.bezierCurveTo(0, 2, 7, 6.5, 15, 5);
+      ctx.bezierCurveTo(25, 2, 24, -8, 18, -8);
+      ctx.bezierCurveTo(11, -8, 6, -7, 0, -7);
+      ctx.bezierCurveTo(-6, -7, -11, -8, -18, -8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    } else if (species.id === 'sock') {
+      // SOCKNEY HEAD: Soft pastel plush sock with folded ribbed cuff
+      ctx.fillStyle = fur || '#ffb4d6';
+      ctx.strokeStyle = stroke || '#ff70a6';
+      ctx.beginPath();
+      ctx.ellipse(0, -10, 32, 28, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Folded sock cuff on top (ribbed beret/collar look)
+      ctx.fillStyle = '#ffd6e8';
+      ctx.strokeStyle = '#3c2a3e';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(-24, -40, 48, 14, 7);
+      } else {
+        ctx.rect(-24, -40, 48, 14);
+      }
+      ctx.fill();
+      ctx.stroke();
+
+      // Knit ribbed lines on cuff
+      ctx.strokeStyle = '#ff70a6';
+      ctx.lineWidth = 1.4;
+      for (let lx = -18; lx <= 18; lx += 5) {
+        ctx.beginPath();
+        ctx.moveTo(lx, -38); ctx.lineTo(lx, -28);
+        ctx.stroke();
+      }
+    } else {
+      // Classic Pet Society Head: Chubby rounded oval
+      ctx.fillStyle = fur;
+      ctx.strokeStyle = stroke;
+      ctx.beginPath();
+      ctx.ellipse(0, -12, 34, 30, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Panda Eye Patches
+      if (species.id === 'panda') {
+        ctx.fillStyle = '#2b2d42';
+        ctx.beginPath();
+        ctx.ellipse(-14, -13, 10, 13, -0.3, 0, Math.PI * 2);
+        ctx.ellipse(14, -13, 10, 13, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
   }
 
-  // Face Features (Eyes, Nose, Cheeks, Whiskers)
+  // Face Features (Eyes, Nose, Cheeks, Whiskers, Emotion)
   drawPetFace(pet, species, customAction = null) {
     const ctx = this.ctx;
-    const eyeShape = pet.eyeShape || 'classic';
+    const isSeal = (species.id === 'seal');
+    const isSock = (species.id === 'sock');
+    const eyeShape = pet.eyeShape || (isSeal || isSock ? 'boba_sparkle' : 'classic');
     const blushStyle = pet.blush || 'circles';
+    const mouthShape = pet.mouthShape || 'kitty_3';
+    const noseShape = pet.noseShape || (isSeal ? 'dark_heart' : (isSock ? 'pink_oval' : 'pink_oval'));
+    const emotion = pet.emotion || 'happy';
 
     // Blink calculation: blink every ~4 seconds
     const isBlinking = (Math.sin(this.time * 2) > 0.96);
 
     // 1. EYES
     if (customAction === 'hug' || customAction === 'dance' || isBlinking || eyeShape === 'happy') {
-      // Curved happy closed eyes
+      // Curved happy closed eyes (ᵔ ᵕ ᵔ)
       ctx.strokeStyle = '#2b2d42';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 3.2;
       ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.arc(-14, -14, 7, 0.8 * Math.PI, 0.2 * Math.PI, false);
+      ctx.stroke();
+      ctx.beginPath();
       ctx.arc(14, -14, 7, 0.8 * Math.PI, 0.2 * Math.PI, false);
       ctx.stroke();
     } else if (customAction === 'rps_lose') {
@@ -2573,61 +2658,128 @@ class GameRenderer {
       ctx.fillText('✦', -14, -9);
       ctx.fillText('✦', 14, -9);
     } else if (eyeShape === 'wink') {
-      // One wink, one open
+      // Left eye open, right eye playful wink
       ctx.fillStyle = '#2b2d42';
       ctx.beginPath();
       ctx.arc(-14, -14, 7.5, 0, Math.PI * 2);
       ctx.fill();
-      // Catchlights
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      ctx.arc(-16, -17, 2.5, 0, Math.PI * 2);
+      ctx.arc(-16, -17, 2.8, 0, Math.PI * 2);
       ctx.arc(-12, -12, 1.2, 0, Math.PI * 2);
       ctx.fill();
 
-      // Wink right eye
+      // Right wink
       ctx.strokeStyle = '#2b2d42';
       ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.arc(14, -14, 7, 0.8 * Math.PI, 0.2 * Math.PI, false);
       ctx.stroke();
+    } else if (eyeShape === 'heart_eyes') {
+      // Ruby Heart Eyes
+      [-14, 14].forEach(x => {
+        ctx.fillStyle = '#ff2a6d';
+        ctx.strokeStyle = '#2b2d42';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.moveTo(x, -11);
+        ctx.bezierCurveTo(x - 6, -18, x - 11, -10, x, -5);
+        ctx.bezierCurveTo(x + 11, -10, x + 6, -18, x, -11);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(x - 2.5, -13, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
     } else if (eyeShape === 'sleepy') {
-      // Half-closed cozy eyes
-      ctx.fillStyle = '#2b2d42';
-      ctx.beginPath();
-      ctx.arc(-14, -13, 7, 0, Math.PI);
-      ctx.arc(14, -13, 7, 0, Math.PI);
-      ctx.fill();
+      // Half-closed cozy sleepy eyes
+      [-14, 14].forEach(x => {
+        ctx.fillStyle = '#2b2d42';
+        ctx.beginPath();
+        ctx.arc(x, -13, 7.5, 0, Math.PI);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255, 112, 166, 0.35)';
+        ctx.beginPath();
+        ctx.ellipse(x, -11, 5, 2.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+      });
     } else if (eyeShape === 'anime') {
-      // Star Sparkle eyes
+      // Star Sparkle anime eyes
       ctx.fillStyle = '#2b2d42';
       ctx.beginPath();
       ctx.arc(-14, -14, 8, 0, Math.PI * 2);
       ctx.arc(14, -14, 8, 0, Math.PI * 2);
       ctx.fill();
-      // Yellow stars in eyes
       ctx.fillStyle = '#ffd166';
-      ctx.font = '10px sans-serif';
+      ctx.font = '11px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('✦', -14, -10);
-      ctx.fillText('✦', 14, -10);
-    } else if (species.id === 'sock') {
-      // CUTE CROSS-STITCH BUTTON EYES for Sockney
+      ctx.fillText('✦', -14, -9);
+      ctx.fillText('✦', 14, -9);
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(-17, -17, 2, 0, Math.PI * 2);
+      ctx.arc(11, -17, 2, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (eyeShape === 'cute_button') {
+      // Cute Pearl Button eyes
       [-14, 14].forEach(x => {
-        ctx.fillStyle = '#7b2cbf';
-        ctx.strokeStyle = '#5a189a';
-        ctx.lineWidth = 1.5;
+        ctx.fillStyle = '#ffccd5';
+        ctx.strokeStyle = '#2b2d42';
+        ctx.lineWidth = 1.6;
         ctx.beginPath();
         ctx.arc(x, -14, 7.5, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(x - 2, -16, 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#ff70a6';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(x - 2.5, -14); ctx.lineTo(x + 2.5, -14);
+        ctx.moveTo(x, -16.5); ctx.lineTo(x, -11.5);
+        ctx.stroke();
+      });
+    } else if (eyeShape === 'boba_sparkle') {
+      // AUTHENTIC BOBA THE SEAL / KAWAII SANRIO DEEP SPARKLE EYES
+      [-14, 14].forEach(x => {
+        // Deep dark pearl
+        ctx.fillStyle = '#1b222c';
+        ctx.beginPath();
+        ctx.ellipse(x, -14, 8, 9.2, 0, 0, Math.PI * 2);
+        ctx.fill();
 
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
+        // Inner aqua/pink bottom glow
+        ctx.fillStyle = isSeal ? 'rgba(79, 172, 254, 0.55)' : 'rgba(255, 112, 166, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(x, -11, 5.5, 3.8, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Big glossy white catchlight reflection
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.ellipse(x - 2.6, -17, 3.2, 3.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Secondary sparkle reflection
+        ctx.beginPath();
+        ctx.arc(x + 3, -11, 1.6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Third micro sparkle
+        ctx.beginPath();
+        ctx.arc(x - 1.2, -10, 0.9, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Gentle brow arc
+        ctx.strokeStyle = isSeal ? '#7b9cb8' : '#3c2a3e';
+        ctx.lineWidth = 1.8;
         ctx.lineCap = 'round';
         ctx.beginPath();
-        ctx.moveTo(x - 3, -14); ctx.lineTo(x + 3, -14);
-        ctx.moveTo(x, -17); ctx.lineTo(x, -11);
+        ctx.arc(x, -22, 6, 1.1 * Math.PI, 1.9 * Math.PI, false);
         ctx.stroke();
       });
     } else {
@@ -2650,30 +2802,46 @@ class GameRenderer {
 
     // 2. CHEEKS / BLUSH
     if (blushStyle === 'circles') {
-      ctx.fillStyle = 'rgba(255, 112, 166, 0.45)';
+      ctx.fillStyle = 'rgba(255, 112, 166, 0.55)';
       ctx.beginPath();
-      ctx.arc(-22, -6, 6, 0, Math.PI * 2);
-      ctx.arc(22, -6, 6, 0, Math.PI * 2);
+      ctx.ellipse(-23, -5, 7, 4.8, 0, 0, Math.PI * 2);
+      ctx.ellipse(23, -5, 7, 4.8, 0, 0, Math.PI * 2);
       ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '8px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('✦', -23, -4);
+      ctx.fillText('✦', 23, -4);
     } else if (blushStyle === 'hearts') {
       ctx.font = '11px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('❤️', -22, -2);
-      ctx.fillText('❤️', 22, -2);
+      ctx.fillText('❤️', -23, -2);
+      ctx.fillText('❤️', 23, -2);
+    } else if (blushStyle === 'stars') {
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('✨', -23, -2);
+      ctx.fillText('✨', 23, -2);
     } else if (blushStyle === 'stripes') {
       ctx.strokeStyle = '#ff70a6';
       ctx.lineWidth = 1.8;
+      ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.moveTo(-25, -9); ctx.lineTo(-19, -3);
-      ctx.moveTo(-22, -9); ctx.lineTo(-16, -3);
-      ctx.moveTo(16, -9); ctx.lineTo(22, -3);
-      ctx.moveTo(19, -9); ctx.lineTo(25, -3);
+      ctx.moveTo(-25, -8); ctx.lineTo(-19, -2);
+      ctx.moveTo(-22, -8); ctx.lineTo(-16, -2);
+      ctx.moveTo(16, -8); ctx.lineTo(22, -2);
+      ctx.moveTo(19, -8); ctx.lineTo(25, -2);
       ctx.stroke();
+    } else if (blushStyle === 'peach_soft') {
+      ctx.fillStyle = 'rgba(255, 158, 125, 0.6)';
+      ctx.beginPath();
+      ctx.ellipse(-23, -5, 8, 5, 0, 0, Math.PI * 2);
+      ctx.ellipse(23, -5, 8, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
     }
 
-    // 3. SNOUT & NOSE
+    // 3. NOSE
     if (species.id === 'penguin') {
-      // Little orange beak
       ctx.fillStyle = '#ffb703';
       ctx.beginPath();
       ctx.moveTo(-6, -8);
@@ -2681,60 +2849,170 @@ class GameRenderer {
       ctx.lineTo(0, -1);
       ctx.closePath();
       ctx.fill();
-    } else {
-      // Cute nose
-      ctx.fillStyle = (species.id === 'seal' || species.id === 'bunny' || species.id === 'sock') ? '#ff758f' : '#2b2d42';
+    } else if (noseShape === 'dark_heart' || isSeal) {
+      // Cute dark heart nose (Boba's signature nose!)
+      ctx.fillStyle = '#1b222c';
       ctx.beginPath();
-      ctx.ellipse(0, -8, 3.5, 2.5, 0, 0, Math.PI * 2);
+      ctx.moveTo(0, -6);
+      ctx.bezierCurveTo(-4, -10, -5, -6, 0, -3.5);
+      ctx.bezierCurveTo(5, -6, 4, -10, 0, -6);
       ctx.fill();
-
-      // Mouth (:3 style, smile, or laughing)
-      if (customAction === 'rps_win' || customAction === 'dance') {
-        ctx.fillStyle = '#ff758f';
-        ctx.strokeStyle = '#4a4e69';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(0, -5, 5.5, 0, Math.PI, false);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-      } else {
-        ctx.strokeStyle = '#4a4e69';
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(-5, -6);
-        ctx.quadraticCurveTo(-2, -3, 0, -5);
-        ctx.quadraticCurveTo(2, -3, 5, -6);
-        ctx.stroke();
-      }
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.beginPath();
+      ctx.arc(-1.2, -7.5, 0.8, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (noseShape === 'round_button') {
+      ctx.fillStyle = '#2b2d42';
+      ctx.beginPath();
+      ctx.arc(0, -7, 3.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(-1, -8, 1, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (noseShape === 'cute_snout') {
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#e29d52';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.ellipse(0, -5, 10, 7, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#2b2d42';
+      ctx.beginPath();
+      ctx.ellipse(0, -7, 3, 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (noseShape === 'minimal') {
+      ctx.fillStyle = '#ff758f';
+      ctx.beginPath();
+      ctx.arc(0, -6, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // Sweet Pink Oval (Default)
+      ctx.fillStyle = '#ff758f';
+      ctx.beginPath();
+      ctx.ellipse(0, -7, 3.5, 2.4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.beginPath();
+      ctx.arc(-1, -8, 0.9, 0, Math.PI * 2);
+      ctx.fill();
     }
 
-    // 4. WHISKERS (Seal & Cat)
-    if (species.hasWhiskers) {
-      if (species.id === 'seal') {
-        // Seal whiskers (cute dots)
-        ctx.fillStyle = '#4a4e69';
-        ctx.beginPath();
-        ctx.arc(-9, -6, 1.2, 0, Math.PI * 2);
-        ctx.arc(-13, -7, 1.2, 0, Math.PI * 2);
-        ctx.arc(-11, -3, 1.2, 0, Math.PI * 2);
-        ctx.arc(9, -6, 1.2, 0, Math.PI * 2);
-        ctx.arc(13, -7, 1.2, 0, Math.PI * 2);
-        ctx.arc(11, -3, 1.2, 0, Math.PI * 2);
-        ctx.fill();
+    // 4. MOUTH
+    if (customAction === 'rps_win' || customAction === 'dance' || mouthShape === 'open_happy') {
+      // Joyful open smiling mouth
+      ctx.fillStyle = '#ff758f';
+      ctx.strokeStyle = '#2b2d42';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.arc(0, -3.5, 5.5, 0, Math.PI, false);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#ff9ebb';
+      ctx.beginPath();
+      ctx.arc(0, -1, 3, 0, Math.PI, false);
+      ctx.fill();
+    } else if (mouthShape === 'blep') {
+      // Blep Tongue!
+      ctx.strokeStyle = '#2b2d42';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-5, -5);
+      ctx.quadraticCurveTo(-2, -2.5, 0, -4);
+      ctx.quadraticCurveTo(2, -2.5, 5, -5);
+      ctx.stroke();
+      ctx.fillStyle = '#ff758f';
+      ctx.strokeStyle = '#2b2d42';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(0, -2, 2.5, 0, Math.PI, false);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    } else if (mouthShape === 'smile') {
+      // Sweet curved smile
+      ctx.strokeStyle = '#2b2d42';
+      ctx.lineWidth = 2.2;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(0, -6, 5, 0.2 * Math.PI, 0.8 * Math.PI, false);
+      ctx.stroke();
+    } else if (mouthShape === 'tiny_dot') {
+      // Tiny 'o' mouth
+      ctx.fillStyle = '#912847';
+      ctx.strokeStyle = '#2b2d42';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.ellipse(0, -3, 2, 2.8, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    } else if (mouthShape === 'pout') {
+      // Pouting mouth
+      ctx.strokeStyle = '#2b2d42';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(0, -2, 4, 1.2 * Math.PI, 1.8 * Math.PI, false);
+      ctx.stroke();
+    } else {
+      // Classic Mini Kitty / Seal Mouth :3 (Default)
+      ctx.strokeStyle = '#2b2d42';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-5, -5);
+      ctx.quadraticCurveTo(-2, -2.2, 0, -4);
+      ctx.quadraticCurveTo(2, -2.2, 5, -5);
+      ctx.stroke();
+    }
+
+    // 5. WHISKERS
+    if (species.hasWhiskers || isSeal) {
+      if (isSeal) {
+        // Boba Seal 3 dots whisker pads + gentle whiskers
+        ctx.fillStyle = '#7b9cb8';
+        [-1, 1].forEach(dir => {
+          ctx.beginPath();
+          ctx.arc(dir * 9, -5, 1.3, 0, Math.PI * 2);
+          ctx.arc(dir * 13, -6, 1.3, 0, Math.PI * 2);
+          ctx.arc(dir * 10, -2, 1.3, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.strokeStyle = '#7b9cb8';
+          ctx.lineWidth = 1.4;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(dir * 14, -5); ctx.quadraticCurveTo(dir * 24, -6, dir * 30, -8);
+          ctx.moveTo(dir * 14, -3); ctx.quadraticCurveTo(dir * 24, -2, dir * 29, 2);
+          ctx.stroke();
+        });
       } else {
         // Cat whiskers
         ctx.strokeStyle = '#4a4e69';
         ctx.lineWidth = 1.5;
+        ctx.lineCap = 'round';
         ctx.beginPath();
-        ctx.moveTo(-12, -6); ctx.lineTo(-28, -8);
-        ctx.moveTo(-12, -3); ctx.lineTo(-27, 0);
-        ctx.moveTo(12, -6); ctx.lineTo(28, -8);
-        ctx.moveTo(12, -3); ctx.lineTo(27, 0);
+        ctx.moveTo(-12, -5); ctx.lineTo(-28, -7);
+        ctx.moveTo(-12, -2); ctx.lineTo(-27, 1);
+        ctx.moveTo(12, -5); ctx.lineTo(28, -7);
+        ctx.moveTo(12, -2); ctx.lineTo(27, 1);
         ctx.stroke();
       }
     }
+
+    // 6. FLOATING EMOTION CATCHLIGHT
+    if (emotion && emotion !== 'happy') {
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'center';
+      if (emotion === 'cozy') ctx.fillText('💕', -28, -26);
+      else if (emotion === 'excited') ctx.fillText('✨', -28, -26);
+      else if (emotion === 'shy') ctx.fillText('🌸', -28, -26);
+      else if (emotion === 'silly') ctx.fillText('😋', -28, -26);
+    }
+  }
   }
 
   // Pet Arms & Held Props

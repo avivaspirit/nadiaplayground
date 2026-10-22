@@ -122,8 +122,11 @@ class NadiaPetGame {
       name: 'Nadia (นาเดีย)',
       species: 'bunny',
       furColor: '#fde2e4',
-      eyeShape: 'classic',
+      eyeShape: 'boba_sparkle',
+      mouthShape: 'kitty_3',
+      noseShape: 'pink_oval',
       blush: 'circles',
+      emotion: 'happy',
       clothes: {
         head: 'hat_ribbon',
         body: 'outfit_dress',
@@ -288,7 +291,10 @@ class NadiaPetGame {
         species: this.player.species,
         furColor: this.player.furColor,
         eyeShape: this.player.eyeShape,
+        mouthShape: this.player.mouthShape,
+        noseShape: this.player.noseShape,
         blush: this.player.blush,
+        emotion: this.player.emotion,
         clothes: this.player.clothes,
         level: this.player.level,
         roomTheme: this.roomTheme,
@@ -336,8 +342,11 @@ class NadiaPetGame {
       this.player.name = acc.name;
       this.player.species = acc.defaultSpecies;
       this.player.furColor = acc.defaultFur;
-      this.player.eyeShape = acc.defaultEye;
-      this.player.blush = acc.defaultBlush;
+      this.player.eyeShape = acc.defaultEye || 'boba_sparkle';
+      this.player.mouthShape = acc.defaultMouth || 'kitty_3';
+      this.player.noseShape = acc.defaultNose || (acc.defaultSpecies === 'seal' ? 'dark_heart' : 'pink_oval');
+      this.player.blush = acc.defaultBlush || 'circles';
+      this.player.emotion = acc.defaultEmotion || 'happy';
       this.player.clothes = JSON.parse(JSON.stringify(acc.defaultClothes));
       this.player.coins = 500;
       this.player.cash = 50;
@@ -346,6 +355,12 @@ class NadiaPetGame {
       this.player.maxXp = 300;
       this.inventory = JSON.parse(JSON.stringify(acc.defaultInventory));
       this.saveState(false);
+    } else {
+      this.player.eyeShape = this.player.eyeShape || (this.player.species === 'seal' ? 'boba_sparkle' : 'classic');
+      this.player.mouthShape = this.player.mouthShape || 'kitty_3';
+      this.player.noseShape = this.player.noseShape || (this.player.species === 'seal' ? 'dark_heart' : 'pink_oval');
+      this.player.blush = this.player.blush || 'circles';
+      this.player.emotion = this.player.emotion || 'happy';
     }
 
     // Setup Partner VIP NPC in town
@@ -839,6 +854,12 @@ class NadiaPetGame {
       }
     });
 
+    // Face Salon / Makeover Button
+    document.getElementById('btnOpenFaceModal')?.addEventListener('click', () => {
+      audio.playPop(560);
+      this.openFaceModal();
+    });
+
     // Wardrobe Dress-up Button
     document.getElementById('btnOpenWardrobe')?.addEventListener('click', () => {
       audio.playPop(580);
@@ -1087,7 +1108,10 @@ class NadiaPetGame {
       this.spawnHearts(this.player.x, this.player.y - 40, 8);
       this.addXP(30);
       this.updateHUD();
-      this.showSaveToast('♨️ แช่น้ำแร่ออนเซ็นกลีบกุหลาบอุ่นสบาย ขนนุ่มหอมสะอาดวิ้งค์ๆ! (ความสะอาด & ความสุข 100%) 🪷');
+      this.showSaveToast('♨️ แช่น้ำแร่ออนเซ็นกลีบกุหลาบ & ซาลอนแต่งหน้าตาสัตว์เลี้ยง! (ความสะอาด & ความสุข 100%) 🪷✨');
+      setTimeout(() => {
+        this.openFaceModal();
+      }, 700);
     } else if (shopType === 'shop_bakery') {
       this.openShopModal('bakery');
     } else if (shopType === 'shop_boutique') {
@@ -2008,6 +2032,130 @@ class NadiaPetGame {
     sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
     const prevRenderer = new GameRenderer(sCanvas);
     prevRenderer.drawPet(this.player, sCanvas.width / 2, sCanvas.height / 2 + 25, 1.4, false, true);
+  }
+
+  // ==========================================
+  // PET FACE SALON & MAKEOVER MODAL
+  // ==========================================
+  openFaceModal() {
+    const modal = document.getElementById('faceModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    this.activeFaceTab = this.activeFaceTab || 'eyes';
+    this.renderFaceFeatures(this.activeFaceTab);
+    this.renderFacePreview();
+
+    // Tab buttons
+    const tabs = document.querySelectorAll('#faceTabs .wardrobe-tab-btn');
+    tabs.forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.facetab === this.activeFaceTab);
+      tab.onclick = () => {
+        this.activeFaceTab = tab.dataset.facetab;
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        this.renderFaceFeatures(this.activeFaceTab);
+        audio.playPop(520);
+      };
+    });
+
+    // Randomize face button
+    const btnRand = document.getElementById('btnRandomFace');
+    if (btnRand) {
+      btnRand.onclick = () => {
+        const rand = arr => arr[Math.floor(Math.random() * arr.length)].id;
+        this.player.eyeShape = rand(GAME_DATA.eyeShapes);
+        this.player.mouthShape = rand(GAME_DATA.mouthShapes);
+        this.player.noseShape = rand(GAME_DATA.noseShapes);
+        this.player.blush = rand(GAME_DATA.blushStyles);
+        this.player.emotion = rand(GAME_DATA.emotions);
+        audio.playChime();
+        this.renderFaceFeatures(this.activeFaceTab);
+        this.renderFacePreview();
+        this.saveState();
+        this.showSaveToast('✨ สุ่มหน้าตาน่ารักใหม่เรียบร้อยแล้ว! 🎲💕');
+      };
+    }
+  }
+
+  renderFaceFeatures(category = 'eyes') {
+    const list = document.getElementById('faceFeatureList');
+    if (!list) return;
+    list.innerHTML = '';
+
+    let items = [];
+    let activeVal = '';
+    let prop = '';
+
+    if (category === 'eyes') {
+      items = GAME_DATA.eyeShapes;
+      activeVal = this.player.eyeShape || 'boba_sparkle';
+      prop = 'eyeShape';
+    } else if (category === 'mouth') {
+      items = GAME_DATA.mouthShapes;
+      activeVal = this.player.mouthShape || 'kitty_3';
+      prop = 'mouthShape';
+    } else if (category === 'nose') {
+      items = GAME_DATA.noseShapes;
+      activeVal = this.player.noseShape || 'pink_oval';
+      prop = 'noseShape';
+    } else if (category === 'blush') {
+      items = GAME_DATA.blushStyles;
+      activeVal = this.player.blush || 'circles';
+      prop = 'blush';
+    } else if (category === 'emotion') {
+      items = GAME_DATA.emotions;
+      activeVal = this.player.emotion || 'happy';
+      prop = 'emotion';
+    }
+
+    items.forEach(it => {
+      const card = document.createElement('div');
+      const isSelected = (activeVal === it.id);
+      card.className = `wardrobe-card ${isSelected ? 'equipped' : ''}`;
+      card.style.cursor = 'pointer';
+      card.style.padding = '10px 8px';
+      card.style.textAlign = 'center';
+      card.style.transition = 'transform 0.12s, box-shadow 0.12s';
+
+      card.innerHTML = `
+        <div style="font-size: 28px; line-height: 1.2; margin-bottom: 4px;">${it.icon || '✨'}</div>
+        <div style="font-size: 11px; font-weight: 800; color: #2b2d42;">${it.name.split('(')[0]}</div>
+        <div style="font-size: 9.5px; color: #888; margin-top: 2px;">${it.name.includes('(') ? it.name.split('(')[1].replace(')', '') : ''}</div>
+        ${isSelected ? '<div style="font-size: 10px; font-weight: 800; color: #ff70a6; margin-top: 4px;">✓ กำลังใช้งาน</div>' : ''}
+      `;
+
+      card.onmouseenter = () => { card.style.transform = 'translateY(-2px)'; };
+      card.onmouseleave = () => { card.style.transform = 'none'; };
+
+      card.onclick = () => {
+        this.player[prop] = it.id;
+        audio.playChime();
+        this.renderFaceFeatures(category);
+        this.renderFacePreview();
+        this.saveState();
+      };
+
+      list.appendChild(card);
+    });
+  }
+
+  renderFacePreview() {
+    const pCanvas = document.getElementById('facePreviewCanvas');
+    if (!pCanvas) return;
+    const pCtx = pCanvas.getContext('2d');
+    pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+
+    const prevRenderer = new GameRenderer(pCanvas);
+    prevRenderer.time = performance.now() / 1000;
+    // Draw enlarged head preview centered in mirror
+    prevRenderer.drawPet(this.player, pCanvas.width / 2, pCanvas.height / 2 + 35, 1.6, false, true);
+
+    // Update Mood Desc
+    const descEl = document.getElementById('faceMoodDesc');
+    if (descEl) {
+      const emObj = (GAME_DATA.emotions || []).find(e => e.id === this.player.emotion);
+      descEl.textContent = emObj ? `${emObj.icon} ${emObj.name}` : '✨ ยิ้มหวานสดใส';
+    }
   }
 
   // ==========================================

@@ -203,6 +203,11 @@
         <span class="tool-label">เล่นบอล</span>
       </button>
 
+      <button class="tool-circle-btn tool-face" id="btnOpenFaceModal" title="แต่งหน้าตา &amp; อารมณ์ (Face Makeover)">
+        🪞
+        <span class="tool-label">แต่งหน้า</span>
+      </button>
+
       <button class="tool-circle-btn tool-wardrobe" id="btnOpenWardrobe" title="แต่งตัว (Wardrobe)">
         👗
         <span class="tool-label">แต่งตัว</span>
@@ -212,6 +217,41 @@
         ✂️
         <span class="tool-label">เปลี่ยนตัว</span>
       </button>
+    </div>
+
+    <!-- ==========================================
+         PET FACE SALON & MAKEOVER MODAL
+         ========================================== -->
+    <div id="faceModal" class="modal-overlay hidden">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <div class="modal-title">🪞 บิวตี้ซาลอนแต่งหน้าตาสัตว์เลี้ยง (Pet Face Salon &amp; Emotions)</div>
+          <button class="btn-close-modal" onclick="document.getElementById('faceModal').classList.add('hidden')">✕</button>
+        </div>
+        <div class="modal-body">
+          <!-- Live Pet Face Mirror -->
+          <div class="wardrobe-mirror-col">
+            <div style="font-weight: 800; font-size: 13px; color: #ff70a6; margin-bottom: 8px;">✨ กระจกแต่งหน้าวิเศษ</div>
+            <canvas id="facePreviewCanvas" width="180" height="220" style="background:#fff; border-radius:14px; border:2px dashed #ffccd5;"></canvas>
+            <div id="faceMoodDesc" style="margin-top: 8px; font-size: 12px; font-weight:700; color: #ff70a6; text-align: center;">ยิ้มหวานสดใส ✨</div>
+            <button class="nav-btn" id="btnRandomFace" style="margin-top:8px; width:100%; justify-content:center; background:linear-gradient(135deg,#ff9ebb,#70d6ff); color:#fff; border:none; padding:8px 12px; font-weight:800; border-radius:12px; cursor:pointer;">🎲 สุ่มหน้าน่ารัก (Random!)</button>
+          </div>
+
+          <!-- Feature Categories & Selector Grid -->
+          <div class="wardrobe-items-col">
+            <div class="wardrobe-tabs" id="faceTabs">
+              <button class="wardrobe-tab-btn active" data-facetab="eyes">👀 ลูกตา (Eyes)</button>
+              <button class="wardrobe-tab-btn" data-facetab="mouth">👄 ปาก (Mouth)</button>
+              <button class="wardrobe-tab-btn" data-facetab="nose">👃 จมูก (Nose)</button>
+              <button class="wardrobe-tab-btn" data-facetab="blush">🌸 แก้ม/บลัช (Blush)</button>
+              <button class="wardrobe-tab-btn" data-facetab="emotion">✨ อารมณ์ (Emotion)</button>
+            </div>
+            <div class="wardrobe-grid" id="faceFeatureList" style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));">
+              <!-- Rendered dynamically via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ==========================================

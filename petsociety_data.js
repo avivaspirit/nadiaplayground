@@ -104,18 +104,48 @@ const GAME_DATA = {
   ],
 
   eyeShapes: [
-    { id: 'classic', name: 'Classic Shiny (ตาโตเป็นประกาย)' },
-    { id: 'happy', name: 'Happy Arcs (ตายิ้ม)' },
-    { id: 'sleepy', name: 'Sleepy / Chill (ตาเยิ้มขี้เซา)' },
-    { id: 'anime', name: 'Star Sparkle (ตาเปล่งประกายดาว)' },
-    { id: 'wink', name: 'Playful Wink (ขยิบตา 1 ข้าง)' }
+    { id: 'boba_sparkle', name: 'Boba Sparkle (ตาน้องอุ๋งประกายวิ้ง)', icon: '👀' },
+    { id: 'classic', name: 'Classic Shiny (ตาโตคลาสสิกประกายกลม)', icon: '✨' },
+    { id: 'heart_eyes', name: 'Sweet Hearts (ตาหัวใจหวานฉ่ำ)', icon: '💖' },
+    { id: 'anime', name: 'Star Sparkle (ตาเปล่งประกายดาว)', icon: '⭐' },
+    { id: 'happy', name: 'Happy Arcs (ตายิ้มหยีฟินๆ ᵔᵕᵔ)', icon: 'ᵔᵕᵔ' },
+    { id: 'wink', name: 'Playful Wink (ขยิบตา 1 ข้าง)', icon: '😉' },
+    { id: 'sleepy', name: 'Sleepy Cozy (ตาปรือขี้เซาอุ่น)', icon: '😌' },
+    { id: 'cute_button', name: 'Pearl Button (กระดุมไข่มุกน่ารัก)', icon: '🔘' }
+  ],
+
+  mouthShapes: [
+    { id: 'kitty_3', name: 'Kitty / Seal (:3) (ปากแมวน้อย/อุ๋งๆ)', icon: '🐱' },
+    { id: 'smile', name: 'Sweet Smile (ยิ้มหวานสดใส)', icon: '😊' },
+    { id: 'blep', name: 'Cute Blep 👅 (แลบลิ้นจิ๋วขี้อ้อน)', icon: '👅' },
+    { id: 'open_happy', name: 'Joyful Open (อ้าปากหัวเราะร่าเริง)', icon: '😄' },
+    { id: 'tiny_dot', name: 'Tiny \'o\' (ปากจิ๋วทำหน้าสงสัย)', icon: '😮' },
+    { id: 'pout', name: 'Cute Pout (แก้มป่องงอนน่ารัก)', icon: '😚' }
+  ],
+
+  noseShapes: [
+    { id: 'pink_oval', name: 'Sweet Pink Oval (จมูกชมพูมนจิ๋ว)', icon: '🌸' },
+    { id: 'dark_heart', name: 'Dark Heart (จมูกหัวใจสีเข้ม)', icon: '🖤' },
+    { id: 'round_button', name: 'Round Button (จมูกกระดุมกลมมน)', icon: '🔘' },
+    { id: 'cute_snout', name: 'Soft Snout Patch (ปานจมูกนุ่มฟู)', icon: '🐽' },
+    { id: 'minimal', name: 'Minimal Anime (มินิมอลไม่มีจมูก)', icon: '✨' }
   ],
 
   blushStyles: [
-    { id: 'circles', name: 'Rosy Circles (แก้มชมพูกลม)' },
-    { id: 'hearts', name: 'Sweet Hearts (แก้มรูปหัวใจ)' },
-    { id: 'stripes', name: 'Anime Manga Lines (ขีดแก้มเขิน)' },
-    { id: 'none', name: 'Natural (ไม่มีบลัช)' }
+    { id: 'circles', name: 'Rosy Circles (แก้มชมพูกลมระเรื่อ)', icon: '🌸' },
+    { id: 'hearts', name: 'Sweet Hearts 💕 (แก้มรูปหัวใจหวาน)', icon: '💕' },
+    { id: 'stars', name: 'Star Glitters ✨ (ประกายดาววิบวับ)', icon: '✨' },
+    { id: 'stripes', name: 'Anime Manga Lines (ขีดแก้มเขินอนิเมะ)', icon: '///' },
+    { id: 'peach_soft', name: 'Peachy Glow (พีชโกลว์ละมุน)', icon: '🍑' },
+    { id: 'none', name: 'Natural (ผิวธรรมชาติ)', icon: '🍃' }
+  ],
+
+  emotions: [
+    { id: 'happy', name: 'Happy & Bouncy (ร่าเริงแจ่มใส)', icon: '🎈' },
+    { id: 'cozy', name: 'Cozy & Cuddly (อบอุ่นสบายใจ)', icon: '🧺' },
+    { id: 'excited', name: 'Excited & Sparkly (ตื่นเต้นตาวาว)', icon: '⚡' },
+    { id: 'shy', name: 'Shy & Gentle (ขี้อายเรียบร้อย)', icon: '🙈' },
+    { id: 'silly', name: 'Playful & Silly (ทะเล้นน่ารัก)', icon: '🤪' }
   ],
 
   // Clothing & Fashion Items
@@ -431,6 +461,22 @@ const GAME_DATA = {
       desc: 'พี่หมีใจดีและเท่ ผู้ดูแลเมืองแสนสุข ชอบออกแบบและสร้างสิ่งก่อสร้างใหม่ๆ ในเมือง'
     },
     {
+      id: 'boba',
+      name: 'Boba (น้องอุ๋ง โบว์บ้า)',
+      species: 'seal',
+      title: '🦭 The Living Boba Seal Pup',
+      badge: 'น้องแมวน้ำโบว์บ้าตัวจริง',
+      avatar: '🦭',
+      furColor: '#e8f2f9',
+      eyeShape: 'boba_sparkle',
+      mouthShape: 'kitty_3',
+      noseShape: 'dark_heart',
+      blush: 'circles',
+      emotion: 'cozy',
+      clothes: { head: 'hat_ribbon', body: 'outfit_sailor', face: null, neck: 'neck_bell', hand: 'prop_fish', shoes: null },
+      desc: 'น้องอุ๋งโบว์บ้าตัวจริงเสียงจริง! ตากลมโตประกายไข่มุก แก้มชมพูระเรื่อ ชอบกอดอ้อนและสอนภาษา'
+    },
+    {
       id: 'bubbles',
       name: 'Bubbles (น้องอุ๋ง บับเบิลส์)',
       species: 'seal',
@@ -438,8 +484,11 @@ const GAME_DATA = {
       badge: 'กัปตันแมวน้ำริมหาด',
       avatar: '🦭',
       furColor: '#b5e2fa',
-      eyeShape: 'happy',
+      eyeShape: 'boba_sparkle',
+      mouthShape: 'kitty_3',
+      noseShape: 'dark_heart',
       blush: 'hearts',
+      emotion: 'happy',
       clothes: { head: 'hat_sailor', body: 'outfit_sailor', face: null, neck: 'neck_bell', hand: 'prop_fish', shoes: null },
       desc: 'น้องอุ๋งแมวน้ำจอมซน ตัวกลมดุ๊กดิ๊ก ชอบเล่นคลื่นทะเลและอบพายปลาหอมกรุ่น'
     },
@@ -452,7 +501,10 @@ const GAME_DATA = {
       avatar: '🐱',
       furColor: '#fed1b2',
       eyeShape: 'wink',
+      mouthShape: 'kitty_3',
+      noseShape: 'pink_oval',
       blush: 'stripes',
+      emotion: 'silly',
       clothes: { head: 'hat_beret', body: 'outfit_sweater', face: 'glass_round', neck: null, hand: 'prop_lollipop', shoes: 'shoe_sneakers' },
       desc: 'แมวสาวบาริสต้าตากลมโต รักการอ่านหนังสือในบุ๊คช็อปและชงชานมไข่มุกแสนอร่อย'
     },
@@ -465,7 +517,10 @@ const GAME_DATA = {
       avatar: '🐧',
       furColor: '#bde0fe',
       eyeShape: 'anime',
+      mouthShape: 'smile',
+      noseShape: 'minimal',
       blush: 'circles',
+      emotion: 'excited',
       clothes: { head: 'hat_straw', body: 'outfit_overalls', face: 'glass_heart', neck: null, hand: 'prop_icecream', shoes: 'shoe_boots' },
       desc: 'เพนกวินน้อยพลังล้นเหลือ ชอบเต้น ออกกำลังกายในยิม และกินไอศกรีมดับร้อน'
     },
@@ -478,7 +533,10 @@ const GAME_DATA = {
       avatar: '🐼',
       furColor: '#ffffff',
       eyeShape: 'happy',
+      mouthShape: 'smile',
+      noseShape: 'dark_heart',
       blush: 'circles',
+      emotion: 'cozy',
       clothes: { head: 'hat_beret', body: 'outfit_sweater', face: 'glass_round', neck: null, hand: null, shoes: null },
       desc: 'แพนด้าอารมณ์ดี จิตรกรแห่งทุ่งกังหันลม ชอบแช่สปาออนเซ็นและวาดภาพวิวทิวทัศน์'
     },
@@ -491,7 +549,10 @@ const GAME_DATA = {
       avatar: '🐶',
       furColor: '#fed1b2',
       eyeShape: 'anime',
+      mouthShape: 'kitty_3',
+      noseShape: 'dark_heart',
       blush: 'hearts',
+      emotion: 'happy',
       clothes: { head: 'hat_straw', body: 'outfit_overalls', face: null, neck: 'neck_bell', hand: 'prop_wand', shoes: 'shoe_sneakers' },
       desc: 'ลูกสุนัขโกลเด้นหางกระดิกดุ๊กดิ๊ก ชอบวิ่งเล่นในตลาดสดและชวนทุกคนยิ้มอย่างมีความสุข'
     },
@@ -503,10 +564,13 @@ const GAME_DATA = {
       badge: 'น้องหมาด็อกนี่หูตูบแสนซน',
       avatar: '🐶',
       furColor: '#fed18c',
-      eyeShape: 'anime',
+      eyeShape: 'boba_sparkle',
+      mouthShape: 'kitty_3',
+      noseShape: 'dark_heart',
       blush: 'hearts',
+      emotion: 'happy',
       clothes: { head: 'hat_cap', body: 'outfit_overalls', face: null, neck: 'neck_bell', hand: 'prop_wand', shoes: 'shoe_sneakers' },
-      desc: 'น้องหมาด็อกนี่ตัวกลมหูตูบแสนน่ารัก รักการวิ่งคาบบอล เกาพุง และอ้อนขอกอดตลอดเวลา'
+      desc: 'น้องหมาด็อกนี่ตัวกลมหูตูบแสนน่ารัก ตากลมโตประกายวิ้ง รักการวิ่งคาบบอล เกาพุง และอ้อนขอกอดตลอดเวลา'
     },
     {
       id: 'sockney',
@@ -516,10 +580,13 @@ const GAME_DATA = {
       badge: 'น้องถุงเท้านุ่มฟูมีชีวิต',
       avatar: '🧦',
       furColor: '#ffb4d6',
-      eyeShape: 'anime',
+      eyeShape: 'boba_sparkle',
+      mouthShape: 'kitty_3',
+      noseShape: 'pink_oval',
       blush: 'circles',
-      clothes: { head: 'hat_ribbon', body: 'outfit_sweater', face: 'glass_round', neck: 'neck_bowtie', hand: 'prop_wand', shoes: 'shoe_bunny' },
-      desc: 'น้องถุงเท้านุ่มฟูมีชีวิต ลายทางพาสเทล ตากระดุมแวววาว นุ่มฟูอบอุ่นเหมือนออกจากเครื่องอบผ้า'
+      emotion: 'cheerful',
+      clothes: { head: 'hat_ribbon', body: 'outfit_sweater', face: null, neck: 'neck_bell', hand: 'prop_wand', shoes: 'shoe_bunny' },
+      desc: 'น้องถุงเท้านุ่มฟูมีชีวิต ลายทางพาสเทล ตากลมโตประกายวิ้ง แก้มชมพูน่ารักที่สุด อบอุ่นเหมือนออกจากเครื่องอบผ้า'
     }
   ]
 };

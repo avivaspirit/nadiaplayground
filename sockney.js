@@ -107,7 +107,16 @@
     cuddles: 0,
     stretches: 0,
     days: 0,
-    outfit: { pattern: 'classic', hat: 'none', button: 'btn_pearl', acc: 'acc_bell' },
+    outfit: {
+      pattern: 'classic',
+      eyes: 'sparkle_boba',
+      mouth: 'kitty_3',
+      blush: 'rosy_glow',
+      emotion: 'cheerful',
+      hat: 'none',
+      button: 'none',
+      acc: 'acc_bell'
+    },
     album: []
   };
 
@@ -120,9 +129,15 @@
     save();
   } else {
     for (var k in DEFAULT) if (S[k] === undefined) S[k] = DEFAULT[k];
-    if (!S.outfit) S.outfit = { pattern: 'classic', hat: 'none', button: 'btn_pearl', acc: 'acc_bell' };
+    if (!S.outfit) S.outfit = JSON.parse(JSON.stringify(DEFAULT.outfit));
     if (!S.outfit.pattern) S.outfit.pattern = 'classic';
+    if (!S.outfit.eyes || S.outfit.eyes === 'btn_pearl') S.outfit.eyes = 'sparkle_boba';
+    if (!S.outfit.mouth) S.outfit.mouth = 'kitty_3';
+    if (!S.outfit.blush) S.outfit.blush = 'rosy_glow';
+    if (!S.outfit.emotion) S.outfit.emotion = 'cheerful';
     if (!S.outfit.hat) S.outfit.hat = 'none';
+    if (!S.outfit.button) S.outfit.button = 'none';
+    if (!S.outfit.acc) S.outfit.acc = 'acc_bell';
     if (!S.album) S.album = [];
   }
 
@@ -146,6 +161,38 @@
       { id: 'galaxy', name: 'กาแล็กซีไนท์ (Galaxy Starlight)', icon: '🌌' },
       { id: 'fairisle', name: 'วินเทอร์แฟร์ไอล์ (Nordic Winter)', icon: '❄️' }
     ],
+    eyes: [
+      { id: 'sparkle_boba', name: 'ตากลมโตวิ้งวับ (Sparkle Boba)', icon: '👀' },
+      { id: 'heart_eyes', name: 'ตาหัวใจทับทิม (Sweet Heart)', icon: '💖' },
+      { id: 'star_anime', name: 'ตาดาวเปล่งประกาย (Star Anime)', icon: '⭐' },
+      { id: 'happy_arcs', name: 'ตายิ้มหยีฟินๆ (Happy Arcs)', icon: 'ᵔᵕᵔ' },
+      { id: 'wink_star', name: 'ขยิบตาวิ้งขี้เล่น (Star Wink)', icon: '😉' },
+      { id: 'sleepy_cozy', name: 'ตาปรือขี้เซาอุ่น (Sleepy Cozy)', icon: '😌' },
+      { id: 'btn_pearl', name: 'กระดุมไข่มุกเงางาม (Pearl Button)', icon: '🔘' },
+      { id: 'btn_daisy', name: 'กระดุมดอกเดซี่ (Daisy Button)', icon: '🌼' }
+    ],
+    mouth: [
+      { id: 'kitty_3', name: 'ปากแมวน้อย (:3) มินิ', icon: '🐱' },
+      { id: 'sweet_smile', name: 'ยิ้มหวานสดชื่น (Sweet Smile)', icon: '😊' },
+      { id: 'blep_tongue', name: 'แลบลิ้นจิ๋วขี้อ้อน (Cute Blep 👅)', icon: '👅' },
+      { id: 'happy_open', name: 'อ้าปากหัวเราะร่าเริง (Joyful Open)', icon: '😄' },
+      { id: 'tiny_o', name: 'ปากจิ๋วทำหน้าสงสัย (Tiny \'o\')', icon: '😮' },
+      { id: 'pout_cute', name: 'แก้มป่องงอนน่ารัก (Cute Pout)', icon: '😚' }
+    ],
+    blush: [
+      { id: 'rosy_glow', name: 'แก้มชมพูกลมระเรื่อ (Rosy Glow)', icon: '🌸' },
+      { id: 'hearts', name: 'หัวใจคู่หวาน (Double Hearts 💕)', icon: '💕' },
+      { id: 'stars', name: 'ประกายดาววิบวับ (Star Glitters ✨)', icon: '✨' },
+      { id: 'anime_lines', name: 'ขีดเขินอนิเมะ (Manga Lines ///)', icon: '///' },
+      { id: 'peachy', name: 'พีชโกลว์ละมุน (Warm Peach)', icon: '🍑' }
+    ],
+    emotion: [
+      { id: 'cheerful', name: 'ร่าเริงดึ๋งดั๋ง (Cheerful Bouncy)', icon: '🎈' },
+      { id: 'cozy', name: 'อบอุ่นฟินกลิ่นแดด (Cozy Nap)', icon: '🧺' },
+      { id: 'excited', name: 'ตื่นเต้นตาวาว (Excited & Hyper)', icon: '⚡' },
+      { id: 'shy', name: 'ขี้อายตัวนิ่ม (Shy & Sweet)', icon: '🙈' },
+      { id: 'silly', name: 'ทะเล้นกวนๆ (Silly & Playful)', icon: '🤪' }
+    ],
     hat: [
       { id: 'none', name: 'ขอบพับเบเร่ต์เรียบง่าย', icon: '🧦' },
       { id: 'hat_beanie', name: 'หมวกบีนนี่ไหมพรมพู่ปอม', icon: '🧶' },
@@ -157,7 +204,7 @@
       { id: 'hat_chef', name: 'หมวกเชฟซักอบรีดจิ๋ว', icon: '🧑‍🍳' }
     ],
     button: [
-      { id: 'none', name: 'ตาเย็บไหมพรมคลาสสิก', icon: '🧵' },
+      { id: 'none', name: 'ไม่มีกระดุมประดับตัว', icon: '❌' },
       { id: 'btn_pearl', name: 'กระดุมไข่มุกประกายรุ้ง', icon: '🔘' },
       { id: 'btn_heart', name: 'กระดุมทับทิมหัวใจหวาน', icon: '❤️' },
       { id: 'btn_star', name: 'กระดุมดวงดาวประกายทอง', icon: '⭐' },
@@ -292,60 +339,134 @@
     }
 
     // Rosy Cheeks
-    s += '<ellipse cx="-20" cy="4" rx="7" ry="4.5" fill="#ff70a6" opacity=".8"/>';
-    s += '<ellipse cx="18" cy="4" rx="7" ry="4.5" fill="#ff70a6" opacity=".8"/>';
-
-    // Eyes: Cute Button Eyes or Happy Closed Eyes
-    var btnStyle = (S.outfit && S.outfit.button) || 'btn_pearl';
-    if (isHug || isSquish || isTickle) {
-      // Sweet blissful closed smile eyes
-      s += '<path d="M -18 -8 Q -10 -16 -2 -8" stroke="#3c2a3e" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
-      s += '<path d="M 2 -8 Q 10 -16 18 -8" stroke="#3c2a3e" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
+    var blushStyle = (S.outfit && S.outfit.blush) || 'rosy_glow';
+    if (blushStyle === 'hearts') {
+      s += '<text x="-30" y="8" font-size="12">💕</text><text x="18" y="8" font-size="12">💕</text>';
+    } else if (blushStyle === 'stars') {
+      s += '<text x="-29" y="8" font-size="12">✨</text><text x="17" y="8" font-size="12">✨</text>';
+    } else if (blushStyle === 'anime_lines') {
+      [-26, -23, -20].forEach(function(lx) { s += '<line x1="' + lx + '" y1="1" x2="' + (lx+3) + '" y2="7" stroke="#ff4d88" stroke-width="1.6" stroke-linecap="round"/>'; });
+      [18, 21, 24].forEach(function(lx) { s += '<line x1="' + lx + '" y1="1" x2="' + (lx+3) + '" y2="7" stroke="#ff4d88" stroke-width="1.6" stroke-linecap="round"/>'; });
+    } else if (blushStyle === 'peachy') {
+      s += '<ellipse cx="-23" cy="4" rx="8" ry="5.5" fill="#ff9e7d" opacity=".8"/>';
+      s += '<ellipse cx="23" cy="4" rx="8" ry="5.5" fill="#ff9e7d" opacity=".8"/>';
     } else {
-      // Big Shiny Button Eyes!
-      function drawButtonEye(cx, cy) {
-        var str = '';
-        if (btnStyle === 'none') {
-          // Classic Thread Cross
-          str += '<line x1="' + (cx - 4) + '" y1="' + cy + '" x2="' + (cx + 4) + '" y2="' + cy + '" stroke="#3c2a3e" stroke-width="2.5" stroke-linecap="round"/>';
-          str += '<line x1="' + cx + '" y1="' + (cy - 4) + '" x2="' + cx + '" y2="' + (cy + 4) + '" stroke="#3c2a3e" stroke-width="2.5" stroke-linecap="round"/>';
-        } else if (btnStyle === 'btn_heart') {
-          str += '<path d="M ' + cx + ' ' + (cy + 2) + ' C ' + (cx - 7) + ' ' + (cy - 7) + ', ' + (cx - 12) + ' ' + (cy + 2) + ', ' + cx + ' ' + (cy + 9) + ' C ' + (cx + 12) + ' ' + (cy + 2) + ', ' + (cx + 7) + ' ' + (cy - 7) + ', ' + cx + ' ' + (cy + 2) + ' Z" fill="#e63946" stroke="#3c2a3e" stroke-width="1.8"/>';
-          str += '<circle cx="' + (cx - 2) + '" cy="' + (cy - 1) + '" r="1.5" fill="#fff"/>';
-        } else if (btnStyle === 'btn_star') {
-          str += '<polygon points="' + cx + ',' + (cy - 9) + ' ' + (cx + 3) + ',' + (cy - 3) + ' ' + (cx + 9) + ',' + (cy - 2) + ' ' + (cx + 4) + ',' + (cy + 3) + ' ' + (cx + 6) + ',' + (cy + 9) + ' ' + cx + ',' + (cy + 5) + ' ' + (cx - 6) + ',' + (cy + 9) + ' ' + (cx - 4) + ',' + (cy + 3) + ' ' + (cx - 9) + ',' + (cy - 2) + ' ' + (cx - 3) + ',' + (cy - 3) + '" fill="#ffd166" stroke="#b78600" stroke-width="1.6"/>';
-          str += '<circle cx="' + cx + '" cy="' + cy + '" r="2" fill="#fff"/>';
-        } else if (btnStyle === 'btn_daisy') {
-          str += '<circle cx="' + cx + '" cy="' + cy + '" r="8.5" fill="#fff" stroke="#3c2a3e" stroke-width="1.8"/><circle cx="' + cx + '" cy="' + cy + '" r="3.5" fill="#ffd166"/>';
-        } else if (btnStyle === 'btn_gem') {
-          str += '<polygon points="' + cx + ',' + (cy - 8) + ' ' + (cx + 8) + ',' + (cy - 2) + ' ' + (cx + 5) + ',' + (cy + 7) + ' ' + (cx - 5) + ',' + (cy + 7) + ' ' + (cx - 8) + ',' + (cy - 2) + '" fill="#4cc9f0" stroke="#0077b6" stroke-width="1.8"/>';
-          str += '<polygon points="' + cx + ',' + (cy - 4) + ' ' + (cx + 4) + ',' + cy + ' ' + cx + ',' + (cy + 4) + ' ' + (cx - 4) + ',' + cy + '" fill="#ffffff" opacity=".8"/>';
-        } else if (btnStyle === 'btn_wood') {
-          str += '<circle cx="' + cx + '" cy="' + cy + '" r="8" fill="#c68b59" stroke="#7f4f24" stroke-width="1.8"/>';
-          str += '<circle cx="' + (cx - 2.5) + '" cy="' + (cy - 2.5) + '" r="1.3" fill="#3c2a3e"/>';
-          str += '<circle cx="' + (cx + 2.5) + '" cy="' + (cy - 2.5) + '" r="1.3" fill="#3c2a3e"/>';
-          str += '<circle cx="' + (cx - 2.5) + '" cy="' + (cy + 2.5) + '" r="1.3" fill="#3c2a3e"/>';
-          str += '<circle cx="' + (cx + 2.5) + '" cy="' + (cy + 2.5) + '" r="1.3" fill="#3c2a3e"/>';
-        } else if (btnStyle === 'btn_smiley') {
-          str += '<circle cx="' + cx + '" cy="' + cy + '" r="8" fill="#ffd166" stroke="#3c2a3e" stroke-width="1.6"/>';
-          str += '<circle cx="' + (cx - 2.5) + '" cy="' + (cy - 2) + '" r="1" fill="#3c2a3e"/><circle cx="' + (cx + 2.5) + '" cy="' + (cy - 2) + '" r="1" fill="#3c2a3e"/>';
-          str += '<path d="M ' + (cx - 3) + ' ' + (cy + 2) + ' Q ' + cx + ' ' + (cy + 5) + ' ' + (cx + 3) + ' ' + (cy + 2) + '" stroke="#3c2a3e" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
-        } else {
-          // Classic Round Button with Thread Cross
-          str += '<circle cx="' + cx + '" cy="' + cy + '" r="8" fill="#7b2cbf" stroke="#3c2a3e" stroke-width="1.6"/>';
-          str += '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="none" stroke="#9d4edd" stroke-width="1"/>';
-          str += '<circle cx="' + (cx - 2.5) + '" cy="' + (cy - 2.5) + '" r="1.6" fill="#fff"/>';
-          str += '<line x1="' + (cx - 3) + '" y1="' + cy + '" x2="' + (cx + 3) + '" y2="' + cy + '" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>';
-          str += '<line x1="' + cx + '" y1="' + (cy - 3) + '" x2="' + cx + '" y2="' + (cy + 3) + '" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>';
-        }
-        return str;
-      }
-      s += drawButtonEye(-12, -8);
-      s += drawButtonEye(10, -8);
+      // Rosy Glow with white sparkle catchlights (Default)
+      s += '<ellipse cx="-23" cy="4" rx="8" ry="5.2" fill="#ff70a6" opacity=".75"/>';
+      s += '<ellipse cx="23" cy="4" rx="8" ry="5.2" fill="#ff70a6" opacity=".75"/>';
+      s += '<path d="M -23 2 l 1 1.6 1.6 1 -1.6 1 -1 1.6 -1 -1.6 -1.6 -1 1.6 -1 Z" fill="#fff" opacity=".95"/>';
+      s += '<path d="M 23 2 l 1 1.6 1.6 1 -1.6 1 -1 1.6 -1 -1.6 -1.6 -1 1.6 -1 Z" fill="#fff" opacity=".95"/>';
     }
 
-    // Embroidered Mouth :3
-    s += '<path d="M -7 5 Q -3 9 0 5 Q 3 9 7 5" stroke="#3c2a3e" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
+    // Eyes: Ultra-Cute Chiikawa/Sanrio Style Eyes
+    var eyeStyle = (S.outfit && S.outfit.eyes) || 'sparkle_boba';
+    if (isHug || isSquish || isTickle || eyeStyle === 'happy_arcs') {
+      // Sweet blissful closed smile eyes
+      s += '<path d="M -20 -9 Q -13 -17 -6 -9" stroke="#3c2a3e" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
+      s += '<path d="M 6 -9 Q 13 -17 20 -9" stroke="#3c2a3e" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
+      s += '<text x="-16" y="-18" font-size="10">💕</text><text x="10" y="-18" font-size="10">💕</text>';
+    } else if (eyeStyle === 'heart_eyes') {
+      [-13, 13].forEach(function(cx) {
+        s += '<path d="M ' + cx + ' -7 C ' + (cx - 7) + ' -15, ' + (cx - 12) + ' -6, ' + cx + ' 0 C ' + (cx + 12) + ' -6, ' + (cx + 7) + ' -15, ' + cx + ' -7 Z" fill="#ff3366" stroke="#3c2a3e" stroke-width="1.8"/>';
+        s += '<circle cx="' + (cx - 2.5) + '" cy="-10" r="1.8" fill="#fff"/>';
+        s += '<path d="M ' + (cx - 5) + ' -15 Q ' + cx + ' -17 ' + (cx + 5) + ' -15" stroke="#3c2a3e" stroke-width="1.6" fill="none" stroke-linecap="round"/>';
+      });
+    } else if (eyeStyle === 'star_anime') {
+      [-14, 14].forEach(function(cx) {
+        s += '<ellipse cx="' + cx + '" cy="-10" rx="8" ry="9" fill="#2b1a32"/>';
+        s += '<ellipse cx="' + cx + '" cy="-7" rx="5.5" ry="3.5" fill="#9d4edd" opacity=".5"/>';
+        s += '<text x="' + (cx - 5) + '" y="-5" font-size="11" fill="#ffd166">✦</text>';
+        s += '<ellipse cx="' + (cx - 2.5) + '" cy="-13" rx="2.5" ry="2.8" fill="#fff"/>';
+        s += '<path d="M ' + (cx - 6) + ' -16 Q ' + cx + ' -18 ' + (cx + 6) + ' -16" stroke="#3c2a3e" stroke-width="1.8" fill="none" stroke-linecap="round"/>';
+      });
+    } else if (eyeStyle === 'wink_star') {
+      s += '<ellipse cx="-14" cy="-10" rx="8.5" ry="9.5" fill="#2b1a32"/>';
+      s += '<ellipse cx="-14" cy="-7" rx="6" ry="4" fill="#ff7da7" opacity=".45"/>';
+      s += '<ellipse cx="-16.8" cy="-13.2" rx="3.2" ry="3.6" fill="#ffffff"/>';
+      s += '<circle cx="-11" cy="-7.8" r="1.6" fill="#ffffff"/>';
+      s += '<path d="M -20 -16 Q -14 -18 -8 -16" stroke="#3c2a3e" stroke-width="1.8" fill="none" stroke-linecap="round"/>';
+      s += '<path d="M 7 -9 Q 14 -17 21 -9" stroke="#3c2a3e" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
+      s += '<text x="16" y="-16" font-size="11">✨</text>';
+    } else if (eyeStyle === 'sleepy_cozy') {
+      [-14, 14].forEach(function(cx) {
+        s += '<path d="M ' + (cx - 8) + ' -9 Q ' + cx + ' -6 ' + (cx + 8) + ' -9" stroke="#3c2a3e" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
+        s += '<ellipse cx="' + cx + '" cy="-8" rx="6" ry="3" fill="#ff7da7" opacity=".35"/>';
+      });
+    } else if (eyeStyle === 'btn_pearl') {
+      [-13, 13].forEach(function(cx) {
+        s += '<circle cx="' + cx + '" cy="-10" r="8" fill="#ffd6e8" stroke="#3c2a3e" stroke-width="1.8"/>';
+        s += '<circle cx="' + (cx - 2.5) + '" cy="-12.5" r="2.2" fill="#fff" opacity=".9"/>';
+        s += '<line x1="' + (cx - 3) + '" y1="-10" x2="' + (cx + 3) + '" y2="-10" stroke="#ff70a6" stroke-width="2" stroke-linecap="round"/>';
+        s += '<line x1="' + cx + '" y1="-13" x2="' + cx + '" y2="-7" stroke="#ff70a6" stroke-width="2" stroke-linecap="round"/>';
+      });
+    } else if (eyeStyle === 'btn_daisy') {
+      [-13, 13].forEach(function(cx) {
+        s += '<circle cx="' + cx + '" cy="-10" r="8.5" fill="#fff" stroke="#3c2a3e" stroke-width="1.8"/>';
+        s += '<circle cx="' + cx + '" cy="-10" r="3.8" fill="#ffd166"/>';
+      });
+    } else {
+      function drawSparkleBobaEye(cx, cy) {
+        var str = '';
+        str += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="8.5" ry="9.5" fill="#2b1a32"/>';
+        str += '<ellipse cx="' + cx + '" cy="' + (cy + 3) + '" rx="6" ry="4" fill="#ff7da7" opacity=".45"/>';
+        str += '<ellipse cx="' + (cx - 2.8) + '" cy="' + (cy - 3.2) + '" rx="3.2" ry="3.6" fill="#ffffff"/>';
+        str += '<circle cx="' + (cx + 3) + '" cy="' + (cy + 2.2) + '" r="1.6" fill="#ffffff"/>';
+        str += '<circle cx="' + (cx - 1.2) + '" cy="' + (cy + 3.8) + '" r="0.9" fill="#ffffff"/>';
+        str += '<path d="M ' + (cx - 6) + ' ' + (cy - 12) + ' Q ' + cx + ' ' + (cy - 14) + ' ' + (cx + 6) + ' ' + (cy - 12) + '" stroke="#3c2a3e" stroke-width="1.8" fill="none" stroke-linecap="round"/>';
+        return str;
+      }
+      s += drawSparkleBobaEye(-14, -10);
+      s += drawSparkleBobaEye(14, -10);
+    }
+
+    // Mouth Selection
+    var mouthStyle = (S.outfit && S.outfit.mouth) || 'kitty_3';
+    if (mouthStyle === 'sweet_smile') {
+      s += '<path d="M -5 3 Q 0 8 5 3" stroke="#3c2a3e" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
+    } else if (mouthStyle === 'blep_tongue') {
+      s += '<path d="M -5 3 Q 0 6 5 3" stroke="#3c2a3e" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
+      s += '<path d="M -2.5 4 C -2.5 9, 2.5 9, 2.5 4 Z" fill="#ff758f" stroke="#3c2a3e" stroke-width="1.4"/>';
+    } else if (mouthStyle === 'happy_open') {
+      s += '<path d="M -5 2 Q 0 0 5 2 C 5 8, -5 8, -5 2 Z" fill="#912847" stroke="#3c2a3e" stroke-width="1.8"/>';
+      s += '<ellipse cx="0" cy="5.2" rx="3.2" ry="1.8" fill="#ff7da7"/>';
+    } else if (mouthStyle === 'tiny_o') {
+      s += '<ellipse cx="0" cy="4" rx="2.5" ry="3.2" fill="#912847" stroke="#3c2a3e" stroke-width="1.6"/>';
+    } else if (mouthStyle === 'pout_cute') {
+      s += '<path d="M -4 4 Q 0 1 4 4" stroke="#3c2a3e" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
+    } else {
+      s += '<path d="M -6 4 Q -3 8 0 4.5 Q 3 8 6 4" stroke="#3c2a3e" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
+    }
+
+    // Emotion Floating Sparkles
+    var emStyle = (S.outfit && S.outfit.emotion) || 'cheerful';
+    if (emStyle === 'cozy') {
+      s += '<text x="-56" y="-30" font-size="14">💕</text><text x="44" y="-25" font-size="13">☕</text>';
+    } else if (emStyle === 'excited') {
+      s += '<text x="-56" y="-32" font-size="14">⚡</text><text x="44" y="-28" font-size="14">✨</text>';
+    } else if (emStyle === 'shy') {
+      s += '<text x="-56" y="-28" font-size="14">🌸</text><text x="44" y="-26" font-size="13">🎀</text>';
+    } else if (emStyle === 'silly') {
+      s += '<text x="-54" y="-30" font-size="14">😋</text><text x="44" y="-28" font-size="13">🫧</text>';
+    } else {
+      s += '<text x="-54" y="-32" font-size="14">🎶</text><text x="44" y="-26" font-size="13">✨</text>';
+    }
+
+    // Decorative button on tummy
+    var btnBadge = (S.outfit && S.outfit.button) || 'none';
+    if (btnBadge && btnBadge !== 'none') {
+      var bx = 0, by = 22;
+      if (btnBadge === 'btn_heart') {
+        s += '<path d="M ' + bx + ' ' + (by + 2) + ' C ' + (bx - 6) + ' ' + (by - 6) + ', ' + (bx - 10) + ' ' + (by + 2) + ', ' + bx + ' ' + (by + 8) + ' C ' + (bx + 10) + ' ' + (by + 2) + ', ' + (bx + 6) + ' ' + (by - 6) + ', ' + bx + ' ' + (by + 2) + ' Z" fill="#e63946" stroke="#3c2a3e" stroke-width="1.6"/>';
+      } else if (btnBadge === 'btn_star') {
+        s += '<polygon points="' + bx + ',' + (by - 8) + ' ' + (bx + 2.5) + ',' + (by - 2.5) + ' ' + (bx + 8) + ',' + (by - 2) + ' ' + (bx + 3.5) + ',' + (by + 2.5) + ' ' + (bx + 5) + ',' + (by + 8) + ' ' + bx + ',' + (by + 4.5) + ' ' + (bx - 5) + ',' + (by + 8) + ' ' + (bx - 3.5) + ',' + (by + 2.5) + ' ' + (bx - 8) + ',' + (by - 2) + ' ' + (bx - 2.5) + ',' + (by - 2.5) + '" fill="#ffd166" stroke="#b78600" stroke-width="1.5"/>';
+      } else if (btnBadge === 'btn_daisy') {
+        s += '<circle cx="' + bx + '" cy="' + by + '" r="7" fill="#fff" stroke="#3c2a3e" stroke-width="1.6"/><circle cx="' + bx + '" cy="' + by + '" r="2.8" fill="#ffd166"/>';
+      } else if (btnBadge === 'btn_smiley') {
+        s += '<circle cx="' + bx + '" cy="' + by + '" r="7" fill="#ffd166" stroke="#3c2a3e" stroke-width="1.5"/><circle cx="' + (bx - 2) + '" cy="' + (by - 1.5) + '" r="0.9" fill="#3c2a3e"/><circle cx="' + (bx + 2) + '" cy="' + (by - 1.5) + '" r="0.9" fill="#3c2a3e"/><path d="M ' + (bx - 2.5) + ' ' + (by + 1.5) + ' Q ' + bx + ' ' + (by + 4) + ' ' + (bx + 2.5) + ' ' + (by + 1.5) + '" stroke="#3c2a3e" stroke-width="1.2" fill="none"/>';
+      } else {
+        s += '<circle cx="' + bx + '" cy="' + by + '" r="6.5" fill="#ffb4d6" stroke="#3c2a3e" stroke-width="1.5"/><circle cx="' + (bx - 2) + '" cy="' + (by - 2) + '" r="1.5" fill="#fff"/>';
+      }
+    }
 
     // Hat Adornments on Cuff
     var hat = (S.outfit && S.outfit.hat) || 'none';
@@ -535,6 +656,13 @@
     renderHome();
   }
 
+  $('actFace')?.addEventListener('click', function () {
+    var tabDress = $('tabDress');
+    if (tabDress) tabDress.click();
+    dressCat = 'eyes';
+    renderWardrobe();
+    Snd.play('chime');
+  });
   $('actHug')?.addEventListener('click', doHug);
   $('actSquish')?.addEventListener('click', doSquish);
   $('actTickle')?.addEventListener('click', doTickle);
@@ -580,19 +708,23 @@
   });
 
   /* ---------------- KNIT WARDROBE TAB ---------------- */
-  var dressCat = 'pattern';
+  var dressCat = 'eyes';
   var DRESS_LABELS = {
-    pattern: '🎨 ลายไหมพรม',
-    hat: '👒 หมวกประดับขอบ',
-    button: '🔘 กระดุมตาหวาน',
-    acc: '🎀 เข็มกลัด & จี้'
+    eyes: '👀 ลูกตา (Eyes)',
+    mouth: '👄 ปาก (Mouth)',
+    blush: '🌸 แก้ม (Cheeks)',
+    emotion: '✨ อารมณ์ (Mood)',
+    pattern: '🌈 ลายถุงเท้า (Knit)',
+    hat: '👒 หมวกประดับ',
+    acc: '🎀 เครื่องประดับ',
+    button: '🔘 กระดุมเย็บ'
   };
 
   function renderWardrobe() {
     $('petBox2').innerHTML = sockneySVG({});
     var cr = $('dressCats');
     cr.innerHTML = '';
-    ['pattern', 'hat', 'button', 'acc'].forEach(function (c) {
+    ['eyes', 'mouth', 'blush', 'emotion', 'pattern', 'hat', 'acc', 'button'].forEach(function (c) {
       var b = document.createElement('button');
       b.className = 'place' + (dressCat === c ? ' on' : '');
       b.textContent = DRESS_LABELS[c] || c;
@@ -624,15 +756,16 @@
   }
 
   $('dressRandom')?.addEventListener('click', function () {
-    var pKeys = WARDROBE.pattern.map(function (i) { return i.id; });
-    var hKeys = WARDROBE.hat.map(function (i) { return i.id; });
-    var bKeys = WARDROBE.button.map(function (i) { return i.id; });
-    var aKeys = WARDROBE.acc.map(function (i) { return i.id; });
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)].id; }
     S.outfit = {
-      pattern: pKeys[Math.floor(Math.random() * pKeys.length)],
-      hat: hKeys[Math.floor(Math.random() * hKeys.length)],
-      button: bKeys[Math.floor(Math.random() * bKeys.length)],
-      acc: aKeys[Math.floor(Math.random() * aKeys.length)]
+      pattern: pick(WARDROBE.pattern),
+      eyes: pick(WARDROBE.eyes),
+      mouth: pick(WARDROBE.mouth),
+      blush: pick(WARDROBE.blush),
+      emotion: pick(WARDROBE.emotion),
+      hat: pick(WARDROBE.hat),
+      button: pick(WARDROBE.button),
+      acc: pick(WARDROBE.acc)
     };
     renderWardrobe();
     renderHome();
@@ -641,7 +774,16 @@
   });
 
   $('dressClear')?.addEventListener('click', function () {
-    S.outfit = { pattern: 'classic', hat: 'none', button: 'btn_pearl', acc: 'acc_bell' };
+    S.outfit = {
+      pattern: 'classic',
+      eyes: 'sparkle_boba',
+      mouth: 'kitty_3',
+      blush: 'rosy_glow',
+      emotion: 'cheerful',
+      hat: 'none',
+      button: 'none',
+      acc: 'acc_bell'
+    };
     renderWardrobe();
     renderHome();
     Snd.play('chime');

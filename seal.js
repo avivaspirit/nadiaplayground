@@ -328,7 +328,7 @@
     },
     lastTick: Date.now(),
     days: 0,
-    outfit: { hat: 'none', collar: 'none', cloth: 'none' },
+    outfit: { eyes: 'boba_pearl', mouth: 'kitty_smile', blush: 'rosy_airbrush', emotion: 'cozy', hat: 'none', collar: 'none', cloth: 'none' },
     favFood: 'squid',
     album: [],
     boops: 0,
@@ -361,7 +361,11 @@
     save();
   } else {
     for (var k in DEFAULT) if (S[k] === undefined) S[k] = DEFAULT[k];
-    if (!S.outfit) S.outfit = { hat: 'none', collar: 'none', cloth: 'none' };
+    if (!S.outfit) S.outfit = { eyes: 'boba_pearl', mouth: 'kitty_smile', blush: 'rosy_airbrush', emotion: 'cozy', hat: 'none', collar: 'none', cloth: 'none' };
+    if (!S.outfit.eyes) S.outfit.eyes = 'boba_pearl';
+    if (!S.outfit.mouth) S.outfit.mouth = 'kitty_smile';
+    if (!S.outfit.blush) S.outfit.blush = 'rosy_airbrush';
+    if (!S.outfit.emotion) S.outfit.emotion = 'cozy';
     if (!S.album) S.album = [];
     if (!S.society) S.society = JSON.parse(JSON.stringify(DEFAULT.society));
     if (!S.society.aff) S.society.aff = JSON.parse(JSON.stringify(DEFAULT.society.aff));
@@ -695,14 +699,26 @@
 
     h += '<path d="M -30 2 C -38 2, -40 18, -24 22 C -12 24, 0 16, 0 8 C 0 16, 12 24, 24 22 C 40 18, 38 2, 30 2 C 18 2, 10 4, 0 4 C -10 4, -18 2, -30 2 Z" fill="' + WH + '" stroke="' + GR_D + '" stroke-width="1.8"/>';
 
-    // Deep blushes if cozy or hugging
-    if (effMood === 'cozy') {
-      h += '<ellipse cx="-34" cy="2" rx="12" ry="7.5" fill="#ff6b8b" opacity=".85"/><ellipse cx="34" cy="2" rx="12" ry="7.5" fill="#ff6b8b" opacity=".85"/>';
+    // Deep blushes or customizable cheek style
+    var blushStyle = (S.outfit && S.outfit.blush) || 'rosy_airbrush';
+    if (blushStyle === 'kawaii_hearts') {
+      h += '<text x="-42" y="8" font-size="14">💕</text><text x="24" y="8" font-size="14">💕</text>';
+    } else if (blushStyle === 'star_glitter') {
+      h += '<text x="-42" y="8" font-size="14">✨</text><text x="24" y="8" font-size="14">✨</text>';
+    } else if (blushStyle === 'stripes') {
+      [-36, -33, -30].forEach(function(lx) { h += '<line x1="' + lx + '" y1="0" x2="' + (lx+4) + '" y2="7" stroke="#ff4d88" stroke-width="2" stroke-linecap="round"/>'; });
+      [28, 31, 34].forEach(function(lx) { h += '<line x1="' + lx + '" y1="0" x2="' + (lx+4) + '" y2="7" stroke="#ff4d88" stroke-width="2" stroke-linecap="round"/>'; });
+    } else if (blushStyle === 'natural') {
+      // clean natural coat
     } else {
-      h += '<ellipse cx="-34" cy="2" rx="9.5" ry="5.8" fill="' + PK + '" opacity=".72"/><ellipse cx="34" cy="2" rx="9.5" ry="5.8" fill="' + PK + '" opacity=".72"/>';
+      if (effMood === 'cozy') {
+        h += '<ellipse cx="-34" cy="2" rx="12" ry="7.5" fill="#ff6b8b" opacity=".85"/><ellipse cx="34" cy="2" rx="12" ry="7.5" fill="#ff6b8b" opacity=".85"/>';
+      } else {
+        h += '<ellipse cx="-34" cy="2" rx="9.5" ry="5.8" fill="' + PK + '" opacity=".72"/><ellipse cx="34" cy="2" rx="9.5" ry="5.8" fill="' + PK + '" opacity=".72"/>';
+      }
+      h += '<path d="M -34 -3 l 1.2 2 2 1.2 -2 1.2 -1.2 2 -1.2 -2 -2 -1.2 2 -1.2 Z" fill="#fff" opacity=".9"/>';
+      h += '<path d="M 34 -3 l 1.2 2 2 1.2 -2 1.2 -1.2 2 -1.2 -2 -2 -1.2 2 -1.2 Z" fill="#fff" opacity=".9"/>';
     }
-    h += '<path d="M -34 -3 l 1.2 2 2 1.2 -2 1.2 -1.2 2 -1.2 -2 -2 -1.2 2 -1.2 Z" fill="#fff" opacity=".9"/>';
-    h += '<path d="M 34 -3 l 1.2 2 2 1.2 -2 1.2 -1.2 2 -1.2 -2 -2 -1.2 2 -1.2 Z" fill="#fff" opacity=".9"/>';
 
     var eyeGroup = bigEye(-23, effMood, effMood === 'sad') + bigEye(23, effMood, effMood === 'sad');
     h += '<g class="sealBlink">' + eyeGroup + '</g>';
@@ -715,6 +731,7 @@
     h += '<path d="M -6.5 5 C -7 0, 7 0, 6.5 5 C 6 9.5, -6 9.5, -6.5 5 Z" fill="' + INK + '"/>';
     h += '<ellipse cx="-2.2" cy="3.8" rx="2.2" ry="1.2" fill="#fff" opacity=".85"/>';
 
+    var mouthStyle = (S.outfit && S.outfit.mouth) || 'kitty_smile';
     if (opts.chomp) {
       h += '<path d="M -11 10 C -12 25, 12 25, 11 10 Z" fill="#912847" stroke="' + INK + '" stroke-width="2.6" stroke-linejoin="round"/>' +
         '<ellipse cx="0" cy="18" rx="6" ry="4" fill="#ff7da7"/>';
@@ -722,10 +739,15 @@
       h += '<path d="M -7 20 Q 0 14 7 20" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
     } else if (effMood === 'beg') {
       h += '<path d="M -6 13 Q 0 9 6 13" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
-    } else if (effMood === 'happy' || effMood === 'cozy' || isPet) {
+    } else if (mouthStyle === 'blep_tongue') {
+      h += '<path d="M -8 11 Q -4 14 0 11 Q 4 14 8 11" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+        '<path d="M -3.5 12 C -3.5 18, 3.5 18, 3.5 12 Z" fill="#ff758f" stroke="' + INK + '" stroke-width="1.4"/>';
+    } else if (mouthStyle === 'open_happy' || effMood === 'happy' || effMood === 'cozy' || isPet) {
       h += '<path d="M -8 11 C -8 22, 8 22, 8 11 Z" fill="#e05375" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>' +
         '<path d="M -4 16 Q 0 20 4 16 Z" fill="#ff9ebb"/>' +
         '<path d="M -8 11 Q -4 14 0 11 Q 4 14 8 11" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+    } else if (mouthStyle === 'tiny_dot') {
+      h += '<ellipse cx="0" cy="12" rx="3" ry="4" fill="#912847" stroke="' + INK + '" stroke-width="1.8"/>';
     } else {
       h += '<path d="M -8 11 Q -4 15 0 11 Q 4 15 8 11" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
     }
@@ -749,12 +771,27 @@
 
   function bigEye(cx, mood, teary) {
     var INK = '#1b222c', BL = '#4facfe', PK = '#ff9eb5', GR_LINE = '#7b9cb8';
-    if (mood === 'sleep') {
+    var eyeStyle = (S.outfit && S.outfit.eyes) || 'boba_pearl';
+
+    if (mood === 'sleep' || eyeStyle === 'sleepy_chill') {
       return '<path d="M ' + (cx - 12) + ' -14 Q ' + cx + ' -6 ' + (cx + 12) + ' -14" stroke="' + INK + '" stroke-width="3.6" fill="none" stroke-linecap="round"/>';
     }
-    if (mood === 'happy') {
+    if (mood === 'happy' || eyeStyle === 'happy_arcs') {
       return '<path d="M ' + (cx - 12) + ' -12 Q ' + cx + ' -24 ' + (cx + 12) + ' -12" stroke="' + INK + '" stroke-width="4.2" fill="none" stroke-linecap="round"/>' +
         '<ellipse cx="' + cx + '" cy="-8" rx="8" ry="4" fill="' + PK + '" opacity=".35"/>';
+    }
+    if (eyeStyle === 'heart_sparkle') {
+      return '<path d="M ' + cx + ' -12 C ' + (cx - 8) + ' -22, ' + (cx - 14) + ' -10, ' + cx + ' -3 C ' + (cx + 14) + ' -10, ' + (cx + 8) + ' -22, ' + cx + ' -12 Z" fill="#ff3366" stroke="' + INK + '" stroke-width="2"/>' +
+        '<circle cx="' + (cx - 3) + '" cy="-15" r="2.2" fill="#fff"/>';
+    }
+    if (eyeStyle === 'star_twinkle') {
+      return '<ellipse cx="' + cx + '" cy="-14" rx="11.5" ry="12.5" fill="' + INK + '"/>' +
+        '<text x="' + (cx - 6) + '" y="-8" font-size="14" fill="#ffd166">✦</text>' +
+        '<ellipse cx="' + (cx - 3.8) + '" cy="-18" rx="4.5" ry="4.8" fill="#fff"/>';
+    }
+    if (eyeStyle === 'wink' && cx > 0) {
+      return '<path d="M ' + (cx - 12) + ' -12 Q ' + cx + ' -24 ' + (cx + 12) + ' -12" stroke="' + INK + '" stroke-width="4.2" fill="none" stroke-linecap="round"/>' +
+        '<text x="' + (cx - 4) + '" y="-18" font-size="12">✨</text>';
     }
     if (mood === 'cozy') {
       return '<path d="M ' + (cx - 12) + ' -12 Q ' + cx + ' -24 ' + (cx + 12) + ' -12" stroke="' + INK + '" stroke-width="4.2" fill="none" stroke-linecap="round"/>' +
@@ -773,7 +810,7 @@
       '<ellipse cx="' + (cx - 3.8) + '" cy="-18" rx="4.5" ry="4.8" fill="#fff"/>' +
       '<circle cx="' + (cx + 4.2) + '" cy="-10" r="2.2" fill="#fff" opacity=".95"/>' +
       '<circle cx="' + (cx - 2) + '" cy="-8.5" r="1.2" fill="#fff" opacity=".8"/>' +
-      '<path d="M ' + (cx - 12) + ' -27 Q ' + cx + ' -34 ${cx + 12} -27" stroke="' + GR_LINE + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
+      '<path d="M ' + (cx - 12) + ' -27 Q ' + cx + ' -34 ' + (cx + 12) + ' -27" stroke="' + GR_LINE + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
       (teary ? '<circle cx="' + (cx + (cx < 0 ? -6 : 6)) + '" cy="-4" r="3.5" fill="#7bdff2"/>' : '');
   }
 
@@ -899,12 +936,52 @@
     } }
   };
 
+  var EYES = {
+    boba_pearl:    { name: 'Boba Pearls (ตาไข่มุกวิ้ง) 👀' },
+    heart_sparkle: { name: 'Sweet Hearts (ตาหัวใจ) 💖' },
+    star_twinkle:  { name: 'Star Twinkle (ตาดวงดาว) ⭐' },
+    happy_arcs:    { name: 'Happy Arcs (ตายิ้มหยี) ᵔᵕᵔ' },
+    sleepy_chill:  { name: 'Sleepy Cozy (ตาปรือขี้เซา) 😌' },
+    wink:          { name: 'Playful Wink (ขยิบตา) 😉' }
+  };
+  var MOUTHS = {
+    kitty_smile: { name: 'Kitty Smile (:3) 🐱' },
+    open_happy:  { name: 'Joyful Open 😄' },
+    blep_tongue: { name: 'Cute Blep 👅' },
+    tiny_dot:    { name: 'Tiny \'o\' 😮' }
+  };
+  var BLUSHES = {
+    rosy_airbrush: { name: 'Rosy Airbrush 🌸' },
+    kawaii_hearts: { name: 'Double Hearts 💕' },
+    star_glitter:  { name: 'Star Glitters ✨' },
+    stripes:       { name: 'Anime Manga ///' },
+    natural:       { name: 'Natural Silky 🍃' }
+  };
+  var EMOTIONS = {
+    cozy:    { name: 'Cozy Cuddle 🧺' },
+    happy:   { name: 'Happy Bubbly 🎈' },
+    excited: { name: 'Star Excited ⚡' },
+    playful: { name: 'Playful Silly 🤪' }
+  };
+
   var DRESS_CATS = [
+    { key: 'eyes', name: '👀 Eyes' },
+    { key: 'mouth', name: '👄 Mouth' },
+    { key: 'blush', name: '🌸 Cheeks' },
+    { key: 'emotion', name: '✨ Mood' },
     { key: 'hat', name: '👑 Hats' },
     { key: 'collar', name: '📿 Neckwear' },
     { key: 'cloth', name: '👕 Outfits' }
   ];
-  var DRESS_MAP = { hat: HATS, collar: COLLARS, cloth: CLOTHES };
+  var DRESS_MAP = {
+    eyes: EYES,
+    mouth: MOUTHS,
+    blush: BLUSHES,
+    emotion: EMOTIONS,
+    hat: HATS,
+    collar: COLLARS,
+    cloth: CLOTHES
+  };
 
   /* ---------------- FOODS & ANIMATED FOOD SVGS ---------------- */
   var FOODS = [
@@ -1515,6 +1592,13 @@
   }
 
   // Attach Action Button Handlers
+  $('actFace')?.addEventListener('click', function () {
+    var tabDress = $('tabDress');
+    if (tabDress) tabDress.click();
+    dressCat = 'eyes';
+    renderDress();
+    Snd.play('pearl');
+  });
   $('actHug')?.addEventListener('click', doHug);
   $('actPat')?.addEventListener('click', doPat);
   $('actTummy')?.addEventListener('click', doTummy);
@@ -1800,7 +1884,7 @@
   }
 
   $('dressClear').addEventListener('click', function () {
-    S.outfit = { hat: 'none', collar: 'none', cloth: 'none' };
+    S.outfit = { eyes: 'boba_pearl', mouth: 'kitty_smile', blush: 'rosy_airbrush', emotion: 'cozy', hat: 'none', collar: 'none', cloth: 'none' };
     save();
     renderDress();
     renderHome();
@@ -1813,16 +1897,18 @@
   rndBtn.style.marginLeft = '8px';
   rndBtn.textContent = '🎲 Surprise me!';
   rndBtn.addEventListener('click', function () {
-    var hatKeys = Object.keys(HATS);
-    var colKeys = Object.keys(COLLARS);
-    var cloKeys = Object.keys(CLOTHES);
-    S.outfit.hat = hatKeys[Math.floor(Math.random() * hatKeys.length)];
-    S.outfit.collar = colKeys[Math.floor(Math.random() * colKeys.length)];
-    S.outfit.cloth = cloKeys[Math.floor(Math.random() * cloKeys.length)];
+    function pick(obj) { var keys = Object.keys(obj); return keys[Math.floor(Math.random() * keys.length)]; }
+    S.outfit.eyes = pick(EYES);
+    S.outfit.mouth = pick(MOUTHS);
+    S.outfit.blush = pick(BLUSHES);
+    S.outfit.emotion = pick(EMOTIONS);
+    S.outfit.hat = pick(HATS);
+    S.outfit.collar = pick(COLLARS);
+    S.outfit.cloth = pick(CLOTHES);
     save();
     renderDress();
     renderHome();
-    say('Ooh! Brand new outfit! 🦭✨');
+    say('Ooh! Brand new cute face & outfit! 🦭✨');
     Snd.play('pearl');
   });
   $('pDress').querySelector('.acts').appendChild(rndBtn);

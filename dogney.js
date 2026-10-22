@@ -117,7 +117,7 @@
     bellyRubs: 0,
     boops: 0,
     days: 0,
-    outfit: { hat: 'none', collar: 'collar_red', glasses: 'none', coat: 'none' },
+    outfit: { eyes: 'boba_sparkle', mouth: 'kitty_3', blush: 'hearts', emotion: 'happy', hat: 'none', collar: 'collar_red', glasses: 'none', coat: 'none' },
     album: []
   };
 
@@ -130,7 +130,11 @@
     save();
   } else {
     for (var k in DEFAULT) if (S[k] === undefined) S[k] = DEFAULT[k];
-    if (!S.outfit) S.outfit = { hat: 'none', collar: 'collar_red', glasses: 'none', coat: 'none' };
+    if (!S.outfit) S.outfit = JSON.parse(JSON.stringify(DEFAULT.outfit));
+    if (!S.outfit.eyes) S.outfit.eyes = 'boba_sparkle';
+    if (!S.outfit.mouth) S.outfit.mouth = 'kitty_3';
+    if (!S.outfit.blush) S.outfit.blush = 'hearts';
+    if (!S.outfit.emotion) S.outfit.emotion = 'happy';
     if (!S.outfit.glasses) S.outfit.glasses = 'none';
     if (!S.outfit.coat) S.outfit.coat = 'none';
     if (!S.album) S.album = [];
@@ -149,6 +153,34 @@
   ];
 
   var DRESS_ITEMS = {
+    eyes: [
+      { id: 'boba_sparkle', name: 'ตากลมโตวิ้งวับ (Sparkle Boba)', icon: '👀' },
+      { id: 'heart_eyes', name: 'ตาหัวใจหวานฉ่ำ (Sweet Heart)', icon: '💖' },
+      { id: 'star_anime', name: 'ตาดาวเปล่งประกาย (Star Twinkle)', icon: '⭐' },
+      { id: 'happy_arcs', name: 'ตายิ้มหยีฟินๆ (Happy Arcs ᵔᵕᵔ)', icon: 'ᵔᵕᵔ' },
+      { id: 'wink_star', name: 'ขยิบตาวิ้งขี้เล่น (Playful Wink)', icon: '😉' },
+      { id: 'sleepy_cozy', name: 'ตาปรือขี้เซาอุ่น (Sleepy Cozy)', icon: '😌' }
+    ],
+    mouth: [
+      { id: 'kitty_3', name: 'ปากตูบน้อย (:3) มินิ', icon: '🐶' },
+      { id: 'sweet_smile', name: 'ยิ้มหวานสดใส (Sweet Smile)', icon: '😊' },
+      { id: 'blep_tongue', name: 'แลบลิ้นจิ๋วขี้อ้อน (Cute Blep 👅)', icon: '👅' },
+      { id: 'happy_open', name: 'อ้าปากหัวเราะร่าเริง (Joyful Open)', icon: '😄' },
+      { id: 'tiny_o', name: 'ปากจิ๋วทำหน้าสงสัย (Tiny \'o\')', icon: '😮' }
+    ],
+    blush: [
+      { id: 'hearts', name: 'หัวใจคู่หวานที่แก้ม (Double Hearts 💕)', icon: '💕' },
+      { id: 'circles', name: 'แก้มชมพูกลมระเรื่อ (Rosy Glow)', icon: '🌸' },
+      { id: 'stars', name: 'ประกายดาววิบวับ (Star Glitters ✨)', icon: '✨' },
+      { id: 'stripes', name: 'ขีดแก้มเขินอนิเมะ (Manga Lines ///)', icon: '///' },
+      { id: 'natural', name: 'ธรรมชาติสะอาดใส (Natural)', icon: '🍃' }
+    ],
+    emotion: [
+      { id: 'happy', name: 'ร่าเริงสดใสแจ่มใส (Happy Bouncy)', icon: '🎈' },
+      { id: 'cozy', name: 'อบอุ่นสบายใจเกาพุง (Cozy Cuddle)', icon: '🧺' },
+      { id: 'excited', name: 'ตื่นเต้นตาวาวคาบบอล (Excited)', icon: '⚡' },
+      { id: 'silly', name: 'ทะเล้นกวนๆ วิ่งซน (Silly Playful)', icon: '🤪' }
+    ],
     collar: [
       { id: 'none', name: 'ไม่ใส่ปลอกคอ', icon: '❌' },
       { id: 'collar_red', name: 'ปลอกคอแดงกระดิ่งทอง', icon: '🔴' },
@@ -297,16 +329,52 @@
     s += '<ellipse cx="0" cy="4" rx="22" ry="16" fill="' + cWhite + '" stroke="' + cFurDark + '" stroke-width="1.4"/>';
 
     // Blushing cheeks
-    s += '<ellipse cx="-28" cy="2" rx="7.5" ry="5" fill="' + cPink + '" opacity=".75"/>';
-    s += '<ellipse cx="28" cy="2" rx="7.5" ry="5" fill="' + cPink + '" opacity=".75"/>';
+    var blushStyle = (S.outfit && S.outfit.blush) || 'hearts';
+    if (blushStyle === 'circles') {
+      s += '<ellipse cx="-28" cy="2" rx="7.5" ry="5" fill="' + cPink + '" opacity=".75"/>';
+      s += '<ellipse cx="28" cy="2" rx="7.5" ry="5" fill="' + cPink + '" opacity=".75"/>';
+    } else if (blushStyle === 'stars') {
+      s += '<text x="-34" y="8" font-size="12">✨</text><text x="22" y="8" font-size="12">✨</text>';
+    } else if (blushStyle === 'stripes') {
+      [-32, -29, -26].forEach(function(lx) { s += '<line x1="' + lx + '" y1="0" x2="' + (lx+3) + '" y2="6" stroke="#ff4d88" stroke-width="1.6" stroke-linecap="round"/>'; });
+      [24, 27, 30].forEach(function(lx) { s += '<line x1="' + lx + '" y1="0" x2="' + (lx+3) + '" y2="6" stroke="#ff4d88" stroke-width="1.6" stroke-linecap="round"/>'; });
+    } else if (blushStyle === 'natural') {
+      // none
+    } else {
+      s += '<text x="-34" y="8" font-size="13">💕</text><text x="22" y="8" font-size="13">💕</text>';
+    }
 
     // Eyes
-    if (isHug || isEar || isBelly) {
+    var eyeStyle = (S.outfit && S.outfit.eyes) || 'boba_sparkle';
+    if (isHug || isEar || isBelly || eyeStyle === 'happy_arcs') {
       // Sweet crescent squint eyes
       s += '<path d="M -26 -10 Q -18 -18 -10 -10" stroke="' + cInk + '" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
       s += '<path d="M 10 -10 Q 18 -18 26 -10" stroke="' + cInk + '" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
+      s += '<text x="-22" y="-18" font-size="10">💕</text><text x="14" y="-18" font-size="10">💕</text>';
+    } else if (eyeStyle === 'heart_eyes') {
+      [-18, 18].forEach(function(cx) {
+        s += '<path d="M ' + cx + ' -8 C ' + (cx - 7) + ' -16, ' + (cx - 12) + ' -7, ' + cx + ' 0 C ' + (cx + 12) + ' -7, ' + (cx + 7) + ' -16, ' + cx + ' -8 Z" fill="#ff3366" stroke="' + cInk + '" stroke-width="1.8"/>';
+        s += '<circle cx="' + (cx - 2.5) + '" cy="-10" r="1.8" fill="#fff"/>';
+      });
+    } else if (eyeStyle === 'star_anime') {
+      [-18, 18].forEach(function(cx) {
+        s += '<ellipse cx="' + cx + '" cy="-10" rx="9" ry="10" fill="' + cInk + '"/>';
+        s += '<text x="' + (cx - 5.5) + '" y="-6" font-size="12" fill="#ffd166">✦</text>';
+        s += '<ellipse cx="' + (cx - 3) + '" cy="-13" rx="3.5" ry="4" fill="#fff"/>';
+      });
+    } else if (eyeStyle === 'wink_star') {
+      s += '<ellipse cx="-18" cy="-10" rx="9" ry="10" fill="' + cInk + '"/>';
+      s += '<ellipse cx="-21" cy="-13" rx="3.5" ry="4" fill="#fff"/>';
+      s += '<circle cx="-15" cy="-6" r="1.8" fill="#fff"/>';
+      s += '<path d="M 10 -10 Q 18 -18 26 -10" stroke="' + cInk + '" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
+      s += '<text x="18" y="-16" font-size="11">✨</text>';
+    } else if (eyeStyle === 'sleepy_cozy') {
+      [-18, 18].forEach(function(cx) {
+        s += '<path d="M ' + (cx - 8) + ' -9 Q ' + cx + ' -6 ' + (cx + 8) + ' -9" stroke="' + cInk + '" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
+        s += '<ellipse cx="' + cx + '" cy="-8" rx="6" ry="3" fill="#ff9ebb" opacity=".4"/>';
+      });
     } else {
-      // Big shiny boba puppy eyes
+      // Big shiny boba puppy eyes (Default)
       function eye(cx) {
         return '<ellipse cx="' + cx + '" cy="-10" rx="9" ry="10" fill="' + cInk + '"/>' +
           '<ellipse cx="' + (cx - 3) + '" cy="-13" rx="3.5" ry="4" fill="#fff"/>' +
@@ -350,14 +418,29 @@
     s += '<ellipse cx="-2" cy="-2" rx="1.8" ry="1.2" fill="#fff"/>';
 
     // Mouth & Pink Tongue Blep!
-    if (isHug || isBelly || isPet) {
+    var mouthStyle = (S.outfit && S.outfit.mouth) || 'kitty_3';
+    if (isHug || isBelly || isPet || mouthStyle === 'blep_tongue') {
       // Happy open smile with tongue blep
       s += '<path d="M -8 6 Q 0 10 8 6" stroke="' + cInk + '" stroke-width="2.4" fill="none"/>';
       s += '<path d="M -5 7 C -5 18, 5 18, 5 7 Z" fill="#ff70a6" stroke="' + cInk + '" stroke-width="1.8"/>';
       s += '<line x1="0" y1="8" x2="0" y2="15" stroke="#e05375" stroke-width="1.2"/>';
+    } else if (mouthStyle === 'happy_open') {
+      s += '<path d="M -7 5 Q 0 2 7 5 C 7 14, -7 14, -7 5 Z" fill="#912847" stroke="' + cInk + '" stroke-width="2"/>';
+      s += '<ellipse cx="0" cy="10" rx="4" ry="2.5" fill="#ff7da7"/>';
+    } else if (mouthStyle === 'sweet_smile') {
+      s += '<path d="M -7 5 Q 0 11 7 5" stroke="' + cInk + '" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
+    } else if (mouthStyle === 'tiny_o') {
+      s += '<ellipse cx="0" cy="8" rx="3" ry="3.8" fill="#912847" stroke="' + cInk + '" stroke-width="1.6"/>';
     } else {
       s += '<path d="M -7 5 Q -3 8 0 5 Q 3 8 7 5" stroke="' + cInk + '" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
     }
+
+    // Emotion Floaters
+    var emStyle = (S.outfit && S.outfit.emotion) || 'happy';
+    if (emStyle === 'cozy') s += '<text x="-62" y="-36" font-size="14">💕</text><text x="48" y="-32" font-size="14">🧺</text>';
+    else if (emStyle === 'excited') s += '<text x="-62" y="-38" font-size="14">⚡</text><text x="48" y="-36" font-size="14">✨</text>';
+    else if (emStyle === 'silly') s += '<text x="-60" y="-36" font-size="14">🤪</text><text x="48" y="-34" font-size="14">🎾</text>';
+    else s += '<text x="-60" y="-36" font-size="14">🎶</text><text x="48" y="-32" font-size="14">🦴</text>';
 
     // Hat Accessory
     var hat = (S.outfit && S.outfit.hat) || 'none';
@@ -509,6 +592,13 @@
     renderHome();
   }
 
+  $('actFace')?.addEventListener('click', function () {
+    var tabDress = $('tabDress');
+    if (tabDress) tabDress.click();
+    dressCat = 'eyes';
+    renderDress();
+    Snd.play('bork');
+  });
   $('actHug')?.addEventListener('click', doHug);
   $('actBelly')?.addEventListener('click', doBelly);
   $('actPet')?.addEventListener('click', doBoop);
@@ -563,10 +653,14 @@
   });
 
   /* ---------------- DRESS UP TAB ---------------- */
-  var dressCat = 'collar';
+  var dressCat = 'eyes';
   var DRESS_LABELS = {
+    eyes: '👀 ลูกตา (Eyes)',
+    mouth: '👄 ปาก (Mouth)',
+    blush: '🌸 แก้ม (Cheeks)',
+    emotion: '✨ อารมณ์ (Mood)',
     collar: '🧣 ปลอกคอ & ผ้าพันคอ',
-    hat: '👒 หมวกประดับหัว',
+    hat: '🧢 หมวกประดับหัว',
     glasses: '🕶️ แว่นตาสุดเท่',
     coat: '🧥 เสื้อกั๊ก & ฮู้ดดี้'
   };
@@ -575,7 +669,7 @@
     $('petBox2').innerHTML = dogneySVG({});
     var cr = $('dressCats');
     cr.innerHTML = '';
-    ['collar', 'hat', 'glasses', 'coat'].forEach(function (c) {
+    ['eyes', 'mouth', 'blush', 'emotion', 'collar', 'hat', 'glasses', 'coat'].forEach(function (c) {
       var b = document.createElement('button');
       b.className = 'place' + (dressCat === c ? ' on' : '');
       b.textContent = DRESS_LABELS[c] || c;
@@ -607,15 +701,16 @@
   }
 
   $('dressRandom')?.addEventListener('click', function () {
-    var cKeys = DRESS_ITEMS.collar.map(function (i) { return i.id; });
-    var hKeys = DRESS_ITEMS.hat.map(function (i) { return i.id; });
-    var gKeys = DRESS_ITEMS.glasses.map(function (i) { return i.id; });
-    var oKeys = DRESS_ITEMS.coat.map(function (i) { return i.id; });
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)].id; }
     S.outfit = {
-      collar: cKeys[Math.floor(Math.random() * cKeys.length)],
-      hat: hKeys[Math.floor(Math.random() * hKeys.length)],
-      glasses: gKeys[Math.floor(Math.random() * gKeys.length)],
-      coat: oKeys[Math.floor(Math.random() * oKeys.length)]
+      eyes: pick(DRESS_ITEMS.eyes),
+      mouth: pick(DRESS_ITEMS.mouth),
+      blush: pick(DRESS_ITEMS.blush),
+      emotion: pick(DRESS_ITEMS.emotion),
+      collar: pick(DRESS_ITEMS.collar),
+      hat: pick(DRESS_ITEMS.hat),
+      glasses: pick(DRESS_ITEMS.glasses),
+      coat: pick(DRESS_ITEMS.coat)
     };
     renderDress();
     renderHome();
@@ -624,7 +719,16 @@
   });
 
   $('dressClear')?.addEventListener('click', function () {
-    S.outfit = { hat: 'none', collar: 'none', glasses: 'none', coat: 'none' };
+    S.outfit = {
+      eyes: 'boba_sparkle',
+      mouth: 'kitty_3',
+      blush: 'hearts',
+      emotion: 'happy',
+      hat: 'none',
+      collar: 'collar_red',
+      glasses: 'none',
+      coat: 'none'
+    };
     renderDress();
     renderHome();
     Snd.play('bork');
