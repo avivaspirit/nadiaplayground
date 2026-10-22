@@ -67,4 +67,10 @@ const psCss = fs.readFileSync(dir + '\\petsociety.css', 'utf8');
 assert.ok(psCss.includes('.tool-grooming'), 'petsociety.css must style tool-grooming');
 console.log('✔ Pet game cross-links validated');
 
+assert.ok(js.includes('scanAllSavedPets'), 'Must scan saved characters');
+assert.ok(js.includes('loadSavedPetToSalon'), 'Must load saved pet into salon');
+assert.ok(js.includes('drawShowerStreamRays'), 'Must render shower stream motion rays');
+assert.ok(html.includes('id="savedPetModal"'), 'Must have saved pet modal');
+assert.ok(html.includes('id="showerHeadFollower"'), 'Must have shower head follower');
+
 console.log('🎉 ALL PET GROOMING TESTS PASSED (100%)!');
