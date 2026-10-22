@@ -1,13 +1,83 @@
 // ==========================================
 // NadiaPlayground: Pet Society Core Game Engine
+// Multi-Account Save System (Nadia & Mac)
 // ==========================================
+
+const CHAR_ACCOUNTS = {
+  nadia: {
+    id: 'nadia',
+    name: 'Nadia (นาเดีย)',
+    password: 'Larny',
+    avatar: '🐰',
+    title: '👑 Town Princess & Stylist',
+    defaultSpecies: 'bunny',
+    defaultFur: '#fde2e4',
+    defaultEye: 'classic',
+    defaultBlush: 'circles',
+    defaultClothes: {
+      head: 'hat_ribbon',
+      body: 'outfit_dress',
+      face: null,
+      neck: 'neck_bell',
+      hand: 'prop_wand',
+      shoes: 'shoe_bunny'
+    },
+    defaultInventory: {
+      clothes: ['hat_ribbon', 'outfit_dress', 'shoe_bunny', 'hat_flower', 'outfit_hoodie', 'glass_heart', 'prop_wand', 'prop_icecream'],
+      foods: [
+        { id: 'food_carrot', count: 5 },
+        { id: 'food_cake', count: 3 },
+        { id: 'food_tea', count: 4 }
+      ],
+      furniture: ['town_bench', 'town_flower_bed']
+    },
+    partnerId: 'mac',
+    welcomeMsg: 'ยินดีต้อนรับกลับจ้า Nadia! ขอให้สนุกกับสัตว์เลี้ยงแสนน่ารักนะ! 🌸'
+  },
+  mac: {
+    id: 'mac',
+    name: 'Mac (แม็ค)',
+    password: 'Macky',
+    avatar: '🐻',
+    title: '🛠️ Town Mayor & Builder',
+    defaultSpecies: 'bear',
+    defaultFur: '#ddb892',
+    defaultEye: 'classic',
+    defaultBlush: 'none',
+    defaultClothes: {
+      head: 'hat_beret',
+      body: 'outfit_hoodie',
+      face: 'glass_round',
+      neck: 'neck_bowtie',
+      hand: 'prop_wand',
+      shoes: 'shoe_sneakers'
+    },
+    defaultInventory: {
+      clothes: ['hat_beret', 'outfit_hoodie', 'shoe_sneakers', 'hat_crown', 'outfit_tuxedo', 'glass_round', 'prop_wand', 'hat_sailor'],
+      foods: [
+        { id: 'food_honey', count: 5 },
+        { id: 'food_donut', count: 4 },
+        { id: 'food_sushi', count: 3 }
+      ],
+      furniture: ['town_lamp', 'town_bench']
+    },
+    partnerId: 'nadia',
+    welcomeMsg: 'ยินดีต้อนรับกลับครับ Mac! พร้อมลุยสร้างเมืองสุดเท่กันหรือยัง! 🛠️'
+  }
+};
 
 class NadiaPetGame {
   constructor() {
     this.canvas = document.getElementById('gameCanvas');
     this.renderer = new GameRenderer(this.canvas);
 
-    // Game Scenes: 'town', 'home', 'neighbor'
+    // Active User Session ('nadia' or 'mac')
+    this.currentUser = localStorage.getItem('petsociety_active_user') || 'nadia';
+    this.selectedLoginChar = 'nadia';
+    this.isLoggedIn = false;
+    this.saveToastTimer = null;
+
+    // Game Scenes: 'town', 'home', 'partner_home'
     this.currentScene = 'town';
     this.worldWidth = 2000;
     this.cameraX = 0;
@@ -48,7 +118,7 @@ class NadiaPetGame {
     // Default Player State
     this.player = {
       name: 'Nadia (นาเดีย)',
-      species: 'bunny', // Can switch to seal, cat, bear, etc.
+      species: 'bunny',
       furColor: '#fde2e4',
       eyeShape: 'classic',
       blush: 'circles',
@@ -66,10 +136,10 @@ class NadiaPetGame {
         hygiene: 75,
         energy: 95
       },
-      coins: 380,
-      cash: 25,
+      coins: 500,
+      cash: 50,
       level: 1,
-      xp: 150,
+      xp: 0,
       maxXp: 300,
       x: 450,
       y: 440,
@@ -107,6 +177,13 @@ class NadiaPetGame {
       { id: 'furn_fireplace', x: 740, y: 280, width: 80, height: 90 }
     ];
 
+    // Partner Home Interior (for visiting partner)
+    this.partnerHomeObjects = [];
+    this.partnerRoomTheme = {
+      wallpaper: GAME_DATA.wallpapers[1] || GAME_DATA.wallpapers[0],
+      flooring: GAME_DATA.floorings[0]
+    };
+
     // Room themes
     this.roomTheme = {
       wallpaper: GAME_DATA.wallpapers[0],
@@ -115,7 +192,7 @@ class NadiaPetGame {
 
     // Player Inventory
     this.inventory = {
-      clothes: ['hat_ribbon', 'outfit_dress', 'shoe_bunny', 'hat_sailor', 'outfit_sailor', 'hat_flower', 'outfit_hoodie'],
+      clothes: ['hat_ribbon', 'outfit_dress', 'shoe_bunny', 'hat_flower', 'outfit_hoodie'],
       foods: [
         { id: 'food_carrot', count: 4 },
         { id: 'food_fish', count: 3 },
@@ -128,37 +205,69 @@ class NadiaPetGame {
     // Clone Neighbors
     this.neighbors = JSON.parse(JSON.stringify(GAME_DATA.neighbors));
 
-    // Load saved game if exists
-    this.loadState();
+    // Load active profile state
+    this.loadState(this.currentUser);
 
     // Init Event Listeners
     this.initEvents();
+
+    // If first load in session, check if active user was remembered
+    const hasSession = sessionStorage.getItem('petsociety_session_active');
+    if (!hasSession) {
+      setTimeout(() => this.openLoginModal(), 300);
+    } else {
+      this.isLoggedIn = true;
+    }
 
     // Start Main Loop
     requestAnimationFrame((t) => this.loop(t));
   }
 
   // ==========================================
-  // SAVE / LOAD SYSTEM
+  // MULTI-PROFILE SAVE / LOAD SYSTEM
   // ==========================================
-  saveState() {
+  saveState(showToast = false) {
+    if (!this.currentUser) return;
+    const saveKey = `petsociety_save_${this.currentUser}`;
     const data = {
+      user: this.currentUser,
       player: this.player,
       inventory: this.inventory,
       townObjects: this.townObjects,
       homeObjects: this.homeObjects,
-      roomTheme: this.roomTheme
+      roomTheme: this.roomTheme,
+      lastSaved: Date.now()
     };
     try {
-      localStorage.setItem('nadiaplayground_save_v1', JSON.stringify(data));
+      localStorage.setItem(saveKey, JSON.stringify(data));
+      // Save public appearance for partner
+      localStorage.setItem(`petsociety_public_${this.currentUser}`, JSON.stringify({
+        name: this.player.name,
+        species: this.player.species,
+        furColor: this.player.furColor,
+        eyeShape: this.player.eyeShape,
+        blush: this.player.blush,
+        clothes: this.player.clothes,
+        level: this.player.level,
+        roomTheme: this.roomTheme,
+        homeObjects: this.homeObjects
+      }));
+      if (showToast) {
+        this.showSaveToast('💾 บันทึกข้อมูลเรียบร้อยแล้ว! ✨');
+      }
     } catch (e) {
       console.warn('LocalStorage save failed', e);
     }
   }
 
-  loadState() {
+  loadState(userId) {
+    const acc = CHAR_ACCOUNTS[userId] || CHAR_ACCOUNTS.nadia;
+    this.currentUser = acc.id;
+    const saveKey = `petsociety_save_${this.currentUser}`;
+    let loaded = false;
+
     try {
-      const saved = localStorage.getItem('nadiaplayground_save_v1');
+      const saved = localStorage.getItem(saveKey);
       if (saved) {
         const d = JSON.parse(saved);
         if (d.player) Object.assign(this.player, d.player);
@@ -166,15 +275,185 @@ class NadiaPetGame {
         if (d.townObjects) this.townObjects = d.townObjects;
         if (d.homeObjects) this.homeObjects = d.homeObjects;
         if (d.roomTheme) this.roomTheme = d.roomTheme;
+        loaded = true;
       }
     } catch (e) {
       console.warn('LocalStorage load failed', e);
     }
+
+    if (!loaded) {
+      // First time initialization for this character
+      this.player.name = acc.name;
+      this.player.species = acc.defaultSpecies;
+      this.player.furColor = acc.defaultFur;
+      this.player.eyeShape = acc.defaultEye;
+      this.player.blush = acc.defaultBlush;
+      this.player.clothes = JSON.parse(JSON.stringify(acc.defaultClothes));
+      this.player.coins = 500;
+      this.player.cash = 50;
+      this.player.level = 1;
+      this.player.xp = 0;
+      this.player.maxXp = 300;
+      this.inventory = JSON.parse(JSON.stringify(acc.defaultInventory));
+      this.saveState(false);
+    }
+
+    // Setup Partner VIP NPC in town
+    this.setupPartnerNPC(acc.partnerId);
+
+    // Update HUD display
+    this.updateHUD();
+  }
+
+  setupPartnerNPC(partnerId) {
+    const partnerAcc = CHAR_ACCOUNTS[partnerId];
+    if (!partnerAcc) return;
+
+    let partnerAppearance = {
+      species: partnerAcc.defaultSpecies,
+      furColor: partnerAcc.defaultFur,
+      eyeShape: partnerAcc.defaultEye,
+      blush: partnerAcc.defaultBlush,
+      clothes: partnerAcc.defaultClothes
+    };
+
+    try {
+      const pub = localStorage.getItem(`petsociety_public_${partnerId}`);
+      if (pub) {
+        const pData = JSON.parse(pub);
+        if (pData.species) partnerAppearance.species = pData.species;
+        if (pData.furColor) partnerAppearance.furColor = pData.furColor;
+        if (pData.eyeShape) partnerAppearance.eyeShape = pData.eyeShape;
+        if (pData.blush) partnerAppearance.blush = pData.blush;
+        if (pData.clothes) partnerAppearance.clothes = pData.clothes;
+        if (pData.homeObjects) this.partnerHomeObjects = pData.homeObjects;
+        if (pData.roomTheme) this.partnerRoomTheme = pData.roomTheme;
+      }
+    } catch (e) {}
+
+    // Filter out existing partner NPC
+    this.neighbors = this.neighbors.filter(n => !n.isPartner);
+
+    const partnerNPC = {
+      id: `npc_partner_${partnerId}`,
+      name: partnerAcc.name,
+      species: partnerAppearance.species,
+      title: partnerAcc.title,
+      furColor: partnerAppearance.furColor,
+      eyeShape: partnerAppearance.eyeShape,
+      blush: partnerAppearance.blush,
+      clothes: partnerAppearance.clothes,
+      position: { x: 530, y: 405 },
+      personality: 'sweet_partner',
+      isPartner: true,
+      partnerId: partnerId,
+      quotes: (partnerId === 'mac') ? [
+        'สวัสดีครับ Nadia! วันนี้เมืองสวยและน่ารักมากๆ เลยนะ! 🌸',
+        'วันนี้มีไอเดียสร้างตึกใหม่ๆ เยอะเลย เดี๋ยวเค้าช่วยจัดผังเมืองให้นะ! 🛠️',
+        'รัก Nadia ที่สุดเลยนะ! กอดกันหน่อยเร็ว! ❤️',
+        'แวะไปดูบ้านของเค้าได้นะ ตกแต่งห้องไว้รอเธอมาเที่ยวเลย! 🏡'
+      ] : [
+        'ว่าไงจ๊ะ Macky! วันนี้แต่งตัวเท่มากเลยนะ! ✨',
+        'เค้าเพิ่งเก็บผลไม้สดๆ มาจากต้นไม้ในสวน แบ่งกันกินมั้ย! 🍎',
+        'คิดถึง Macky จังเลย! มากอดกันน้า! 💖',
+        'อย่าลืมแวะไปเยี่ยมบ้านเค้านะ มีของตกแต่งน่ารักๆ เพียบเลย! 🎀'
+      ]
+    };
+
+    // Place partner near town center
+    this.neighbors.unshift(partnerNPC);
+  }
+
+  showSaveToast(msg = '💾 บันทึกข้อมูลเรียบร้อยแล้ว! ✨') {
+    const toast = document.getElementById('saveToast');
+    if (!toast) return;
+    toast.innerText = msg;
+    toast.classList.add('show');
+    if (this.saveToastTimer) clearTimeout(this.saveToastTimer);
+    this.saveToastTimer = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2400);
+  }
+
+  // ==========================================
+  // LOGIN & CHARACTER SELECTION
+  // ==========================================
+  selectLoginChar(charId) {
+    this.selectedLoginChar = charId;
+    const cardNadia = document.getElementById('cardSelectNadia');
+    const cardMac = document.getElementById('cardSelectMac');
+    const targetName = document.getElementById('loginTargetName');
+    const errText = document.getElementById('loginErrorText');
+    if (errText) errText.style.display = 'none';
+
+    if (charId === 'nadia') {
+      cardNadia?.classList.add('active-nadia');
+      cardMac?.classList.remove('active-mac');
+      if (targetName) {
+        targetName.innerText = 'Nadia';
+        targetName.style.color = '#ff70a6';
+      }
+    } else {
+      cardMac?.classList.add('active-mac');
+      cardNadia?.classList.remove('active-nadia');
+      if (targetName) {
+        targetName.innerText = 'Mac';
+        targetName.style.color = '#339af0';
+      }
+    }
+    const input = document.getElementById('loginPasswordInput');
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
+  }
+
+  submitLogin() {
+    const input = document.getElementById('loginPasswordInput');
+    const errText = document.getElementById('loginErrorText');
+    const val = input ? input.value.trim() : '';
+
+    const charId = this.selectedLoginChar || 'nadia';
+    const acc = CHAR_ACCOUNTS[charId];
+
+    // Password verification:
+    // Nadia password: "Larny"
+    // Mac password: "Macky"
+    if (val.toLowerCase() === acc.password.toLowerCase()) {
+      audio.init();
+      audio.playFanfare();
+      if (errText) errText.style.display = 'none';
+      document.getElementById('loginModal')?.classList.add('hidden');
+      this.isLoggedIn = true;
+      sessionStorage.setItem('petsociety_session_active', 'true');
+      localStorage.setItem('petsociety_active_user', charId);
+      this.loadState(charId);
+      this.showSaveToast(`✨ ยินดีต้อนรับ ${acc.name}!`);
+    } else {
+      audio.init();
+      audio.playPop(300);
+      if (errText) {
+        errText.innerText = `❌ รหัสผ่านของ ${acc.name} ไม่ถูกต้อง! (Nadia: "Larny" | Mac: "Macky")`;
+        errText.style.display = 'block';
+      }
+      if (input) {
+        input.focus();
+      }
+    }
+  }
+
+  openLoginModal() {
+    const modal = document.getElementById('loginModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    this.selectLoginChar(this.currentUser || 'nadia');
   }
 
   resetGame() {
-    localStorage.removeItem('nadiaplayground_save_v1');
-    window.location.reload();
+    if (confirm('คุณต้องการรีเซ็ตข้อมูลของตัวละครนี้ใหม่ทั้งหมดหรือไม่?')) {
+      localStorage.removeItem(`petsociety_save_${this.currentUser}`);
+      window.location.reload();
+    }
   }
 
   // ==========================================
@@ -380,6 +659,27 @@ class NadiaPetGame {
     // Navigation Buttons (Town vs Home)
     document.getElementById('btnNavTown')?.addEventListener('click', () => this.switchScene('town'));
     document.getElementById('btnNavHome')?.addEventListener('click', () => this.switchScene('home'));
+
+    // Switch User / Profile Button
+    document.getElementById('btnSwitchUser')?.addEventListener('click', () => {
+      audio.init();
+      audio.playPop(600);
+      this.openLoginModal();
+    });
+
+    // Manual Save Button
+    document.getElementById('btnSaveGame')?.addEventListener('click', () => {
+      audio.init();
+      audio.playCoin();
+      this.saveState(true);
+    });
+
+    // Password Enter Key
+    document.getElementById('loginPasswordInput')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        this.submitLogin();
+      }
+    });
 
     // Audio & BGM Toggle
     document.getElementById('btnToggleMusic')?.addEventListener('click', () => {
@@ -598,12 +898,16 @@ class NadiaPetGame {
     // 1. Draw Background & Scene Environment
     if (this.currentScene === 'town') {
       this.renderer.drawTown(this.cameraX, this.worldWidth, this.canvas.width, this.canvas.height);
+    } else if (this.currentScene === 'partner_home') {
+      this.renderer.drawHome(this.partnerRoomTheme, this.cameraX);
     } else {
       this.renderer.drawHome(this.roomTheme, this.cameraX);
     }
 
     // 2. Draw Placed Buildings & Furniture
-    const objects = (this.currentScene === 'town') ? this.townObjects : this.homeObjects;
+    let objects = this.townObjects;
+    if (this.currentScene === 'home') objects = this.homeObjects;
+    if (this.currentScene === 'partner_home') objects = (this.partnerHomeObjects.length > 0) ? this.partnerHomeObjects : this.homeObjects;
     // Sort by Y for depth layering
     const sortedObjects = [...objects].sort((a, b) => (a.y + a.height) - (b.y + b.height));
 
@@ -619,6 +923,20 @@ class NadiaPetGame {
       const isSelected = (this.draggedObject === obj);
       this.renderer.drawObject(obj, obj.x, obj.y, isHovered, isSelected);
     });
+
+    // Draw partner host if in partner_home
+    if (this.currentScene === 'partner_home') {
+      const partner = this.neighbors.find(n => n.isPartner);
+      if (partner) {
+        this.renderer.drawPet(partner, 640, 420, 0.95, false, false);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        this.renderer.roundRect(640 - 45, 420 - 75, 90, 20, 6, true, false);
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillStyle = '#ff70a6';
+        ctx.textAlign = 'center';
+        ctx.fillText(partner.name.split(' ')[0], 640, 420 - 61);
+      }
+    }
 
     // 3. Draw Neighbor Pets in Town
     if (this.currentScene === 'town') {
@@ -840,13 +1158,19 @@ class NadiaPetGame {
       this.player.maxXp = Math.floor(this.player.maxXp * 1.35);
       audio.playFanfare();
       this.spawnHearts(this.player.x, this.player.y - 50, 8);
-      alert(`🎉 Level Up! นาเดียเลเวล ${this.player.level} แล้ว! ได้รับรางวัล 100 เหรียญทอง!`);
+      alert(`🎉 Level Up! ${this.player.name} เลเวล ${this.player.level} แล้ว! ได้รับรางวัล 100 เหรียญทอง!`);
       this.player.coins += 100;
     }
     this.updateHUD();
   }
 
   updateHUD() {
+    // Active User Profile Badge
+    const elActiveUser = document.getElementById('hudActiveUser');
+    if (elActiveUser) {
+      elActiveUser.innerText = (this.currentUser === 'mac') ? 'Mac' : 'Nadia';
+    }
+
     // Avatar Icon based on species
     const speciesIcons = {
       bunny: '🐰',
@@ -1159,11 +1483,30 @@ class NadiaPetGame {
       const prevRenderer = new GameRenderer(nCanvas);
       prevRenderer.drawPet(neighbor, nCanvas.width / 2, nCanvas.height / 2 + 20, 1.3, false, true);
     }
+
+    // Toggle visit partner house button
+    const btnVisit = document.getElementById('btnVisitPartnerHouse');
+    if (btnVisit) {
+      if (neighbor.isPartner) {
+        btnVisit.style.display = 'flex';
+        btnVisit.innerHTML = `<span>🏡</span> แวะไปเที่ยวบ้านของ ${neighbor.name.split(' ')[0]}!`;
+      } else {
+        btnVisit.style.display = 'none';
+      }
+    }
   }
 
   interactNeighbor(action) {
     if (!this.activeNeighbor) return;
     const n = this.activeNeighbor;
+
+    if (action === 'visit_partner_house') {
+      audio.playFanfare();
+      document.getElementById('neighborModal')?.classList.add('hidden');
+      this.switchScene('partner_home');
+      this.showSaveToast(`🏡 มาถึงบ้านของ ${n.name.split(' ')[0]} แล้ว!`);
+      return;
+    }
 
     if (action === 'chat') {
       const randomQuote = n.quotes[Math.floor(Math.random() * n.quotes.length)];
