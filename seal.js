@@ -824,6 +824,15 @@
     boba:   { name: 'Boba Headband 🧋', draw: function () {
       return '<g transform="translate(0,-64)"><path d="M-30 8 Q0 -12 30 8" stroke="#8d6e63" stroke-width="4.5" fill="none" stroke-linecap="round"/>' +
         '<g transform="translate(14,-14)"><rect x="-7" y="-12" width="14" height="20" rx="4" fill="#d7ccc8" stroke="#5d4037" stroke-width="1.6"/><circle cx="-3" cy="2" r="2" fill="#3e2723"/><circle cx="2" cy="3" r="2" fill="#3e2723"/><circle cx="0" cy="-2" r="2" fill="#3e2723"/><rect x="-1.5" y="-18" width="3" height="8" rx="1.5" fill="#ab47bc"/></g></g>';
+    } },
+    sprout: { name: 'Leaf Sprout 🌱', draw: function () {
+      return '<g transform="translate(0,-66)"><path d="M0 0 Q-3 -14 -12 -14 Q-4 -14 0 -5" fill="#52b788" stroke="#2d6a4f" stroke-width="2"/><path d="M0 0 Q3 -14 12 -14 Q4 -14 0 -5" fill="#74c69d" stroke="#2d6a4f" stroke-width="2"/></g>';
+    } },
+    frog:   { name: 'Froggy Hat 🐸', draw: function () {
+      return '<g transform="translate(0,-66)"><path d="M-22 4 C-24 -16, 24 -16, 22 4 Z" fill="#52b788" stroke="#2d6a4f" stroke-width="2.2"/><circle cx="-10" cy="-14" r="5" fill="#52b788" stroke="#2d6a4f" stroke-width="1.8"/><circle cx="10" cy="-14" r="5" fill="#52b788" stroke="#2d6a4f" stroke-width="1.8"/><circle cx="-10" cy="-14" r="2" fill="#1b222c"/><circle cx="10" cy="-14" r="2" fill="#1b222c"/></g>';
+    } },
+    halo:   { name: 'Angel Halo 😇', draw: function () {
+      return '<ellipse cx="0" cy="-72" rx="22" ry="5.5" fill="none" stroke="#ffd166" stroke-width="3"/>';
     } }
   };
 
@@ -850,6 +859,9 @@
         '<circle cx="-22" cy="0" r="5" fill="#ffd166"/><circle cx="-11" cy="4" r="5" fill="#ff8fab"/><circle cx="0" cy="6" r="5.5" fill="#7bdff2"/><circle cx="11" cy="4" r="5" fill="#ff8fab"/><circle cx="22" cy="0" r="5" fill="#ffd166"/>' +
         '</g>';
     } },
+    gold:    { name: 'Bling Gold ⛓️', draw: function () {
+      return '<path d="M-26 22 Q0 38 26 22" stroke="#ffd166" stroke-width="6" stroke-dasharray="5 3" fill="none" stroke-linecap="round"/><circle cx="0" cy="34" r="5" fill="#ffd166" stroke="#b78600" stroke-width="1.5"/>';
+    } },
     bow_tie: { name: 'Navy Bowtie 👔', draw: function () {
       return '<path d="M-28 22 Q0 38 28 22" stroke="#1d4e89" stroke-width="5" fill="none" stroke-linecap="round"/>' +
         '<g transform="translate(0,32)"><polygon points="0,0 -12,-6 -12,6" fill="#1d4e89"/><polygon points="0,0 12,-6 12,6" fill="#1d4e89"/><circle r="3.5" fill="#ffd166"/></g>';
@@ -863,6 +875,12 @@
     } },
     sweater:  { name: 'Honey Sweater 🧶', draw: function () {
       return '<path d="M-40 20 Q0 34 40 20 L36 66 Q0 76 -36 66 Z" fill="#ffd166" stroke="#c9931a" stroke-width="2.4"/><path d="M-26 36 Q0 46 26 36 M-30 48 Q0 58 30 48" stroke="#fff8e1" stroke-width="3" fill="none" stroke-linecap="round"/>';
+    } },
+    kimono:   { name: 'Sakura Kimono 👘', draw: function () {
+      return '<path d="M-40 22 Q0 36 40 22 L36 68 Q0 78 -36 68 Z" fill="#ffb4d6" stroke="#ff758f" stroke-width="2.4"/><rect x="-38" y="42" width="76" height="9" fill="#e63946"/>';
+    } },
+    dino:     { name: 'Dino Onesie 🦖', draw: function () {
+      return '<path d="M-40 22 Q0 36 40 22 L36 68 Q0 78 -36 68 Z" fill="#52b788" stroke="#2d6a4f" stroke-width="2.4"/><circle cx="0" cy="46" r="14" fill="#ffeaa7"/>';
     } },
     cape:     { name: 'Mermaid Cape 🧜‍♀️', draw: function () {
       return '<path d="M-12 22 L12 22 L26 68 Q0 78 -26 68 Z" fill="#2ec4b6" opacity=".92" stroke="#1d867c" stroke-width="2.2"/><circle cx="-6" cy="46" r="3.2" fill="#ffd166"/><circle cx="8" cy="58" r="3.2" fill="#ff9eb5"/>';

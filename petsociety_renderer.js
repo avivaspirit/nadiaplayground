@@ -2875,6 +2875,93 @@ class GameRenderer {
       ctx.beginPath();
       ctx.ellipse(0, 12, 5, 3, 0, 0, Math.PI * 2);
       ctx.fill();
+    } else if (item.style === 'kimono') {
+      ctx.fillStyle = '#ffb4d6';
+      this.roundRect(-22, 6, 44, 30, 8, true, false);
+      // Red Obi Belt
+      ctx.fillStyle = '#e63946';
+      ctx.fillRect(-22, 18, 44, 9);
+      // Golden Obi Cord
+      ctx.fillStyle = '#ffd166';
+      ctx.fillRect(-22, 22, 44, 2);
+      // Sakura petals on robe
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(-12, 12, 2.5, 0, Math.PI * 2);
+      ctx.arc(12, 30, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (item.style === 'wizard_robe') {
+      ctx.fillStyle = '#3a0ca3';
+      this.roundRect(-22, 6, 44, 32, 8, true, false);
+      // Golden stars & mystic symbols
+      ctx.fillStyle = '#ffd166';
+      ctx.font = '10px sans-serif';
+      ctx.fillText('✦', -12, 20);
+      ctx.fillText('✦', 12, 26);
+      ctx.fillText('✨', 0, 32);
+    } else if (item.style === 'sports_jersey') {
+      ctx.fillStyle = '#ffb703';
+      this.roundRect(-20, 8, 40, 26, 6, true, false);
+      // Black side stripes
+      ctx.fillStyle = '#212529';
+      ctx.fillRect(-20, 8, 4, 26);
+      ctx.fillRect(16, 8, 4, 26);
+      // Number 10
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('10', 0, 24);
+    } else if (item.style === 'dino_onesie') {
+      ctx.fillStyle = '#52b788';
+      this.roundRect(-22, 6, 44, 30, 8, true, false);
+      // Yellow tummy patch
+      ctx.fillStyle = '#ffeaa7';
+      ctx.beginPath();
+      ctx.ellipse(0, 20, 13, 14, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Dino back spikes
+      ctx.fillStyle = '#2d6a4f';
+      [-16, 0, 16].forEach(sx => {
+        ctx.beginPath();
+        ctx.moveTo(sx - 4, 6);
+        ctx.lineTo(sx, 0);
+        ctx.lineTo(sx + 4, 6);
+        ctx.closePath();
+        ctx.fill();
+      });
+    } else if (item.style === 'maid_dress') {
+      ctx.fillStyle = '#2b2d42';
+      this.roundRect(-22, 8, 44, 28, 6, true, false);
+      // White frilled pinafore
+      ctx.fillStyle = '#ffffff';
+      this.roundRect(-14, 10, 28, 22, 4, true, false);
+      // Pink ribbon bow
+      ctx.fillStyle = '#ff758f';
+      ctx.beginPath();
+      ctx.arc(0, 12, 3, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (item.style === 'star_pyjamas') {
+      ctx.fillStyle = '#4cc9f0';
+      this.roundRect(-22, 8, 44, 28, 8, true, false);
+      ctx.fillStyle = '#ffd166';
+      ctx.font = '10px sans-serif';
+      ctx.fillText('⭐', -10, 18);
+      ctx.fillText('⭐', 10, 26);
+      ctx.fillText('🌙', 0, 32);
+    } else if (item.style === 'sock_knit_romper') {
+      // Matching knit romper for all pets & Sockney!
+      ctx.fillStyle = '#ffb4d6';
+      this.roundRect(-20, 10, 40, 26, 6, true, false);
+      ctx.fillStyle = '#a0e7e5';
+      ctx.fillRect(-20, 16, 40, 5);
+      ctx.fillStyle = '#ffd166';
+      ctx.fillRect(-20, 24, 40, 5);
+      // Cross-stitch buttons on straps
+      ctx.fillStyle = '#7b2cbf';
+      ctx.beginPath();
+      ctx.arc(-12, 12, 2.5, 0, Math.PI * 2);
+      ctx.arc(12, 12, 2.5, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
 
@@ -2891,6 +2978,25 @@ class GameRenderer {
     ctx.beginPath();
     ctx.ellipse(0, 0, 12, 6, 0, 0, Math.PI * 2);
     ctx.fill();
+    if (item.style === 'roller_skates') {
+      ctx.fillStyle = '#ffd166';
+      ctx.beginPath();
+      ctx.arc(-5, 6, 3, 0, Math.PI * 2);
+      ctx.arc(5, 6, 3, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (item.style === 'striped_socks') {
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-6, -4); ctx.lineTo(6, -4);
+      ctx.moveTo(-6, -1); ctx.lineTo(6, -1);
+      ctx.stroke();
+    } else if (item.style === 'bear_paws') {
+      ctx.fillStyle = '#ffb4d6';
+      ctx.beginPath();
+      ctx.arc(0, 0, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
     ctx.restore();
 
     // Right shoe
@@ -2900,6 +3006,25 @@ class GameRenderer {
     ctx.beginPath();
     ctx.ellipse(0, 0, 12, 6, 0, 0, Math.PI * 2);
     ctx.fill();
+    if (item.style === 'roller_skates') {
+      ctx.fillStyle = '#ffd166';
+      ctx.beginPath();
+      ctx.arc(-5, 6, 3, 0, Math.PI * 2);
+      ctx.arc(5, 6, 3, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (item.style === 'striped_socks') {
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-6, -4); ctx.lineTo(6, -4);
+      ctx.moveTo(-6, -1); ctx.lineTo(6, -1);
+      ctx.stroke();
+    } else if (item.style === 'bear_paws') {
+      ctx.fillStyle = '#ffb4d6';
+      ctx.beginPath();
+      ctx.arc(0, 0, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
     ctx.restore();
   }
 
@@ -2981,6 +3106,78 @@ class GameRenderer {
       ctx.arc(8, -48, 12, 0, Math.PI * 2);
       ctx.arc(0, -56, 14, 0, Math.PI * 2);
       ctx.fill();
+    } else if (item.style === 'wizard') {
+      ctx.fillStyle = '#4361ee';
+      ctx.beginPath();
+      ctx.moveTo(-24, -36);
+      ctx.lineTo(24, -36);
+      ctx.lineTo(0, -68);
+      ctx.closePath();
+      ctx.fill();
+      // Hat brim
+      ctx.beginPath();
+      ctx.ellipse(0, -36, 30, 8, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Gold star on hat
+      ctx.fillStyle = '#ffd166';
+      ctx.font = '12px sans-serif';
+      ctx.fillText('⭐', -6, -46);
+    } else if (item.style === 'frog') {
+      ctx.fillStyle = '#52b788';
+      this.roundRect(-22, -48, 44, 16, 6, true, false);
+      ctx.beginPath();
+      ctx.ellipse(0, -36, 32, 7, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Frog eyes
+      ctx.beginPath();
+      ctx.arc(-10, -50, 7, 0, Math.PI * 2);
+      ctx.arc(10, -50, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#2b2d42';
+      ctx.beginPath();
+      ctx.arc(-10, -50, 3, 0, Math.PI * 2);
+      ctx.arc(10, -50, 3, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (item.style === 'cat_beanie') {
+      ctx.fillStyle = '#f72585';
+      this.roundRect(-24, -48, 48, 18, 8, true, false);
+      // Cat ears
+      ctx.beginPath();
+      ctx.moveTo(-20, -48); ctx.lineTo(-24, -62); ctx.lineTo(-10, -48);
+      ctx.moveTo(20, -48); ctx.lineTo(24, -62); ctx.lineTo(10, -48);
+      ctx.closePath();
+      ctx.fill();
+    } else if (item.style === 'party_cone') {
+      ctx.fillStyle = '#ff006e';
+      ctx.beginPath();
+      ctx.moveTo(-14, -36); ctx.lineTo(14, -36); ctx.lineTo(0, -65);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#ffd166';
+      ctx.beginPath();
+      ctx.arc(0, -66, 4, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (item.style === 'detective') {
+      ctx.fillStyle = '#6c584c';
+      this.roundRect(-24, -46, 48, 16, 8, true, false);
+      // Double visor
+      ctx.fillStyle = '#4a3b32';
+      ctx.beginPath();
+      ctx.ellipse(0, -36, 30, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (item.style === 'angel_halo') {
+      ctx.strokeStyle = '#ffd166';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.ellipse(0, -52, 22, 6, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    } else if (item.style === 'sock_beret') {
+      ctx.fillStyle = '#ff70a6';
+      this.roundRect(-24, -46, 48, 14, 7, true, false);
+      ctx.fillStyle = '#ffd166';
+      ctx.beginPath();
+      ctx.arc(0, -48, 5, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
 
@@ -3009,10 +3206,49 @@ class GameRenderer {
       ctx.font = '16px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('🕶️', 0, -8);
+    } else if (item.style === 'aviator') {
+      ctx.strokeStyle = '#ffd166';
+      ctx.lineWidth = 2.5;
+      ctx.fillStyle = 'rgba(33, 37, 41, 0.75)';
+      // Left teardrop
+      ctx.beginPath();
+      ctx.ellipse(-14, -13, 8.5, 7.5, 0.2, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+      // Right teardrop
+      ctx.beginPath();
+      ctx.ellipse(14, -13, 8.5, 7.5, -0.2, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+      // Brow bar
+      ctx.beginPath();
+      ctx.moveTo(-18, -19); ctx.lineTo(18, -19);
+      ctx.stroke();
     } else if (item.style === 'star_decal') {
       ctx.font = '14px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('⭐', 22, -18);
+    } else if (item.style === 'bandage') {
+      ctx.fillStyle = '#ffcad4';
+      ctx.strokeStyle = '#e09fba';
+      ctx.lineWidth = 1.2;
+      this.roundRect(-24, -4, 16, 8, 3, true, true);
+      ctx.strokeStyle = '#e63946';
+      ctx.beginPath();
+      ctx.moveTo(-18, 0); ctx.lineTo(-14, 0);
+      ctx.moveTo(-16, -2); ctx.lineTo(-16, 2);
+      ctx.stroke();
+    } else if (item.style === 'whiskers_decal') {
+      ctx.strokeStyle = '#4a4e69';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-28, -6); ctx.lineTo(-18, -4);
+      ctx.moveTo(-28, -2); ctx.lineTo(-18, -1);
+      ctx.moveTo(28, -6); ctx.lineTo(18, -4);
+      ctx.moveTo(28, -2); ctx.lineTo(18, -1);
+      ctx.stroke();
+    } else if (item.style === 'glitter_decal') {
+      ctx.font = '12px sans-serif';
+      ctx.fillText('✨', -24, -6);
+      ctx.fillText('✨', 20, -6);
     }
   }
 
@@ -3049,6 +3285,36 @@ class GameRenderer {
       ctx.ellipse(6, 6, 6, 4, 0.2, 0, Math.PI * 2);
       ctx.arc(0, 6, 3, 0, Math.PI * 2);
       ctx.fill();
+    } else if (item.style === 'gold_chain') {
+      ctx.strokeStyle = '#ffd166';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(0, 6, 14, 0.2 * Math.PI, 0.8 * Math.PI);
+      ctx.stroke();
+      ctx.fillStyle = '#ffd166';
+      ctx.beginPath();
+      ctx.arc(0, 15, 4, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (item.style === 'lei') {
+      const petals = ['#ff70a6', '#ffd166', '#4cc9f0', '#f72585'];
+      for (let i = 0; i < 7; i++) {
+        ctx.fillStyle = petals[i % petals.length];
+        ctx.beginPath();
+        ctx.arc(-18 + i * 6, 6, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (item.style === 'choker') {
+      ctx.fillStyle = '#2b2d42';
+      this.roundRect(-16, 5, 32, 4, 2, true, false);
+      ctx.fillStyle = '#e63946';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('❤️', 0, 13);
+    } else if (item.style === 'capelet') {
+      ctx.fillStyle = '#e63946';
+      this.roundRect(-22, 4, 44, 10, 4, true, false);
+      ctx.fillStyle = '#ffffff';
+      this.roundRect(-24, 12, 48, 5, 2, true, false);
     }
   }
 
@@ -3112,6 +3378,24 @@ class GameRenderer {
     } else if (item.style === 'seal_plush') {
       ctx.font = '18px sans-serif';
       ctx.fillText('🦭', 0, 0);
+    } else if (item.style === 'boba_cup') {
+      ctx.font = '22px sans-serif';
+      ctx.fillText('🧋', 0, 0);
+    } else if (item.style === 'electric_guitar') {
+      ctx.font = '22px sans-serif';
+      ctx.fillText('🎸', 0, 0);
+    } else if (item.style === 'retro_game') {
+      ctx.font = '20px sans-serif';
+      ctx.fillText('🎮', 0, 0);
+    } else if (item.style === 'yarn_ball') {
+      ctx.font = '22px sans-serif';
+      ctx.fillText('🧶', 0, 0);
+    } else if (item.style === 'sunflower') {
+      ctx.font = '22px sans-serif';
+      ctx.fillText('🌻', 0, 0);
+    } else if (item.style === 'giant_donut') {
+      ctx.font = '22px sans-serif';
+      ctx.fillText('🍩', 0, 0);
     }
     ctx.restore();
   }

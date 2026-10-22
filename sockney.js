@@ -107,7 +107,7 @@
     cuddles: 0,
     stretches: 0,
     days: 0,
-    outfit: { button: 'btn_pearl', acc: 'acc_bell' },
+    outfit: { pattern: 'classic', hat: 'none', button: 'btn_pearl', acc: 'acc_bell' },
     album: []
   };
 
@@ -120,7 +120,9 @@
     save();
   } else {
     for (var k in DEFAULT) if (S[k] === undefined) S[k] = DEFAULT[k];
-    if (!S.outfit) S.outfit = { button: 'btn_pearl', acc: 'acc_bell' };
+    if (!S.outfit) S.outfit = { pattern: 'classic', hat: 'none', button: 'btn_pearl', acc: 'acc_bell' };
+    if (!S.outfit.pattern) S.outfit.pattern = 'classic';
+    if (!S.outfit.hat) S.outfit.hat = 'none';
     if (!S.album) S.album = [];
   }
 
@@ -136,19 +138,44 @@
   ];
 
   var WARDROBE = {
+    pattern: [
+      { id: 'classic', name: 'พาสเทลเรนโบว์ (Pastel Rainbow)', icon: '🌈' },
+      { id: 'strawberry', name: 'สตรอว์เบอร์รี่มิลค์ (Berry Milk)', icon: '🍓' },
+      { id: 'ocean', name: 'โอเชียนบรีซ (Ocean Breeze)', icon: '🌊' },
+      { id: 'sunshine', name: 'ฮันนี่ซันไชน์ (Sunshine Honey)', icon: '🍯' },
+      { id: 'galaxy', name: 'กาแล็กซีไนท์ (Galaxy Starlight)', icon: '🌌' },
+      { id: 'fairisle', name: 'วินเทอร์แฟร์ไอล์ (Nordic Winter)', icon: '❄️' }
+    ],
+    hat: [
+      { id: 'none', name: 'ขอบพับเบเร่ต์เรียบง่าย', icon: '🧦' },
+      { id: 'hat_beanie', name: 'หมวกบีนนี่ไหมพรมพู่ปอม', icon: '🧶' },
+      { id: 'hat_crown', name: 'มงกุฎเจ้าหญิงถุงเท้าทอง', icon: '👑' },
+      { id: 'hat_sprout', name: 'ต้นกล้าผลิใบสดชื่น', icon: '🌱' },
+      { id: 'hat_cat', name: 'หูแมวเหมียวไหมพรม', icon: '🐱' },
+      { id: 'hat_halo', name: 'วงแหวนเทวดานุ่มฟู', icon: '😇' },
+      { id: 'hat_party', name: 'หมวกปาร์ตี้คอนเฟตติ', icon: '🎉' },
+      { id: 'hat_chef', name: 'หมวกเชฟซักอบรีดจิ๋ว', icon: '🧑‍🍳' }
+    ],
     button: [
-      { id: 'none', name: 'ตาเย็บไหมพรมคลาสสิก', icon: '🧶' },
+      { id: 'none', name: 'ตาเย็บไหมพรมคลาสสิก', icon: '🧵' },
       { id: 'btn_pearl', name: 'กระดุมไข่มุกประกายรุ้ง', icon: '🔘' },
-      { id: 'btn_heart', name: 'กระดุมรูปหัวใจไม้', icon: '🤎' },
-      { id: 'btn_star', name: 'กระดุมดวงดาวสีทอง', icon: '⭐' },
-      { id: 'btn_daisy', name: 'กระดุมดอกเดซี่น่ารัก', icon: '🌼' }
+      { id: 'btn_heart', name: 'กระดุมทับทิมหัวใจหวาน', icon: '❤️' },
+      { id: 'btn_star', name: 'กระดุมดวงดาวประกายทอง', icon: '⭐' },
+      { id: 'btn_daisy', name: 'กระดุมดอกเดซี่สีขาว', icon: '🌼' },
+      { id: 'btn_gem', name: 'กระดุมเพชรฟ้าน้ำงาม', icon: '💎' },
+      { id: 'btn_wood', name: 'กระดุมไม้ธรรมชาติ 4 รู', icon: '🪵' },
+      { id: 'btn_smiley', name: 'กระดุมยิ้มแฉ่งอารมณ์ดี', icon: '😊' }
     ],
     acc: [
       { id: 'none', name: 'ไม่มีเครื่องประดับ', icon: '❌' },
       { id: 'acc_bell', name: 'กระดิ่งกรุ๊งกริ๊งสีทอง', icon: '🔔' },
       { id: 'acc_pompom', name: 'ปอมปอมปุกปุยสีชมพู', icon: '🌸' },
-      { id: 'acc_pin_bow', name: 'เข็มกลัดโบว์สีมินต์', icon: '🎀' },
-      { id: 'acc_ribbon', name: 'ริบบิ้นผ้าซาตินหวาน', icon: '✨' }
+      { id: 'acc_pin_bow', name: 'เข็มกลัดโบว์ซาตินมินต์', icon: '🎀' },
+      { id: 'acc_ribbon', name: 'ริบบิ้นชมพูหวานฉ่ำ', icon: '✨' },
+      { id: 'acc_pin_safety', name: 'เข็มกลัดซ่อนปลายร้อยลูกปัด', icon: '🧷' },
+      { id: 'acc_clover', name: 'ใบโคลเวอร์ 4 แฉกนำโชค', icon: '🍀' },
+      { id: 'acc_strawberry', name: 'จี้ผลสตรอว์เบอร์รี่ถัก', icon: '🍓' },
+      { id: 'acc_star_badge', name: 'เข็มกลัดดาวนายอำเภอจิ๋ว', icon: '🌟' }
     ]
   };
 
@@ -174,36 +201,89 @@
 
     s += '<g transform="' + scaleTransform + '">';
 
+    // Theme & Knit Pattern Palette
+    var pat = (S.outfit && S.outfit.pattern) || 'classic';
+    var THEMES = {
+      classic: {
+        base: '#ffb4d6',
+        cuff: '#ffd6e8',
+        cuffLines: '#ff70a6',
+        accent: '#ff70a6',
+        stripes: ['#bbf2f6', '#fff6cc', '#e8dff5', '#ffb4d6', '#bbf2f6']
+      },
+      strawberry: {
+        base: '#ff85a1',
+        cuff: '#ffe3e8',
+        cuffLines: '#e01e37',
+        accent: '#c9184a',
+        stripes: ['#fff0f3', '#ff4d6d', '#fff0f3', '#ff758f', '#ffccd5']
+      },
+      ocean: {
+        base: '#48cae4',
+        cuff: '#ade8f4',
+        cuffLines: '#0077b6',
+        accent: '#0096c7',
+        stripes: ['#caf0f8', '#00b4d8', '#90e0ef', '#0077b6', '#caf0f8']
+      },
+      sunshine: {
+        base: '#ffd166',
+        cuff: '#ffeaae',
+        cuffLines: '#f77f00',
+        accent: '#e76f51',
+        stripes: ['#fff4cc', '#fcbf49', '#f77f00', '#fff4cc', '#fcbf49']
+      },
+      galaxy: {
+        base: '#5a189a',
+        cuff: '#9d4edd',
+        cuffLines: '#e0aaff',
+        accent: '#7b2cbf',
+        stripes: ['#3c096c', '#c77dff', '#240046', '#00f5d4', '#7b2cbf']
+      },
+      fairisle: {
+        base: '#d90429',
+        cuff: '#edf2f4',
+        cuffLines: '#2b2d42',
+        accent: '#ef233c',
+        stripes: ['#edf2f4', '#2b2d42', '#edf2f4', '#2b2d42', '#edf2f4']
+      }
+    };
+    var th = THEMES[pat] || THEMES.classic;
+
+    s += '<defs><clipPath id="sockClipPath"><path d="M -30 -30 L 30 -30 L 30 24 C 30 52, 46 64, 66 66 C 74 67, 72 74, 60 74 C 40 74, -18 72, -26 40 L -30 -30 Z"/></clipPath></defs>';
+
     // Folded cuff (Top collar) that looks like a cute beret/ears
     s += '<g transform="translate(0,-34)">';
-    s += '<rect x="-34" y="-14" width="68" height="18" rx="8" fill="#ffd6e8" stroke="#3c2a3e" stroke-width="2.4"/>';
+    s += '<rect x="-34" y="-14" width="68" height="18" rx="8" fill="' + th.cuff + '" stroke="#3c2a3e" stroke-width="2.4"/>';
     // Ribbed knit lines
     for (var x = -26; x <= 26; x += 6) {
-      s += '<line x1="' + x + '" y1="-12" x2="' + x + '" y2="2" stroke="#ff70a6" stroke-width="1.8" opacity=".7"/>';
+      s += '<line x1="' + x + '" y1="-12" x2="' + x + '" y2="2" stroke="' + th.cuffLines + '" stroke-width="1.8" opacity=".75"/>';
     }
     s += '</g>';
 
-    // Sock Body (Curved Tube Shape)
-    // Striped segments: Candy Pink, Pale Mint, Soft Lavender, Cream
-    var stripes = ['#ffb4d6', '#bbf2f6', '#fff6cc', '#e8dff5', '#ffb4d6', '#bbf2f6'];
-
     // Outer sock body outline path
-    s += '<path d="M -30 -30 L 30 -30 L 30 24 C 30 52, 46 64, 66 66 C 74 67, 72 74, 60 74 C 40 74, -18 72, -26 40 L -30 -30 Z" fill="#ffb4d6" stroke="#3c2a3e" stroke-width="2.6" stroke-linejoin="round"/>';
+    s += '<path d="M -30 -30 L 30 -30 L 30 24 C 30 52, 46 64, 66 66 C 74 67, 72 74, 60 74 C 40 74, -18 72, -26 40 L -30 -30 Z" fill="' + th.base + '" stroke="#3c2a3e" stroke-width="2.6" stroke-linejoin="round"/>';
 
     // Horizontal knit stripes inside sock
-    s += '<g clip-path="url(#sockClip)">';
-    s += '<rect x="-40" y="-18" width="80" height="12" fill="#bbf2f6"/>';
-    s += '<rect x="-40" y="-6" width="80" height="12" fill="#fff6cc"/>';
-    s += '<rect x="-40" y="6" width="80" height="12" fill="#e8dff5"/>';
-    s += '<rect x="-40" y="18" width="80" height="12" fill="#ffb4d6"/>';
-    s += '<rect x="-40" y="30" width="80" height="14" fill="#bbf2f6"/>';
+    s += '<g clip-path="url(#sockClipPath)">';
+    s += '<rect x="-40" y="-18" width="80" height="12" fill="' + th.stripes[0] + '"/>';
+    s += '<rect x="-40" y="-6" width="80" height="12" fill="' + th.stripes[1] + '"/>';
+    s += '<rect x="-40" y="6" width="80" height="12" fill="' + th.stripes[2] + '"/>';
+    s += '<rect x="-40" y="18" width="80" height="12" fill="' + th.stripes[3] + '"/>';
+    s += '<rect x="-40" y="30" width="80" height="14" fill="' + th.stripes[4] + '"/>';
+    if (pat === 'fairisle') {
+      s += '<text x="-16" y="2" font-size="10" fill="#ffffff">❄️</text><text x="8" y="2" font-size="10" fill="#ffffff">❄️</text>';
+    } else if (pat === 'strawberry') {
+      s += '<text x="-14" y="2" font-size="10" fill="#e01e37">🍓</text><text x="10" y="2" font-size="10" fill="#e01e37">🍓</text>';
+    } else if (pat === 'galaxy') {
+      s += '<text x="-16" y="2" font-size="9" fill="#ffd166">✦</text><text x="10" y="2" font-size="9" fill="#00f5d4">✦</text>';
+    }
     s += '</g>';
 
-    // Soft Pink Heel (Back Curve)
-    s += '<path d="M -28 32 C -36 44, -30 62, -14 66 C -24 58, -26 44, -28 32 Z" fill="#ff70a6" stroke="#3c2a3e" stroke-width="2"/>';
+    // Heel (Back Curve)
+    s += '<path d="M -28 32 C -36 44, -30 62, -14 66 C -24 58, -26 44, -28 32 Z" fill="' + th.accent + '" stroke="#3c2a3e" stroke-width="2"/>';
 
-    // Soft Pink Toe (Front Curve)
-    s += '<path d="M 40 54 C 54 54, 72 60, 68 74 C 52 74, 40 68, 40 54 Z" fill="#ff70a6" stroke="#3c2a3e" stroke-width="2"/>';
+    // Toe (Front Curve)
+    s += '<path d="M 40 54 C 54 54, 72 60, 68 74 C 52 74, 40 68, 40 54 Z" fill="' + th.accent + '" stroke="#3c2a3e" stroke-width="2"/>';
 
     // Toe blush & tickle sparkle
     if (isTickle) {
@@ -216,7 +296,7 @@
     s += '<ellipse cx="18" cy="4" rx="7" ry="4.5" fill="#ff70a6" opacity=".8"/>';
 
     // Eyes: Cute Button Eyes or Happy Closed Eyes
-    var btnStyle = S.outfit.button || 'btn_pearl';
+    var btnStyle = (S.outfit && S.outfit.button) || 'btn_pearl';
     if (isHug || isSquish || isTickle) {
       // Sweet blissful closed smile eyes
       s += '<path d="M -18 -8 Q -10 -16 -2 -8" stroke="#3c2a3e" stroke-width="3.5" fill="none" stroke-linecap="round"/>';
@@ -225,19 +305,38 @@
       // Big Shiny Button Eyes!
       function drawButtonEye(cx, cy) {
         var str = '';
-        if (btnStyle === 'btn_heart') {
-          str += '<path d="M ' + cx + ' ' + (cy + 2) + ' C ' + (cx - 7) + ' ' + (cy - 7) + ', ' + (cx - 12) + ' ' + (cy + 2) + ', ' + cx + ' ' + (cy + 9) + ' C ' + (cx + 12) + ' ' + (cy + 2) + ', ' + (cx + 7) + ' ' + (cy - 7) + ', ' + cx + ' ' + (cy + 2) + ' Z" fill="#b07d62" stroke="#3c2a3e" stroke-width="1.8"/>';
+        if (btnStyle === 'none') {
+          // Classic Thread Cross
+          str += '<line x1="' + (cx - 4) + '" y1="' + cy + '" x2="' + (cx + 4) + '" y2="' + cy + '" stroke="#3c2a3e" stroke-width="2.5" stroke-linecap="round"/>';
+          str += '<line x1="' + cx + '" y1="' + (cy - 4) + '" x2="' + cx + '" y2="' + (cy + 4) + '" stroke="#3c2a3e" stroke-width="2.5" stroke-linecap="round"/>';
+        } else if (btnStyle === 'btn_heart') {
+          str += '<path d="M ' + cx + ' ' + (cy + 2) + ' C ' + (cx - 7) + ' ' + (cy - 7) + ', ' + (cx - 12) + ' ' + (cy + 2) + ', ' + cx + ' ' + (cy + 9) + ' C ' + (cx + 12) + ' ' + (cy + 2) + ', ' + (cx + 7) + ' ' + (cy - 7) + ', ' + cx + ' ' + (cy + 2) + ' Z" fill="#e63946" stroke="#3c2a3e" stroke-width="1.8"/>';
+          str += '<circle cx="' + (cx - 2) + '" cy="' + (cy - 1) + '" r="1.5" fill="#fff"/>';
         } else if (btnStyle === 'btn_star') {
-          str += '<polygon points="' + cx + ',' + (cy - 9) + ' ' + (cx + 3) + ',' + (cy - 3) + ' ' + (cx + 9) + ',' + (cy - 2) + ' ' + (cx + 4) + ',' + (cy + 3) + ' ' + (cx + 6) + ',' + (cy + 9) + ' ' + cx + ',' + (cy + 5) + ' ' + (cx - 6) + ',' + (cy + 9) + ' ' + (cx - 4) + ',' + (cy + 3) + ' ' + (cx - 9) + ',' + (cy - 2) + ' ' + (cx - 3) + ',' + (cy - 3) + '" fill="#ffd166" stroke="#3c2a3e" stroke-width="1.6"/>';
+          str += '<polygon points="' + cx + ',' + (cy - 9) + ' ' + (cx + 3) + ',' + (cy - 3) + ' ' + (cx + 9) + ',' + (cy - 2) + ' ' + (cx + 4) + ',' + (cy + 3) + ' ' + (cx + 6) + ',' + (cy + 9) + ' ' + cx + ',' + (cy + 5) + ' ' + (cx - 6) + ',' + (cy + 9) + ' ' + (cx - 4) + ',' + (cy + 3) + ' ' + (cx - 9) + ',' + (cy - 2) + ' ' + (cx - 3) + ',' + (cy - 3) + '" fill="#ffd166" stroke="#b78600" stroke-width="1.6"/>';
+          str += '<circle cx="' + cx + '" cy="' + cy + '" r="2" fill="#fff"/>';
         } else if (btnStyle === 'btn_daisy') {
           str += '<circle cx="' + cx + '" cy="' + cy + '" r="8.5" fill="#fff" stroke="#3c2a3e" stroke-width="1.8"/><circle cx="' + cx + '" cy="' + cy + '" r="3.5" fill="#ffd166"/>';
+        } else if (btnStyle === 'btn_gem') {
+          str += '<polygon points="' + cx + ',' + (cy - 8) + ' ' + (cx + 8) + ',' + (cy - 2) + ' ' + (cx + 5) + ',' + (cy + 7) + ' ' + (cx - 5) + ',' + (cy + 7) + ' ' + (cx - 8) + ',' + (cy - 2) + '" fill="#4cc9f0" stroke="#0077b6" stroke-width="1.8"/>';
+          str += '<polygon points="' + cx + ',' + (cy - 4) + ' ' + (cx + 4) + ',' + cy + ' ' + cx + ',' + (cy + 4) + ' ' + (cx - 4) + ',' + cy + '" fill="#ffffff" opacity=".8"/>';
+        } else if (btnStyle === 'btn_wood') {
+          str += '<circle cx="' + cx + '" cy="' + cy + '" r="8" fill="#c68b59" stroke="#7f4f24" stroke-width="1.8"/>';
+          str += '<circle cx="' + (cx - 2.5) + '" cy="' + (cy - 2.5) + '" r="1.3" fill="#3c2a3e"/>';
+          str += '<circle cx="' + (cx + 2.5) + '" cy="' + (cy - 2.5) + '" r="1.3" fill="#3c2a3e"/>';
+          str += '<circle cx="' + (cx - 2.5) + '" cy="' + (cy + 2.5) + '" r="1.3" fill="#3c2a3e"/>';
+          str += '<circle cx="' + (cx + 2.5) + '" cy="' + (cy + 2.5) + '" r="1.3" fill="#3c2a3e"/>';
+        } else if (btnStyle === 'btn_smiley') {
+          str += '<circle cx="' + cx + '" cy="' + cy + '" r="8" fill="#ffd166" stroke="#3c2a3e" stroke-width="1.6"/>';
+          str += '<circle cx="' + (cx - 2.5) + '" cy="' + (cy - 2) + '" r="1" fill="#3c2a3e"/><circle cx="' + (cx + 2.5) + '" cy="' + (cy - 2) + '" r="1" fill="#3c2a3e"/>';
+          str += '<path d="M ' + (cx - 3) + ' ' + (cy + 2) + ' Q ' + cx + ' ' + (cy + 5) + ' ' + (cx + 3) + ' ' + (cy + 2) + '" stroke="#3c2a3e" stroke-width="1.4" fill="none" stroke-linecap="round"/>';
         } else {
           // Classic Round Button with Thread Cross
-          str += '<circle cx="' + cx + '" cy="' + cy + '" r="8" fill="#3c2a3e" stroke="#221824" stroke-width="1.6"/>';
-          str += '<circle cx="' + (cx - 2.5) + '" cy="' + (cy - 2.5) + '" r="2.2" fill="#fff"/>';
-          str += '<circle cx="' + (cx + 2.5) + '" cy="' + (cy + 2.5) + '" r="1.4" fill="#fff" opacity=".8"/>';
-          str += '<line x1="' + (cx - 3) + '" y1="' + (cy - 3) + '" x2="' + (cx + 3) + '" y2="' + (cy + 3) + '" stroke="#fff" stroke-width="1.2"/>';
-          str += '<line x1="' + (cx + 3) + '" y1="' + (cy - 3) + '" x2="' + (cx - 3) + '" y2="' + (cy + 3) + '" stroke="#fff" stroke-width="1.2"/>';
+          str += '<circle cx="' + cx + '" cy="' + cy + '" r="8" fill="#7b2cbf" stroke="#3c2a3e" stroke-width="1.6"/>';
+          str += '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="none" stroke="#9d4edd" stroke-width="1"/>';
+          str += '<circle cx="' + (cx - 2.5) + '" cy="' + (cy - 2.5) + '" r="1.6" fill="#fff"/>';
+          str += '<line x1="' + (cx - 3) + '" y1="' + cy + '" x2="' + (cx + 3) + '" y2="' + cy + '" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>';
+          str += '<line x1="' + cx + '" y1="' + (cy - 3) + '" x2="' + cx + '" y2="' + (cy + 3) + '" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>';
         }
         return str;
       }
@@ -248,20 +347,84 @@
     // Embroidered Mouth :3
     s += '<path d="M -7 5 Q -3 9 0 5 Q 3 9 7 5" stroke="#3c2a3e" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
 
-    // Accessory on Cuff
-    var acc = S.outfit.acc || 'acc_bell';
+    // Hat Adornments on Cuff
+    var hat = (S.outfit && S.outfit.hat) || 'none';
+    if (hat === 'hat_beanie') {
+      s += '<g transform="translate(0, -38)">';
+      s += '<path d="M -26 0 C -26 -26, 26 -26, 26 0 Z" fill="#ff70a6" stroke="#3c2a3e" stroke-width="2"/>';
+      s += '<line x1="-14" y1="-4" x2="-14" y2="-20" stroke="#fff" stroke-width="1.6" opacity=".8"/>';
+      s += '<line x1="0" y1="-4" x2="0" y2="-24" stroke="#fff" stroke-width="1.6" opacity=".8"/>';
+      s += '<line x1="14" y1="-4" x2="14" y2="-20" stroke="#fff" stroke-width="1.6" opacity=".8"/>';
+      s += '<circle cx="0" cy="-24" r="8" fill="#ffffff" stroke="#ff70a6" stroke-width="1.8"/>';
+      s += '</g>';
+    } else if (hat === 'hat_crown') {
+      s += '<g transform="translate(0, -42)">';
+      s += '<polygon points="-16,4 -16,-8 -8,-2 0,-14 8,-2 16,-8 16,4" fill="#ffd166" stroke="#b78600" stroke-width="2"/>';
+      s += '<circle cx="0" cy="-5" r="2.8" fill="#e63946"/>';
+      s += '<circle cx="-8" cy="0" r="2" fill="#4cc9f0"/><circle cx="8" cy="0" r="2" fill="#4cc9f0"/>';
+      s += '</g>';
+    } else if (hat === 'hat_sprout') {
+      s += '<g transform="translate(0, -38)">';
+      s += '<path d="M 0 2 Q -2 -14 -14 -16 Q -4 -16 0 -6" fill="#52b788" stroke="#2d6a4f" stroke-width="1.8"/>';
+      s += '<path d="M 0 2 Q 2 -14 14 -16 Q 4 -16 0 -6" fill="#74c69d" stroke="#2d6a4f" stroke-width="1.8"/>';
+      s += '<circle cx="0" cy="2" r="2" fill="#2d6a4f"/>';
+      s += '</g>';
+    } else if (hat === 'hat_cat') {
+      s += '<g transform="translate(0, -38)">';
+      s += '<polygon points="-24,2 -28,-18 -12,-2" fill="#ffd6e8" stroke="#3c2a3e" stroke-width="2"/>';
+      s += '<polygon points="24,2 28,-18 12,-2" fill="#ffd6e8" stroke="#3c2a3e" stroke-width="2"/>';
+      s += '<polygon points="-23,0 -26,-13 -14,-2" fill="#ff70a6"/>';
+      s += '<polygon points="23,0 26,-13 14,-2" fill="#ff70a6"/>';
+      s += '</g>';
+    } else if (hat === 'hat_halo') {
+      s += '<ellipse cx="0" cy="-48" rx="26" ry="7" fill="none" stroke="#ffd166" stroke-width="3.5"/>';
+      s += '<ellipse cx="0" cy="-48" rx="24" ry="5.5" fill="none" stroke="#fff" stroke-width="1.5"/>';
+    } else if (hat === 'hat_party') {
+      s += '<g transform="translate(0, -38)">';
+      s += '<polygon points="-12,2 0,-30 12,2" fill="#f72585" stroke="#3c2a3e" stroke-width="2"/>';
+      s += '<circle cx="0" cy="-30" r="4.5" fill="#ffd166"/>';
+      s += '<circle cx="-3" cy="-10" r="2.2" fill="#4cc9f0"/><circle cx="3" cy="-18" r="2.2" fill="#ffd166"/>';
+      s += '</g>';
+    } else if (hat === 'hat_chef') {
+      s += '<g transform="translate(0, -38)">';
+      s += '<rect x="-18" y="-4" width="36" height="8" rx="3" fill="#ffffff" stroke="#3c2a3e" stroke-width="1.8"/>';
+      s += '<path d="M -16 -4 C -26 -24, 26 -24, 16 -4 Z" fill="#ffffff" stroke="#3c2a3e" stroke-width="1.8"/>';
+      s += '<circle cx="-6" cy="-14" r="8" fill="#ffffff"/><circle cx="6" cy="-14" r="8" fill="#ffffff"/><circle cx="0" cy="-18" r="9" fill="#ffffff"/>';
+      s += '</g>';
+    }
+
+    // Accessory on Cuff / Body
+    var acc = (S.outfit && S.outfit.acc) || 'acc_bell';
     if (acc === 'acc_bell') {
       s += '<g transform="translate(24, -38)">';
-      s += '<circle cx="0" cy="0" r="6" fill="#ffd166" stroke="#b78600" stroke-width="1.6"/><circle cx="0" cy="2" r="1.5" fill="#594200"/>';
+      s += '<circle cx="0" cy="0" r="6.5" fill="#ffd166" stroke="#b78600" stroke-width="1.6"/><circle cx="0" cy="2" r="1.8" fill="#594200"/>';
       s += '</g>';
     } else if (acc === 'acc_pompom') {
-      s += '<circle cx="24" cy="-38" r="8.5" fill="#ffb4d6" stroke="#ff70a6" stroke-width="1.8"/>';
+      s += '<circle cx="24" cy="-38" r="9" fill="#ffb4d6" stroke="#ff70a6" stroke-width="1.8"/>';
+      s += '<circle cx="26" cy="-40" r="3" fill="#fff" opacity=".8"/>';
     } else if (acc === 'acc_pin_bow') {
       s += '<g transform="translate(-24, -38)">';
-      s += '<polygon points="-6,-4 0,0 -6,4" fill="#70d6ff"/><polygon points="6,-4 0,0 6,4" fill="#70d6ff"/><circle cx="0" cy="0" r="2.5" fill="#ffd166"/>';
+      s += '<polygon points="-7,-4 0,0 -7,4" fill="#70d6ff" stroke="#0077b6" stroke-width="1"/><polygon points="7,-4 0,0 7,4" fill="#70d6ff" stroke="#0077b6" stroke-width="1"/><circle cx="0" cy="0" r="2.8" fill="#ffd166"/>';
       s += '</g>';
     } else if (acc === 'acc_ribbon') {
-      s += '<g transform="translate(0, -38)"><polygon points="-8,-4 0,0 -8,4" fill="#ff70a6"/><polygon points="8,-4 0,0 8,4" fill="#ff70a6"/><circle cx="0" cy="0" r="3" fill="#fff"/></g>';
+      s += '<g transform="translate(0, -38)"><polygon points="-9,-5 0,0 -9,5" fill="#ff70a6"/><polygon points="9,-5 0,0 9,5" fill="#ff70a6"/><circle cx="0" cy="0" r="3.2" fill="#fff"/></g>';
+    } else if (acc === 'acc_pin_safety') {
+      s += '<g transform="translate(-20, -38)">';
+      s += '<path d="M -8 -4 L 8 -4 C 12 -4, 12 4, 8 4 L -4 4" stroke="#c0c0c0" stroke-width="2" fill="none" stroke-linecap="round"/>';
+      s += '<circle cx="-3" cy="-4" r="2.2" fill="#ff9ebb"/><circle cx="1" cy="-4" r="2.2" fill="#90e0ef"/><circle cx="5" cy="-4" r="2.2" fill="#ffd166"/>';
+      s += '</g>';
+    } else if (acc === 'acc_clover') {
+      s += '<g transform="translate(24, -38)">';
+      s += '<circle cx="-3" cy="-3" r="3.5" fill="#52b788"/><circle cx="3" cy="-3" r="3.5" fill="#52b788"/><circle cx="-3" cy="3" r="3.5" fill="#52b788"/><circle cx="3" cy="3" r="3.5" fill="#52b788"/><circle cx="0" cy="0" r="2" fill="#2d6a4f"/>';
+      s += '</g>';
+    } else if (acc === 'acc_strawberry') {
+      s += '<g transform="translate(24, -38)">';
+      s += '<path d="M -5 -2 C -6 6, 6 6, 5 -2 Z" fill="#e63946" stroke="#3c2a3e" stroke-width="1.2"/>';
+      s += '<polygon points="-4,-4 0,-1 4,-4" fill="#52b788"/>';
+      s += '<circle cx="-1" cy="1" r="0.8" fill="#ffd166"/><circle cx="2" cy="1" r="0.8" fill="#ffd166"/>';
+      s += '</g>';
+    } else if (acc === 'acc_star_badge') {
+      s += '<g transform="translate(-22, -38)"><polygon points="0,-7 2,-2 7,-2 3,1 5,6 0,3 -5,6 -3,1 -7,-2 -2,-2" fill="#ffd166" stroke="#b78600" stroke-width="1.4"/></g>';
     }
 
     s += '</g>'; // end scale transform
@@ -417,16 +580,22 @@
   });
 
   /* ---------------- KNIT WARDROBE TAB ---------------- */
-  var dressCat = 'button';
+  var dressCat = 'pattern';
+  var DRESS_LABELS = {
+    pattern: '🎨 ลายไหมพรม',
+    hat: '👒 หมวกประดับขอบ',
+    button: '🔘 กระดุมตาหวาน',
+    acc: '🎀 เข็มกลัด & จี้'
+  };
 
   function renderWardrobe() {
     $('petBox2').innerHTML = sockneySVG({});
     var cr = $('dressCats');
     cr.innerHTML = '';
-    ['button', 'acc'].forEach(function (c) {
+    ['pattern', 'hat', 'button', 'acc'].forEach(function (c) {
       var b = document.createElement('button');
       b.className = 'place' + (dressCat === c ? ' on' : '');
-      b.textContent = (c === 'button' ? '🔘 กระดุมตาน่ารัก' : '🎀 ของประดับขอบถุงเท้า');
+      b.textContent = DRESS_LABELS[c] || c;
       b.addEventListener('click', function () {
         dressCat = c;
         renderWardrobe();
@@ -439,12 +608,14 @@
     g.innerHTML = '';
     (WARDROBE[dressCat] || []).forEach(function (item) {
       var d = document.createElement('div');
-      var isCurrent = S.outfit[dressCat] === item.id;
+      var isCurrent = (S.outfit && S.outfit[dressCat] === item.id);
       d.className = 'it' + (isCurrent ? ' on' : '');
       d.innerHTML = '<div class="e">' + item.icon + '</div><span>' + item.name + '</span>';
       d.addEventListener('click', function () {
+        if (!S.outfit) S.outfit = {};
         S.outfit[dressCat] = item.id;
         renderWardrobe();
+        renderHome();
         Snd.play('chime');
         save();
       });
@@ -452,9 +623,27 @@
     });
   }
 
-  $('dressClear')?.addEventListener('click', function () {
-    S.outfit = { button: 'none', acc: 'none' };
+  $('dressRandom')?.addEventListener('click', function () {
+    var pKeys = WARDROBE.pattern.map(function (i) { return i.id; });
+    var hKeys = WARDROBE.hat.map(function (i) { return i.id; });
+    var bKeys = WARDROBE.button.map(function (i) { return i.id; });
+    var aKeys = WARDROBE.acc.map(function (i) { return i.id; });
+    S.outfit = {
+      pattern: pKeys[Math.floor(Math.random() * pKeys.length)],
+      hat: hKeys[Math.floor(Math.random() * hKeys.length)],
+      button: bKeys[Math.floor(Math.random() * bKeys.length)],
+      acc: aKeys[Math.floor(Math.random() * aKeys.length)]
+    };
     renderWardrobe();
+    renderHome();
+    Snd.play('snuggle');
+    save();
+  });
+
+  $('dressClear')?.addEventListener('click', function () {
+    S.outfit = { pattern: 'classic', hat: 'none', button: 'btn_pearl', acc: 'acc_bell' };
+    renderWardrobe();
+    renderHome();
     Snd.play('chime');
     save();
   });

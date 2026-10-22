@@ -117,7 +117,7 @@
     bellyRubs: 0,
     boops: 0,
     days: 0,
-    outfit: { hat: 'none', collar: 'collar_red' },
+    outfit: { hat: 'none', collar: 'collar_red', glasses: 'none', coat: 'none' },
     album: []
   };
 
@@ -130,7 +130,9 @@
     save();
   } else {
     for (var k in DEFAULT) if (S[k] === undefined) S[k] = DEFAULT[k];
-    if (!S.outfit) S.outfit = { hat: 'none', collar: 'collar_red' };
+    if (!S.outfit) S.outfit = { hat: 'none', collar: 'collar_red', glasses: 'none', coat: 'none' };
+    if (!S.outfit.glasses) S.outfit.glasses = 'none';
+    if (!S.outfit.coat) S.outfit.coat = 'none';
     if (!S.album) S.album = [];
   }
 
@@ -147,19 +149,42 @@
   ];
 
   var DRESS_ITEMS = {
-    hat: [
-      { id: 'none', name: 'ไม่มีหมวก', icon: '❌' },
-      { id: 'hat_cap', name: 'หมวกนักสืบ', icon: '🧢' },
-      { id: 'hat_party', name: 'หมวกปาร์ตี้', icon: '🎉' },
-      { id: 'hat_flower', name: 'มงกุฎดอกไม้', icon: '🌸' },
-      { id: 'hat_straw', name: 'หมวกฟางชาวสวน', icon: '👒' }
-    ],
     collar: [
       { id: 'none', name: 'ไม่ใส่ปลอกคอ', icon: '❌' },
-      { id: 'collar_red', name: 'ปลอกคอแดงกระดูกทอง', icon: '🔴' },
-      { id: 'bandana_star', name: 'ผ้าพันคอดาวฟ้า', icon: '⭐' },
-      { id: 'bandana_plaid', name: 'ผ้าพันคอลายสก๊อต', icon: '🧣' },
+      { id: 'collar_red', name: 'ปลอกคอแดงกระดิ่งทอง', icon: '🔴' },
+      { id: 'collar_blue', name: 'ปลอกคอน้ำเงินจี้ดาว', icon: '🔵' },
+      { id: 'collar_gold', name: 'สร้อยโซ่ทองฮิปฮอปจอมซน', icon: '⛓️' },
+      { id: 'bandana_star', name: 'ผ้าพันคอดาวฟ้าฮีโร่', icon: '⭐' },
+      { id: 'bandana_plaid', name: 'ผ้าพันคอลายสก๊อตชมพู', icon: '🧣' },
+      { id: 'bandana_pirate', name: 'ผ้าพันคอโจรสลัดสุดเท่', icon: '🏴‍☠️' },
+      { id: 'bandana_rainbow', name: 'ผ้าพันคอสีรุ้งสดใส', icon: '🌈' },
       { id: 'bowtie', name: 'โบว์ไทสีทองสุภาพบุรุษ', icon: '🎀' }
+    ],
+    hat: [
+      { id: 'none', name: 'ไม่มีหมวก', icon: '❌' },
+      { id: 'hat_cap', name: 'หมวกแก๊ปสปอร์ตสีน้ำเงิน', icon: '🧢' },
+      { id: 'hat_party', name: 'หมวกปาร์ตี้คอนเฟตติ', icon: '🎉' },
+      { id: 'hat_flower', name: 'มงกุฎดอกไม้หวานแหวว', icon: '🌸' },
+      { id: 'hat_straw', name: 'หมวกฟางชาวสวนฤดูร้อน', icon: '👒' },
+      { id: 'hat_crown', name: 'มงกุฎทองเจ้าชายตูบ', icon: '👑' },
+      { id: 'hat_beanie', name: 'หมวกไหมพรมสตรีทบีนนี่', icon: '🧶' },
+      { id: 'hat_bunny', name: 'ที่คาดผมหูกระต่ายน่ารัก', icon: '🐰' },
+      { id: 'hat_detective', name: 'หมวกนักสืบเชอร์ล็อกตูบ', icon: '🕵️' },
+      { id: 'hat_propeller', name: 'หมวกใบพัดหมุนสายรุ้ง', icon: '🚁' }
+    ],
+    glasses: [
+      { id: 'none', name: 'ไม่มีแว่นตา', icon: '❌' },
+      { id: 'glass_shades', name: 'แว่นกันแดดนักบินสุดเท่', icon: '🕶️' },
+      { id: 'glass_heart', name: 'แว่นหัวใจสีชมพูหวาน', icon: '💖' },
+      { id: 'glass_smart', name: 'แว่นตากลมคุณศาสตราจารย์', icon: '👓' },
+      { id: 'glass_star', name: 'แว่นตาดาวนีออนปาร์ตี้', icon: '🌟' }
+    ],
+    coat: [
+      { id: 'none', name: 'ขนธรรมชาตินุ่มฟู', icon: '❌' },
+      { id: 'coat_red_puffer', name: 'เสื้อกั๊กนวมกันหนาวสีแดง', icon: '🧥' },
+      { id: 'coat_bee', name: 'ฮู้ดดี้ผึ้งน้อยลายทางมีหนวด', icon: '🐝' },
+      { id: 'coat_sailor', name: 'เสื้อทหารเรือลายทางคราม', icon: '⛵' },
+      { id: 'coat_super', name: 'ผ้าคลุมซูเปอร์ฮีโร่จอมพลัง', icon: '🦸' }
     ]
   };
 
@@ -206,17 +231,53 @@
       s += '<ellipse cx="26" cy="66" rx="10" ry="7" fill="' + cFur + '" stroke="' + cInk + '" stroke-width="2.2"/>';
     }
 
+    // Coat / Outfit
+    var coat = (S.outfit && S.outfit.coat) || 'none';
+    if (coat === 'coat_red_puffer') {
+      s += '<ellipse cx="0" cy="46" rx="36" ry="24" fill="#e63946" stroke="#c1121f" stroke-width="2"/>';
+      s += '<line x1="-32" y1="40" x2="32" y2="40" stroke="#fff" stroke-width="2" opacity=".6"/>';
+      s += '<line x1="-34" y1="52" x2="34" y2="52" stroke="#fff" stroke-width="2" opacity=".6"/>';
+      s += '<path d="M -22 28 Q 0 34 22 28" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round"/>';
+    } else if (coat === 'coat_bee') {
+      s += '<ellipse cx="0" cy="46" rx="36" ry="24" fill="#ffd166" stroke="#b78600" stroke-width="2"/>';
+      s += '<path d="M -32 40 Q 0 44 32 40 L 34 46 Q 0 50 -34 46 Z" fill="#2c1b18"/>';
+      s += '<path d="M -30 52 Q 0 56 30 52 L 28 58 Q 0 62 -28 58 Z" fill="#2c1b18"/>';
+      s += '<path d="M 0 28 L -10 14 M 0 28 L 10 14" stroke="#2c1b18" stroke-width="2" stroke-linecap="round"/>';
+      s += '<circle cx="-10" cy="14" r="3" fill="#ffd166"/><circle cx="10" cy="14" r="3" fill="#ffd166"/>';
+    } else if (coat === 'coat_sailor') {
+      s += '<ellipse cx="0" cy="46" rx="36" ry="24" fill="#ffffff" stroke="#1d4e89" stroke-width="2"/>';
+      s += '<path d="M -34 38 Q 0 42 34 38" stroke="#1d4e89" stroke-width="3" fill="none"/>';
+      s += '<path d="M -36 46 Q 0 50 36 46" stroke="#1d4e89" stroke-width="3" fill="none"/>';
+      s += '<path d="M -32 54 Q 0 58 32 54" stroke="#1d4e89" stroke-width="3" fill="none"/>';
+    } else if (coat === 'coat_super') {
+      s += '<path d="M -24 30 L -46 72 Q 0 78 46 72 L 24 30 Z" fill="#e63946" stroke="#c1121f" stroke-width="2"/>';
+      s += '<polygon points="0,48 8,54 5,63 -5,63 -8,54" fill="#ffd166" stroke="#b78600" stroke-width="1.2"/>';
+    }
+
     // Collar
-    var col = S.outfit.collar || 'collar_red';
+    var col = (S.outfit && S.outfit.collar) || 'collar_red';
     if (col === 'collar_red') {
       s += '<path d="M -26 22 Q 0 32 26 22" stroke="#e63946" stroke-width="6.5" fill="none" stroke-linecap="round"/>';
       s += '<circle cx="0" cy="30" r="5" fill="#ffd166" stroke="#b78600" stroke-width="1.5"/><circle cx="0" cy="30" r="2" fill="#fff"/>';
+    } else if (col === 'collar_blue') {
+      s += '<path d="M -26 22 Q 0 32 26 22" stroke="#1d4e89" stroke-width="6.5" fill="none" stroke-linecap="round"/>';
+      s += '<polygon points="0,26 2,30 6,30 3,33 4,37 0,34 -4,37 -3,33 -6,30 -2,30" fill="#ffd166"/>';
+    } else if (col === 'collar_gold') {
+      s += '<path d="M -26 22 Q 0 32 26 22" stroke="#ffd166" stroke-width="7" stroke-dasharray="6 3" fill="none" stroke-linecap="round"/>';
+      s += '<circle cx="0" cy="30" r="6" fill="#ffd166" stroke="#b78600" stroke-width="1.5"/><text x="-3.5" y="34" font-size="9" fill="#7f4f24">🦴</text>';
     } else if (col === 'bandana_star') {
       s += '<polygon points="-28,20 0,38 28,20" fill="#3a86ff" stroke="#1d4e89" stroke-width="1.8"/>';
       s += '<text x="-4" y="30" font-size="9" fill="#ffd166">⭐</text>';
     } else if (col === 'bandana_plaid') {
       s += '<polygon points="-28,20 0,38 28,20" fill="#ff70a6" stroke="#c9184a" stroke-width="1.8"/>';
       s += '<line x1="-12" y1="24" x2="12" y2="24" stroke="#fff" stroke-width="2"/>';
+    } else if (col === 'bandana_pirate') {
+      s += '<polygon points="-28,20 0,38 28,20" fill="#212529" stroke="#000" stroke-width="1.8"/>';
+      s += '<text x="-4" y="30" font-size="9" fill="#ffffff">☠️</text>';
+    } else if (col === 'bandana_rainbow') {
+      s += '<polygon points="-28,20 0,38 28,20" fill="#ff595e" stroke="#c1121f" stroke-width="1.5"/>';
+      s += '<path d="M -20 25 Q 0 38 20 25" stroke="#ffca3a" stroke-width="3" fill="none"/>';
+      s += '<path d="M -14 29 Q 0 40 14 29" stroke="#8ac926" stroke-width="3" fill="none"/>';
     } else if (col === 'bowtie') {
       s += '<polygon points="-14,24 -2,28 -14,32" fill="#ffbe0b"/><polygon points="14,24 2,28 14,32" fill="#ffbe0b"/><circle cx="0" cy="28" r="3.5" fill="#d48b00"/>';
     }
@@ -254,6 +315,36 @@
       s += eye(-18) + eye(18);
     }
 
+    // Glasses / Eyewear
+    var gl = (S.outfit && S.outfit.glasses) || 'none';
+    if (gl === 'glass_shades') {
+      s += '<g transform="translate(0, -10)">';
+      s += '<path d="M -28 -4 L 28 -4" stroke="#212529" stroke-width="2.5"/>';
+      s += '<path d="M -28 -4 C -28 10, -8 10, -8 -4 Z" fill="#212529" stroke="#000" stroke-width="1.8"/>';
+      s += '<path d="M 8 -4 C 8 10, 28 10, 28 -4 Z" fill="#212529" stroke="#000" stroke-width="1.8"/>';
+      s += '<line x1="-24" y1="-2" x2="-14" y2="6" stroke="#fff" stroke-width="1.6" opacity=".7"/>';
+      s += '<line x1="12" y1="-2" x2="22" y2="6" stroke="#fff" stroke-width="1.6" opacity=".7"/>';
+      s += '</g>';
+    } else if (gl === 'glass_heart') {
+      s += '<g transform="translate(0, -10)">';
+      s += '<path d="M -28 -4 L 28 -4" stroke="#ff4d6d" stroke-width="2"/>';
+      s += '<path d="M -18 -4 C -26 -12, -30 2, -18 8 C -6 2, -10 -12, -18 -4 Z" fill="#ff758f" stroke="#ff4d6d" stroke-width="2" opacity=".9"/>';
+      s += '<path d="M 18 -4 C 10 -12, 6 2, 18 8 C 30 2, 26 -12, 18 -4 Z" fill="#ff758f" stroke="#ff4d6d" stroke-width="2" opacity=".9"/>';
+      s += '</g>';
+    } else if (gl === 'glass_smart') {
+      s += '<g transform="translate(0, -10)">';
+      s += '<circle cx="-18" cy="0" r="11" fill="none" stroke="#ffd166" stroke-width="2.4"/>';
+      s += '<circle cx="18" cy="0" r="11" fill="none" stroke="#ffd166" stroke-width="2.4"/>';
+      s += '<line x1="-7" y1="-2" x2="7" y2="-2" stroke="#ffd166" stroke-width="2.4"/>';
+      s += '</g>';
+    } else if (gl === 'glass_star') {
+      s += '<g transform="translate(0, -10)">';
+      s += '<polygon points="-18,-9 -14,-2 -7,-2 -12,2 -10,9 -18,5 -26,9 -24,2 -29,-2 -22,-2" fill="#70d6ff" stroke="#0077b6" stroke-width="1.6"/>';
+      s += '<polygon points="18,-9 22,-2 29,-2 24,2 26,9 18,5 10,9 12,2 7,-2 14,-2" fill="#70d6ff" stroke="#0077b6" stroke-width="1.6"/>';
+      s += '<line x1="-7" y1="-2" x2="7" y2="-2" stroke="#0077b6" stroke-width="2"/>';
+      s += '</g>';
+    }
+
     // Nose
     s += '<ellipse cx="0" cy="-1" rx="6" ry="4.5" fill="' + cInk + '"/>';
     s += '<ellipse cx="-2" cy="-2" rx="1.8" ry="1.2" fill="#fff"/>';
@@ -269,18 +360,41 @@
     }
 
     // Hat Accessory
-    var hat = S.outfit.hat || 'none';
+    var hat = (S.outfit && S.outfit.hat) || 'none';
     if (hat === 'hat_cap') {
       s += '<path d="M -26 -40 Q 0 -58 26 -40 Z" fill="#3a86ff" stroke="#1d4e89" stroke-width="2"/>';
       s += '<ellipse cx="16" cy="-38" rx="18" ry="4" fill="#3a86ff" stroke="#1d4e89" stroke-width="1.8"/>';
     } else if (hat === 'hat_party') {
       s += '<polygon points="0,-72 -14,-40 14,-40" fill="#ffbe0b" stroke="#d48b00" stroke-width="2"/>';
       s += '<circle cx="0" cy="-73" r="4" fill="#fb5607"/>';
+      s += '<circle cx="-4" cy="-52" r="2.5" fill="#ff006e"/><circle cx="3" cy="-60" r="2.5" fill="#3a86ff"/>';
     } else if (hat === 'hat_flower') {
       s += '<circle cx="-16" cy="-42" r="5" fill="#ff70a6"/><circle cx="0" cy="-45" r="5.5" fill="#ffd166"/><circle cx="16" cy="-42" r="5" fill="#ff70a6"/>';
+      s += '<circle cx="-8" cy="-43" r="4.5" fill="#ff9ebb"/><circle cx="8" cy="-43" r="4.5" fill="#ff9ebb"/>';
     } else if (hat === 'hat_straw') {
       s += '<ellipse cx="0" cy="-42" rx="36" ry="7" fill="#ffe082" stroke="#b78600" stroke-width="2"/>';
       s += '<path d="M -18 -42 C -18 -60, 18 -60, 18 -42 Z" fill="#ffe082" stroke="#b78600" stroke-width="2"/>';
+      s += '<rect x="-18" y="-45" width="36" height="5" fill="#e63946"/>';
+    } else if (hat === 'hat_crown') {
+      s += '<polygon points="-18,-40 -16,-58 -8,-48 0,-62 8,-48 16,-58 18,-40" fill="#ffd166" stroke="#b78600" stroke-width="2"/>';
+      s += '<circle cx="0" cy="-52" r="3" fill="#e63946"/>';
+    } else if (hat === 'hat_beanie') {
+      s += '<path d="M -26 -40 C -28 -62, 28 -62, 26 -40 Z" fill="#7209b7" stroke="#3a0ca3" stroke-width="2"/>';
+      s += '<circle cx="0" cy="-64" r="7" fill="#f72585"/>';
+    } else if (hat === 'hat_bunny') {
+      s += '<ellipse cx="0" cy="-42" rx="26" ry="4" fill="#fde2e4" stroke="#ff70a6" stroke-width="1.8"/>';
+      s += '<ellipse cx="-12" cy="-60" rx="6" ry="16" fill="#ffffff" stroke="#ff70a6" stroke-width="1.8" transform="rotate(-8 -12 -60)"/>';
+      s += '<ellipse cx="-12" cy="-60" rx="3" ry="11" fill="#ffb4d6" transform="rotate(-8 -12 -60)"/>';
+      s += '<ellipse cx="12" cy="-60" rx="6" ry="16" fill="#ffffff" stroke="#ff70a6" stroke-width="1.8" transform="rotate(8 12 -60)"/>';
+      s += '<ellipse cx="12" cy="-60" rx="3" ry="11" fill="#ffb4d6" transform="rotate(8 12 -60)"/>';
+    } else if (hat === 'hat_detective') {
+      s += '<path d="M -28 -40 C -28 -56, 28 -56, 28 -40 Z" fill="#7f4f24" stroke="#582f0e" stroke-width="2"/>';
+      s += '<ellipse cx="0" cy="-40" rx="36" ry="5" fill="#936639" stroke="#582f0e" stroke-width="1.8"/>';
+    } else if (hat === 'hat_propeller') {
+      s += '<path d="M -24 -40 Q 0 -54 24 -40 Z" fill="#4cc9f0" stroke="#0077b6" stroke-width="2"/>';
+      s += '<line x1="0" y1="-48" x2="0" y2="-56" stroke="#2b2d42" stroke-width="2"/>';
+      s += '<ellipse cx="-10" cy="-56" rx="10" ry="3" fill="#f72585"/><ellipse cx="10" cy="-56" rx="10" ry="3" fill="#ffd166"/>';
+      s += '<circle cx="0" cy="-56" r="3" fill="#2b2d42"/>';
     }
 
     s += '</g>';
@@ -450,15 +564,21 @@
 
   /* ---------------- DRESS UP TAB ---------------- */
   var dressCat = 'collar';
+  var DRESS_LABELS = {
+    collar: '🧣 ปลอกคอ & ผ้าพันคอ',
+    hat: '👒 หมวกประดับหัว',
+    glasses: '🕶️ แว่นตาสุดเท่',
+    coat: '🧥 เสื้อกั๊ก & ฮู้ดดี้'
+  };
 
   function renderDress() {
     $('petBox2').innerHTML = dogneySVG({});
     var cr = $('dressCats');
     cr.innerHTML = '';
-    ['collar', 'hat'].forEach(function (c) {
+    ['collar', 'hat', 'glasses', 'coat'].forEach(function (c) {
       var b = document.createElement('button');
       b.className = 'place' + (dressCat === c ? ' on' : '');
-      b.textContent = (c === 'collar' ? '🧣 ปลอกคอ & ผ้าพันคอ' : '👒 หมวกน่ารัก');
+      b.textContent = DRESS_LABELS[c] || c;
       b.addEventListener('click', function () {
         dressCat = c;
         renderDress();
@@ -471,12 +591,14 @@
     g.innerHTML = '';
     (DRESS_ITEMS[dressCat] || []).forEach(function (item) {
       var d = document.createElement('div');
-      var isCurrent = S.outfit[dressCat] === item.id;
+      var isCurrent = (S.outfit && S.outfit[dressCat] === item.id);
       d.className = 'it' + (isCurrent ? ' on' : '');
       d.innerHTML = '<div class="e">' + item.icon + '</div><span>' + item.name + '</span>';
       d.addEventListener('click', function () {
+        if (!S.outfit) S.outfit = {};
         S.outfit[dressCat] = item.id;
         renderDress();
+        renderHome();
         Snd.play('bork');
         save();
       });
@@ -484,9 +606,27 @@
     });
   }
 
-  $('dressClear')?.addEventListener('click', function () {
-    S.outfit = { hat: 'none', collar: 'none' };
+  $('dressRandom')?.addEventListener('click', function () {
+    var cKeys = DRESS_ITEMS.collar.map(function (i) { return i.id; });
+    var hKeys = DRESS_ITEMS.hat.map(function (i) { return i.id; });
+    var gKeys = DRESS_ITEMS.glasses.map(function (i) { return i.id; });
+    var oKeys = DRESS_ITEMS.coat.map(function (i) { return i.id; });
+    S.outfit = {
+      collar: cKeys[Math.floor(Math.random() * cKeys.length)],
+      hat: hKeys[Math.floor(Math.random() * hKeys.length)],
+      glasses: gKeys[Math.floor(Math.random() * gKeys.length)],
+      coat: oKeys[Math.floor(Math.random() * oKeys.length)]
+    };
     renderDress();
+    renderHome();
+    Snd.play('bork');
+    save();
+  });
+
+  $('dressClear')?.addEventListener('click', function () {
+    S.outfit = { hat: 'none', collar: 'none', glasses: 'none', coat: 'none' };
+    renderDress();
+    renderHome();
     Snd.play('bork');
     save();
   });

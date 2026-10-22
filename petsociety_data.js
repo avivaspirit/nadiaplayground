@@ -129,17 +129,32 @@ const GAME_DATA = {
     { id: 'hat_straw', slot: 'head', name: 'Summer Straw Hat', price: 55, icon: '👒', color: '#e9d8a6', style: 'straw' },
     { id: 'hat_bunny_ears', slot: 'head', name: 'Fluffy Bunny Headband', price: 75, icon: '🐰', color: '#fde2e4', style: 'bunny_headband' },
     { id: 'hat_chef', slot: 'head', name: 'Master Chef Hat', price: 70, icon: '🧑‍🍳', color: '#ffffff', style: 'chef' },
+    { id: 'hat_wizard', slot: 'head', name: 'Mystic Star Wizard Hat', price: 90, icon: '🧙', color: '#4361ee', style: 'wizard' },
+    { id: 'hat_frog', slot: 'head', name: 'Froggy Bucket Hat', price: 65, icon: '🐸', color: '#52b788', style: 'frog' },
+    { id: 'hat_beanie_cat', slot: 'head', name: 'Kawaii Cat Ears Beanie', price: 60, icon: '🐱', color: '#f72585', style: 'cat_beanie' },
+    { id: 'hat_party_cone', slot: 'head', name: 'Party Confetti Cone', price: 45, icon: '🎉', color: '#ff006e', style: 'party_cone' },
+    { id: 'hat_detective', slot: 'head', name: 'Sherlock Hound Cap', price: 75, icon: '🕵️', color: '#6c584c', style: 'detective' },
+    { id: 'hat_angel', slot: 'head', name: 'Golden Angel Halo', price: 110, icon: '😇', color: '#ffd166', style: 'angel_halo' },
+    { id: 'hat_sock_beanie', slot: 'head', name: 'Sockney Knit Beret', price: 70, icon: '🧦', color: '#ff70a6', style: 'sock_beret' },
 
     // Glasses / Face
     { id: 'glass_round', slot: 'face', name: 'Smart Round Glasses', price: 45, icon: '👓', color: '#4a4e69', style: 'round_glass' },
     { id: 'glass_heart', slot: 'face', name: 'Heart Sunglasses', price: 60, icon: '🕶️', color: '#ff4d6d', style: 'heart_glass' },
+    { id: 'glass_aviator', slot: 'face', name: 'Golden Aviator Shades', price: 70, icon: '🕶️', color: '#ffd166', style: 'aviator' },
     { id: 'face_star', slot: 'face', name: 'Star Face Decal', price: 30, icon: '⭐', color: '#ffd166', style: 'star_decal' },
+    { id: 'face_bandage', slot: 'face', name: 'Cute Anime Bandage', price: 25, icon: '🩹', color: '#ffcad4', style: 'bandage' },
+    { id: 'face_whiskers', slot: 'face', name: 'Kawaii Whiskers Decal', price: 35, icon: '🐾', color: '#4a4e69', style: 'whiskers_decal' },
+    { id: 'face_sparkles', slot: 'face', name: 'Stardust Face Glitter', price: 40, icon: '✨', color: '#7209b7', style: 'glitter_decal' },
 
     // Neck
     { id: 'neck_bell', slot: 'neck', name: 'Golden Bell Collar', price: 50, icon: '🔔', color: '#ffb703', style: 'bell_collar' },
     { id: 'neck_scarf', slot: 'neck', name: 'Cozy Red Scarf', price: 55, icon: '🧣', color: '#e63946', style: 'scarf' },
     { id: 'neck_pearl', slot: 'neck', name: 'Princess Pearl Necklace', price: 80, icon: '📿', color: '#f8f9fa', style: 'pearls' },
     { id: 'neck_bowtie', slot: 'neck', name: 'Dapper Bowtie', price: 40, icon: '👔', color: '#2b2d42', style: 'bowtie' },
+    { id: 'neck_gold_chain', slot: 'neck', name: 'Bling Gold Chain', price: 85, icon: '⛓️', color: '#ffd166', style: 'gold_chain' },
+    { id: 'neck_lei', slot: 'neck', name: 'Hawaiian Aloha Flower Lei', price: 60, icon: '🌺', color: '#ff70a6', style: 'lei' },
+    { id: 'neck_choker', slot: 'neck', name: 'Gothic Heart Choker', price: 50, icon: '🖤', color: '#2b2d42', style: 'choker' },
+    { id: 'neck_capelet', slot: 'neck', name: 'Winter Velvet Capelet', price: 75, icon: '🧥', color: '#e63946', style: 'capelet' },
 
     // Tops & Outfits
     { id: 'outfit_hoodie', slot: 'body', name: 'Pastel Bunny Hoodie', price: 90, icon: '🧥', color: '#fbc3bc', style: 'hoodie' },
@@ -149,6 +164,13 @@ const GAME_DATA = {
     { id: 'outfit_overalls', slot: 'body', name: 'Gardener Overalls', price: 95, icon: '👖', color: '#457b9d', style: 'overalls' },
     { id: 'outfit_tuxedo', slot: 'body', name: 'Gentleman Tuxedo', price: 150, icon: '🤵', color: '#1d3557', style: 'tuxedo' },
     { id: 'outfit_cape', slot: 'body', name: 'Magical Star Cape', price: 140, icon: '🪄', color: '#7209b7', style: 'magic_cape' },
+    { id: 'outfit_kimono', slot: 'body', name: 'Sakura Blossom Kimono', price: 140, icon: '👘', color: '#ffb4d6', style: 'kimono' },
+    { id: 'outfit_wizard', slot: 'body', name: 'Mystic Sorcerer Robe', price: 150, icon: '🧙', color: '#3a0ca3', style: 'wizard_robe' },
+    { id: 'outfit_sports', slot: 'body', name: 'Number 10 Champion Jersey', price: 85, icon: '⚽', color: '#ffb703', style: 'sports_jersey' },
+    { id: 'outfit_dinosaur', slot: 'body', name: 'Cute Dino Spikes Onesie', price: 160, icon: '🦖', color: '#52b788', style: 'dino_onesie' },
+    { id: 'outfit_maid', slot: 'body', name: 'Pastel Frill Maid Dress', price: 135, icon: '🎀', color: '#2b2d42', style: 'maid_dress' },
+    { id: 'outfit_pyjamas', slot: 'body', name: 'Starry Night Pajamas', price: 90, icon: '🌙', color: '#4cc9f0', style: 'star_pyjamas' },
+    { id: 'outfit_sock_knit', slot: 'body', name: 'Rainbow Knit Romper', price: 120, icon: '🧦', color: '#ffb4d6', style: 'sock_knit_romper' },
 
     // Handheld Props
     { id: 'prop_icecream', slot: 'hand', name: 'Triple Berry Ice Cream', price: 35, icon: '🍦', color: '#ffb5a7', style: 'icecream' },
@@ -156,11 +178,20 @@ const GAME_DATA = {
     { id: 'prop_balloon', slot: 'hand', name: 'Heart Balloon', price: 30, icon: '🎈', color: '#ff4d6d', style: 'balloon' },
     { id: 'prop_lollipop', slot: 'hand', name: 'Rainbow Swirl Lollipop', price: 25, icon: '🍭', color: '#f72585', style: 'lollipop' },
     { id: 'prop_fish', slot: 'hand', name: 'Seal Plushie Toy', price: 50, icon: '🦭', color: '#a0c4ff', style: 'seal_plush' },
+    { id: 'prop_boba', slot: 'hand', name: 'Boba Milk Tea Cup', price: 40, icon: '🧋', color: '#d4a373', style: 'boba_cup' },
+    { id: 'prop_guitar', slot: 'hand', name: 'Rockstar Electric Guitar', price: 85, icon: '🎸', color: '#e63946', style: 'electric_guitar' },
+    { id: 'prop_gameboy', slot: 'hand', name: 'Retro Handheld Console', price: 65, icon: '🎮', color: '#90e0ef', style: 'retro_game' },
+    { id: 'prop_yarn', slot: 'hand', name: 'Rainbow Yarn Ball & Needles', price: 35, icon: '🧶', color: '#ff70a6', style: 'yarn_ball' },
+    { id: 'prop_sunflower', slot: 'hand', name: 'Giant Happy Sunflower', price: 45, icon: '🌻', color: '#ffd166', style: 'sunflower' },
+    { id: 'prop_donut', slot: 'hand', name: 'Giant Sprinkles Donut', price: 35, icon: '🍩', color: '#ff70a6', style: 'giant_donut' },
 
     // Shoes
     { id: 'shoe_bunny', slot: 'shoes', name: 'Fluffy Bunny Slippers', price: 45, icon: '🥿', color: '#ffd1dc', style: 'bunny_slippers' },
     { id: 'shoe_sneakers', slot: 'shoes', name: 'Red Sport Sneakers', price: 55, icon: '👟', color: '#e63946', style: 'sneakers' },
-    { id: 'shoe_boots', slot: 'shoes', name: 'Yellow Rain Boots', price: 50, icon: '👢', color: '#ffb703', style: 'rain_boots' }
+    { id: 'shoe_boots', slot: 'shoes', name: 'Yellow Rain Boots', price: 50, icon: '👢', color: '#ffb703', style: 'rain_boots' },
+    { id: 'shoe_roller', slot: 'shoes', name: 'Retro Roller Skates', price: 70, icon: '🛼', color: '#4cc9f0', style: 'roller_skates' },
+    { id: 'shoe_socks', slot: 'shoes', name: 'Striped Cozy Knee Socks', price: 40, icon: '🧦', color: '#ffb4d6', style: 'striped_socks' },
+    { id: 'shoe_bear_paws', slot: 'shoes', name: 'Fluffy Bear Paw Slippers', price: 50, icon: '🐾', color: '#c68b59', style: 'bear_paws' }
   ],
 
   // Food Items
