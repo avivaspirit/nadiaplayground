@@ -1017,8 +1017,30 @@ class GameRenderer {
     let bobY = 0;
     let legAngle = 0;
     let armAngle = 0;
+    let tilt = 0;
 
-    if (isWalking) {
+    if (customAction === 'dance') {
+      bobY = Math.abs(Math.sin(this.time * 15)) * 14;
+      legAngle = Math.sin(this.time * 15) * 0.45;
+      armAngle = Math.sin(this.time * 15) * 0.95;
+      tilt = Math.sin(this.time * 7.5) * 0.12;
+    } else if (customAction === 'hug') {
+      bobY = Math.sin(this.time * 4) * 2;
+      armAngle = -0.65; // arms wrapped forward around partner!
+      tilt = 0.08;
+    } else if (customAction === 'rps_shake') {
+      bobY = Math.abs(Math.sin(this.time * 18)) * 8;
+      armAngle = Math.sin(this.time * 18) * 0.95;
+    } else if (customAction === 'rps_win') {
+      bobY = Math.abs(Math.sin(this.time * 12)) * 22;
+      legAngle = Math.sin(this.time * 12) * 0.5;
+      armAngle = 1.15; // hands raised high in triumph!
+      tilt = Math.sin(this.time * 6) * 0.1;
+    } else if (customAction === 'rps_lose') {
+      bobY = 5;
+      armAngle = -0.3;
+      tilt = 0.16;
+    } else if (isWalking) {
       bobY = Math.abs(Math.sin(this.time * 12)) * 6;
       legAngle = Math.sin(this.time * 12) * 0.35;
       armAngle = Math.cos(this.time * 12) * 0.3;
@@ -1027,19 +1049,15 @@ class GameRenderer {
       bobY = Math.sin(this.time * 3) * 2;
     }
 
-    if (customAction === 'dance') {
-      bobY = Math.abs(Math.sin(this.time * 16)) * 14;
-      armAngle = Math.sin(this.time * 16) * 0.7;
-    }
-
     // Shadow on ground
     ctx.fillStyle = 'rgba(0, 0, 0, 0.16)';
     ctx.beginPath();
     ctx.ellipse(0, 52, 34, 10, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Offset entire pet by bobY
+    // Offset entire pet by bobY and tilt
     ctx.translate(0, -bobY);
+    ctx.rotate(tilt);
 
     const species = GAME_DATA.species[pet.species] || GAME_DATA.species.bunny;
     const fur = pet.furColor || species.defaultColor;
@@ -1067,7 +1085,7 @@ class GameRenderer {
     this.drawPetHead(pet, species, fur);
 
     // 7. FACIAL FEATURES (Eyes, blush, nose, mouth)
-    this.drawPetFace(pet, species);
+    this.drawPetFace(pet, species, customAction);
 
     // 8. ACCESSORIES: GLASSES / FACE DECAL
     if (pet.clothes && pet.clothes.face) {
@@ -1087,7 +1105,77 @@ class GameRenderer {
     // 11. FRONT ARMS / FLIPPERS & HELD PROPS
     this.drawPetArmsAndProp(pet, species, fur, armAngle);
 
+    // 12. DYNAMIC ACTION EFFECTS & OVERHEAD BALLOONS
+    if (pet.rpsMove) {
+      this.drawRpsBubble(pet.rpsMove);
+    } else if (customAction === 'dance') {
+      this.drawDanceNotes();
+    } else if (customAction === 'rps_lose') {
+      this.drawSweatDrop();
+    } else if (customAction === 'rps_win') {
+      this.drawVictorySparkles();
+    }
+
     ctx.restore();
+  }
+
+  drawRpsBubble(move) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.translate(0, -78);
+    const icons = { rock: '✊', paper: '✋', scissors: '✌️' };
+    const emoji = icons[move] || '✊';
+
+    // Speech bubble background
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#4a4e69';
+    ctx.lineWidth = 2.5;
+    this.roundRect(-24, -24, 48, 44, 12, true, true);
+
+    // Bubble pointer tail
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(-6, 20);
+    ctx.lineTo(6, 20);
+    ctx.lineTo(0, 27);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillRect(-5, 18, 10, 4);
+
+    // Big Emoji
+    ctx.font = '24px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(emoji, 0, 8);
+    ctx.restore();
+  }
+
+  drawDanceNotes() {
+    const ctx = this.ctx;
+    const offset1 = Math.sin(this.time * 6) * 5;
+    const offset2 = Math.cos(this.time * 6) * 5;
+    ctx.font = '18px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🎵', -28 + offset1, -66 + offset2);
+    ctx.fillText('🎶', 28 - offset1, -70 - offset2);
+  }
+
+  drawSweatDrop() {
+    const ctx = this.ctx;
+    ctx.font = '20px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('💧', 24, -36);
+  }
+
+  drawVictorySparkles() {
+    const ctx = this.ctx;
+    ctx.font = '18px sans-serif';
+    ctx.textAlign = 'center';
+    const s = Math.sin(this.time * 8) * 4;
+    ctx.fillText('✨', -28 + s, -72);
+    ctx.fillText('👑', 0, -84);
+    ctx.fillText('✨', 28 - s, -72);
   }
 
   // Tail Drawing
@@ -1327,7 +1415,7 @@ class GameRenderer {
   }
 
   // Face Features (Eyes, Nose, Cheeks, Whiskers)
-  drawPetFace(pet, species) {
+  drawPetFace(pet, species, customAction = null) {
     const ctx = this.ctx;
     const eyeShape = pet.eyeShape || 'classic';
     const blushStyle = pet.blush || 'circles';
@@ -1336,7 +1424,7 @@ class GameRenderer {
     const isBlinking = (Math.sin(this.time * 2) > 0.96);
 
     // 1. EYES
-    if (isBlinking || eyeShape === 'happy') {
+    if (customAction === 'hug' || customAction === 'dance' || isBlinking || eyeShape === 'happy') {
       // Curved happy closed eyes
       ctx.strokeStyle = '#2b2d42';
       ctx.lineWidth = 3;
@@ -1345,6 +1433,27 @@ class GameRenderer {
       ctx.arc(-14, -14, 7, 0.8 * Math.PI, 0.2 * Math.PI, false);
       ctx.arc(14, -14, 7, 0.8 * Math.PI, 0.2 * Math.PI, false);
       ctx.stroke();
+    } else if (customAction === 'rps_lose') {
+      // Comical dizzy > < eyes
+      ctx.strokeStyle = '#2b2d42';
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-19, -17); ctx.lineTo(-11, -14); ctx.lineTo(-19, -11);
+      ctx.moveTo(19, -17); ctx.lineTo(11, -14); ctx.lineTo(19, -11);
+      ctx.stroke();
+    } else if (customAction === 'rps_win') {
+      // Star Sparkle victory eyes
+      ctx.fillStyle = '#2b2d42';
+      ctx.beginPath();
+      ctx.arc(-14, -14, 8, 0, Math.PI * 2);
+      ctx.arc(14, -14, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffd166';
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('✦', -14, -9);
+      ctx.fillText('✦', 14, -9);
     } else if (eyeShape === 'wink') {
       // One wink, one open
       ctx.fillStyle = '#2b2d42';
@@ -1442,15 +1551,26 @@ class GameRenderer {
       ctx.ellipse(0, -8, 3.5, 2.5, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Mouth (:3 style or smile)
-      ctx.strokeStyle = '#4a4e69';
-      ctx.lineWidth = 2;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(-5, -6);
-      ctx.quadraticCurveTo(-2, -3, 0, -5);
-      ctx.quadraticCurveTo(2, -3, 5, -6);
-      ctx.stroke();
+      // Mouth (:3 style, smile, or laughing)
+      if (customAction === 'rps_win' || customAction === 'dance') {
+        ctx.fillStyle = '#ff758f';
+        ctx.strokeStyle = '#4a4e69';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, -5, 5.5, 0, Math.PI, false);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      } else {
+        ctx.strokeStyle = '#4a4e69';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(-5, -6);
+        ctx.quadraticCurveTo(-2, -3, 0, -5);
+        ctx.quadraticCurveTo(2, -3, 5, -6);
+        ctx.stroke();
+      }
     }
 
     // 4. WHISKERS (Seal & Cat)

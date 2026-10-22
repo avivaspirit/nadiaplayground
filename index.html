@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nadia Playground: Pet Society World 🐾</title>
-  <link rel="stylesheet" href="petsociety.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -113,6 +113,31 @@
       <div class="catalog-scroll-list" id="buildCatalogList">
         <!-- Rendered dynamically -->
       </div>
+    </div>
+
+    <!-- Motion Action Floating Banner (Dance, Hug, RPS Countdown) -->
+    <div id="motionActionBanner" class="motion-action-banner hidden">
+      <span id="motionActionText">✨ Action!</span>
+    </div>
+
+    <!-- Rock-Paper-Scissors On-Screen Choice Overlay -->
+    <div id="rpsChoiceOverlay" class="rps-choice-overlay hidden">
+      <div class="rps-choice-title">✌️ เลือกท่าเป่ายิ้งฉุบของคุณ:</div>
+      <div class="rps-btn-row">
+        <button class="rps-move-btn" onclick="gameInstance.chooseRPSMove('rock')">
+          <span class="rps-emoji">✊</span>
+          <span class="rps-label">ค้อน (Rock)</span>
+        </button>
+        <button class="rps-move-btn" onclick="gameInstance.chooseRPSMove('paper')">
+          <span class="rps-emoji">✋</span>
+          <span class="rps-label">กระดาษ (Paper)</span>
+        </button>
+        <button class="rps-move-btn" onclick="gameInstance.chooseRPSMove('scissors')">
+          <span class="rps-emoji">✌️</span>
+          <span class="rps-label">กรรไกร (Scissors)</span>
+        </button>
+      </div>
+      <button class="rps-cancel-btn" onclick="gameInstance.cancelRPS()">ยกเลิก</button>
     </div>
 
     <!-- Bottom Action & Care Toolbar -->
@@ -319,9 +344,9 @@
   </div>
 
   <!-- Scripts -->
-  <script src="petsociety_data.js"></script>
-  <script src="petsociety_audio.js"></script>
-  <script src="petsociety_renderer.js"></script>
-  <script src="petsociety_game.js"></script>
+  <script src="data.js"></script>
+  <script src="audio.js"></script>
+  <script src="renderer.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>

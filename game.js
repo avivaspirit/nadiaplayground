@@ -1515,77 +1515,225 @@ class NadiaPetGame {
       this.spawnHearts(n.position.x, n.position.y - 40, 3);
       this.addXP(8);
       this.addCoins(5);
+      this.updateHUD();
+      this.saveState();
     } else if (action === 'hug') {
-      audio.playHug();
-      this.spawnHearts(n.position.x, n.position.y - 40, 6);
-      this.spawnHearts(this.player.x, this.player.y - 40, 6);
-      this.player.stats.happiness = 100;
-      this.addXP(15);
-      this.addCoins(10);
-      document.getElementById('neighborQuote').innerText = `"${n.name.split(' ')[0]} กอดตอบอย่างอบอุ่น ขนนุ่มฟูจังเลย! ❤️"`;
+      document.getElementById('neighborModal')?.classList.add('hidden');
+      this.performHugMotion(n);
     } else if (action === 'dance') {
-      audio.playFanfare();
-      this.player.customAction = 'dance';
-      setTimeout(() => { this.player.customAction = null; }, 3000);
-      this.spawnHearts(this.player.x, this.player.y - 30, 5);
-      this.addXP(12);
-      this.addCoins(15);
-      document.getElementById('neighborQuote').innerText = `"ว้าววว! สเต็ปแดนซ์น่ารักที่สุดในโลกเลย! 💃🎶"`;
+      document.getElementById('neighborModal')?.classList.add('hidden');
+      this.performDanceMotion(n);
     } else if (action === 'rps') {
-      // Launch Rock Paper Scissors mini-game
+      document.getElementById('neighborModal')?.classList.add('hidden');
       this.startRPSMiniGame(n);
     } else if (action === 'treat') {
-      // Give favorite food
       const favFood = GAME_DATA.foods.find(f => f.id === GAME_DATA.species[n.species].favFood);
       audio.playChew();
       this.spawnHearts(n.position.x, n.position.y - 40, 8);
       this.addCoins(20);
       this.addXP(25);
       document.getElementById('neighborQuote').innerText = `"โอ้โห! ให้ ${favFood ? favFood.name : 'ขนม'} กับฉันเหรอ! ดีใจที่สุดเลย รักเธอจัง! 💖"`;
+      this.updateHUD();
+      this.saveState();
     }
-    this.updateHUD();
-    this.saveState();
   }
 
-  // Rock Paper Scissors Mini-game
-  startRPSMiniGame(neighbor) {
-    const choices = ['rock', 'paper', 'scissors'];
-    const icons = { rock: '✊ ค้อน', paper: '✋ กระดาษ', scissors: '✌️ กรรไกร' };
+  // ==========================================
+  // REAL CHARACTER MOTION SEQUENCES
+  // ==========================================
 
-    const playerChoice = prompt(`เป่ายิ้งฉุบกับ ${neighbor.name}!\nพิมพ์ตัวเลือกของคุณ:\n1: ค้อน ✊\n2: กระดาษ ✋\n3: กรรไกร ✌️\n(หรือพิมพ์ rock / paper / scissors)`);
-    if (!playerChoice) return;
+  // 1. REAL HUG MOTION
+  performHugMotion(targetNeighbor) {
+    this.inMotion = true;
+    audio.playHug();
 
-    let pMove = 'rock';
-    if (playerChoice === '2' || playerChoice.includes('กระดาษ') || playerChoice.toLowerCase() === 'paper') pMove = 'paper';
-    if (playerChoice === '3' || playerChoice.includes('กรรไกร') || playerChoice.toLowerCase() === 'scissors') pMove = 'scissors';
+    // Move close to each other
+    const midX = (this.player.x + targetNeighbor.position.x) / 2;
+    this.player.x = midX - 22;
+    this.player.targetX = midX - 22;
+    targetNeighbor.position.x = midX + 22;
 
-    const nMove = choices[Math.floor(Math.random() * choices.length)];
+    this.player.facingRight = true;
+    targetNeighbor.facingRight = false;
 
-    let result = 'draw';
-    if (pMove === nMove) result = 'draw';
-    else if (
-      (pMove === 'rock' && nMove === 'scissors') ||
-      (pMove === 'paper' && nMove === 'rock') ||
-      (pMove === 'scissors' && nMove === 'paper')
-    ) {
-      result = 'win';
-    } else {
-      result = 'lose';
+    // Trigger physical hug animation
+    this.player.customAction = 'hug';
+    targetNeighbor.customAction = 'hug';
+
+    this.showMotionBanner('💖 กอดแสนอบอุ่น! (Warm Hug)');
+    this.player.stats.happiness = 100;
+    this.addXP(18);
+    this.addCoins(15);
+    this.updateHUD();
+
+    // Continuous burst of floating hearts
+    this.spawnHearts(midX, this.player.y - 40, 8);
+    const heartTimer = setInterval(() => {
+      this.spawnHearts(midX + (Math.random() - 0.5) * 24, this.player.y - 35, 3);
+    }, 280);
+
+    setTimeout(() => {
+      clearInterval(heartTimer);
+      this.player.customAction = null;
+      targetNeighbor.customAction = null;
+      this.inMotion = false;
+      this.hideMotionBanner();
+      this.showSaveToast('✨ กอดกันอย่างอบอุ่น อารมณ์ดีเต็มเปี่ยม!');
+      this.saveState();
+    }, 2800);
+  }
+
+  // 2. REAL DANCE MOTION
+  performDanceMotion(targetNeighbor) {
+    this.inMotion = true;
+    audio.playFanfare();
+
+    // Position side-by-side facing forward
+    const midX = (this.player.x + targetNeighbor.position.x) / 2;
+    this.player.x = midX - 35;
+    this.player.targetX = midX - 35;
+    targetNeighbor.position.x = midX + 35;
+
+    this.player.facingRight = true;
+    targetNeighbor.facingRight = true;
+
+    // Trigger physical synchronized dance animation
+    this.player.customAction = 'dance';
+    targetNeighbor.customAction = 'dance';
+
+    this.showMotionBanner('💃 แดนซ์ปาร์ตี้สนุกสุดเหวี่ยง! 🎶');
+    this.player.stats.happiness = 100;
+    this.addCoins(20);
+    this.addXP(15);
+    this.updateHUD();
+
+    setTimeout(() => {
+      audio.playSqueak();
+    }, 1200);
+
+    setTimeout(() => {
+      this.player.customAction = null;
+      targetNeighbor.customAction = null;
+      this.inMotion = false;
+      this.hideMotionBanner();
+      this.showSaveToast('🎶 เต้นเสร็จแล้ว สดชื่นมากๆ!');
+      this.saveState();
+    }, 3600);
+  }
+
+  // 3. REAL ROCK-PAPER-SCISSORS MOTION
+  startRPSMiniGame(targetNeighbor) {
+    this.rpsNeighbor = targetNeighbor;
+    this.inMotion = true;
+
+    // Stand facing each other
+    const midX = (this.player.x + targetNeighbor.position.x) / 2;
+    this.player.x = midX - 48;
+    this.player.targetX = midX - 48;
+    targetNeighbor.position.x = midX + 48;
+
+    this.player.facingRight = true;
+    targetNeighbor.facingRight = false;
+
+    // Show on-screen RPS choice overlay
+    const overlay = document.getElementById('rpsChoiceOverlay');
+    if (overlay) overlay.classList.remove('hidden');
+  }
+
+  cancelRPS() {
+    const overlay = document.getElementById('rpsChoiceOverlay');
+    if (overlay) overlay.classList.add('hidden');
+    this.inMotion = false;
+    this.rpsNeighbor = null;
+  }
+
+  chooseRPSMove(playerMove) {
+    const overlay = document.getElementById('rpsChoiceOverlay');
+    if (overlay) overlay.classList.add('hidden');
+    if (!this.rpsNeighbor) return;
+
+    // Phase 1: Countdown fist-pump shake!
+    this.player.customAction = 'rps_shake';
+    this.rpsNeighbor.customAction = 'rps_shake';
+    this.showMotionBanner('✊ 1... ยิ้ง...');
+    audio.playPop(450);
+
+    // Phase 2: Second shake!
+    setTimeout(() => {
+      this.showMotionBanner('✌️ 2... ฉุบ...');
+      audio.playPop(550);
+    }, 750);
+
+    // Phase 3: SHOW MOVE!
+    setTimeout(() => {
+      const choices = ['rock', 'paper', 'scissors'];
+      const npcMove = choices[Math.floor(Math.random() * choices.length)];
+
+      this.player.rpsMove = playerMove;
+      this.rpsNeighbor.rpsMove = npcMove;
+      audio.playPop(750);
+
+      let result = 'draw';
+      if (playerMove === npcMove) {
+        result = 'draw';
+      } else if (
+        (playerMove === 'rock' && npcMove === 'scissors') ||
+        (playerMove === 'paper' && npcMove === 'rock') ||
+        (playerMove === 'scissors' && npcMove === 'paper')
+      ) {
+        result = 'win';
+      } else {
+        result = 'lose';
+      }
+
+      if (result === 'win') {
+        this.player.customAction = 'rps_win';
+        this.rpsNeighbor.customAction = 'rps_lose';
+        audio.playFanfare();
+        this.showMotionBanner('🎉 คุณชนะ! ได้รับ 30 🪙');
+        this.addCoins(30);
+        this.addXP(25);
+      } else if (result === 'draw') {
+        this.player.customAction = 'dance';
+        this.rpsNeighbor.customAction = 'dance';
+        audio.playPop(600);
+        this.showMotionBanner('🤝 เสมอกัน! แบ่งคนละ 10 🪙');
+        this.addCoins(10);
+        this.addXP(10);
+      } else {
+        this.player.customAction = 'rps_lose';
+        this.rpsNeighbor.customAction = 'rps_win';
+        audio.playPop(300);
+        this.showMotionBanner(`😅 ${this.rpsNeighbor.name.split(' ')[0]} ชนะรอบนี้!`);
+      }
+
+      // Phase 4: Reset & Return
+      setTimeout(() => {
+        this.player.rpsMove = null;
+        if (this.rpsNeighbor) this.rpsNeighbor.rpsMove = null;
+        this.player.customAction = null;
+        if (this.rpsNeighbor) this.rpsNeighbor.customAction = null;
+        this.rpsNeighbor = null;
+        this.inMotion = false;
+        this.hideMotionBanner();
+        this.saveState();
+      }, 2500);
+
+    }, 1500);
+  }
+
+  showMotionBanner(text) {
+    const banner = document.getElementById('motionActionBanner');
+    const label = document.getElementById('motionActionText');
+    if (banner && label) {
+      label.innerText = text;
+      banner.classList.remove('hidden');
     }
+  }
 
-    if (result === 'win') {
-      audio.playFanfare();
-      this.addCoins(30);
-      this.addXP(25);
-      alert(`🎉 คุณออก: ${icons[pMove]}\n${neighbor.name} ออก: ${icons[nMove]}\n\n✨ คุณชนะแล้ว! ได้รับ 30 เหรียญทอง!`);
-    } else if (result === 'draw') {
-      audio.playPop(500);
-      this.addCoins(10);
-      alert(`🤝 คุณออก: ${icons[pMove]}\n${neighbor.name} ออก: ${icons[nMove]}\n\nเสมอจ้า! แบ่งกันคนละ 10 เหรียญ!`);
-    } else {
-      audio.playPop(300);
-      alert(`😅 คุณออก: ${icons[pMove]}\n${neighbor.name} ออก: ${icons[nMove]}\n\n${neighbor.name} ชนะรอบนี้! ไว้มาแก้มือใหม่นะ!`);
-    }
+  hideMotionBanner() {
+    const banner = document.getElementById('motionActionBanner');
+    if (banner) banner.classList.add('hidden');
   }
 
   // ==========================================

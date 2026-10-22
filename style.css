@@ -1060,3 +1060,109 @@ body {
   display: none;
 }
 
+/* ==========================================
+   MOTION ACTIONS & RPS ON-SCREEN OVERLAYS
+   ========================================== */
+.motion-action-banner {
+  position: absolute;
+  top: 130px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: 3.5px solid #ff70a6;
+  border-radius: var(--border-radius-pill);
+  padding: 10px 28px;
+  font-size: 18px;
+  font-weight: 900;
+  color: #3a3b5c;
+  box-shadow: 0 10px 30px rgba(255, 112, 166, 0.4);
+  z-index: 20;
+  pointer-events: none;
+  animation: bannerPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bannerPop {
+  0% { transform: translateX(-50%) scale(0.8); opacity: 0; }
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+.rps-choice-overlay {
+  position: absolute;
+  bottom: 85px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  border: 4px solid #ffffff;
+  border-radius: 26px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 25;
+  animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.rps-choice-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #3a3b5c;
+}
+
+.rps-btn-row {
+  display: flex;
+  gap: 14px;
+}
+
+.rps-move-btn {
+  background: linear-gradient(135deg, #fff0f5, #ffe3ec);
+  border: 2.5px solid #ffafcc;
+  border-radius: 18px;
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(255, 112, 166, 0.15);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.rps-move-btn:hover {
+  transform: translateY(-4px) scale(1.08);
+  border-color: #ff70a6;
+  background: linear-gradient(135deg, #ffccd5, #ffafcc);
+  box-shadow: 0 10px 22px rgba(255, 112, 166, 0.35);
+}
+
+.rps-move-btn:active {
+  transform: translateY(1px);
+}
+
+.rps-move-btn .rps-emoji {
+  font-size: 32px;
+}
+
+.rps-move-btn .rps-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #4a4e69;
+}
+
+.rps-cancel-btn {
+  background: transparent;
+  border: none;
+  font-size: 11px;
+  font-weight: 700;
+  color: #868e96;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.rps-cancel-btn:hover {
+  color: #e03131;
+}
+
