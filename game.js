@@ -79,9 +79,10 @@ class NadiaPetGame {
 
     // Game Scenes: 'town', 'home', 'partner_home'
     this.currentScene = 'town';
-    this.worldWidth = 2000;
+    this.worldWidth = 5600;
     this.cameraX = 0;
     this.targetCameraX = 0;
+    this.zoom = 1.0;
 
     // Simulation Clock
     this.lastTime = performance.now();
@@ -151,20 +152,59 @@ class NadiaPetGame {
       customAction: null
     };
 
-    // Town Layout: Placed Buildings & Nature
-    this.townObjects = [
-      { id: 'town_cottage', x: 180, y: 270, width: 140, height: 130 },
-      { id: 'town_fountain', x: 740, y: 350, width: 100, height: 100 },
-      { id: 'town_blossom_tree', x: 420, y: 260, width: 90, height: 120 },
-      { id: 'town_apple_tree', x: 920, y: 260, width: 85, height: 115 },
-      { id: 'town_bakery', x: 1060, y: 260, width: 150, height: 140 },
-      { id: 'town_boutique', x: 1260, y: 260, width: 150, height: 140 },
-      { id: 'town_windmill', x: 1500, y: 250, width: 120, height: 150 },
-      { id: 'town_bench', x: 640, y: 390, width: 70, height: 50 },
-      { id: 'town_lamp', x: 570, y: 320, width: 40, height: 100 },
-      { id: 'town_lamp', x: 860, y: 320, width: 40, height: 100 },
-      { id: 'town_flower_bed', x: 340, y: 380, width: 70, height: 40 }
+    // Town Layout: Placed Buildings & Nature across 5600px Open World
+    this.defaultTownObjects = [
+      // ZONE 1: Sweet Village Suburb (0 - 1200)
+      { id: 'town_cottage', x: 160, y: 270, width: 140, height: 130 },
+      { id: 'town_fence', x: 80, y: 390, width: 60, height: 40 },
+      { id: 'town_stone_path', x: 270, y: 440, width: 50, height: 35 },
+      { id: 'town_flower_bed', x: 330, y: 380, width: 70, height: 40 },
+      { id: 'town_blossom_tree', x: 440, y: 260, width: 90, height: 120 },
+      { id: 'town_lamp', x: 540, y: 320, width: 40, height: 100 },
+      { id: 'town_cottage', x: 620, y: 270, width: 140, height: 130 },
+      { id: 'town_flower_bed', x: 790, y: 380, width: 70, height: 40 },
+      { id: 'town_fence', x: 880, y: 390, width: 60, height: 40 },
+      { id: 'town_apple_tree', x: 1000, y: 260, width: 85, height: 115 },
+      { id: 'town_lamp', x: 1120, y: 320, width: 40, height: 100 },
+
+      // ZONE 2: Shopping Boulevard & Terrace Cafe (1200 - 2400)
+      { id: 'town_bakery', x: 1320, y: 260, width: 150, height: 140 },
+      { id: 'town_flower_bed', x: 1500, y: 385, width: 70, height: 40 },
+      { id: 'town_boutique', x: 1620, y: 260, width: 150, height: 140 },
+      { id: 'town_lamp', x: 1800, y: 320, width: 40, height: 100 },
+      { id: 'furn_table', x: 1880, y: 350, width: 80, height: 60 },
+      { id: 'town_bench', x: 1990, y: 390, width: 70, height: 50 },
+      { id: 'town_lamp', x: 2100, y: 320, width: 40, height: 100 },
+      { id: 'town_blossom_tree', x: 2220, y: 260, width: 90, height: 120 },
+
+      // ZONE 3: Central Park & Grand Plaza (2400 - 3600)
+      { id: 'town_flower_bed', x: 2480, y: 380, width: 70, height: 40 },
+      { id: 'town_lamp', x: 2580, y: 320, width: 40, height: 100 },
+      { id: 'town_bench', x: 2680, y: 390, width: 70, height: 50 },
+      { id: 'town_fountain', x: 2840, y: 340, width: 100, height: 100 },
+      { id: 'town_bench', x: 3020, y: 390, width: 70, height: 50 },
+      { id: 'town_lamp', x: 3140, y: 320, width: 40, height: 100 },
+      { id: 'town_blossom_tree', x: 3240, y: 260, width: 90, height: 120 },
+      { id: 'town_gazebo', x: 3380, y: 250, width: 120, height: 140 },
+      { id: 'town_apple_tree', x: 3540, y: 260, width: 85, height: 115 },
+
+      // ZONE 4: Sunny Sandy Beach & Marina (3600 - 4700)
+      { id: 'town_palm_tree', x: 3720, y: 250, width: 85, height: 130 },
+      { id: 'town_beach_umbrella', x: 3850, y: 350, width: 75, height: 85 },
+      { id: 'town_palm_tree', x: 4020, y: 250, width: 85, height: 130 },
+      { id: 'town_beach_umbrella', x: 4160, y: 350, width: 75, height: 85 },
+      { id: 'town_bench', x: 4320, y: 390, width: 70, height: 50 },
+      { id: 'town_lighthouse', x: 4460, y: 240, width: 110, height: 160 },
+
+      // ZONE 5: Windmill Meadow & Highland Vista (4700 - 5600)
+      { id: 'town_fence', x: 4720, y: 390, width: 60, height: 40 },
+      { id: 'town_blossom_tree', x: 4820, y: 260, width: 90, height: 120 },
+      { id: 'town_bench', x: 4940, y: 390, width: 70, height: 50 },
+      { id: 'town_windmill', x: 5060, y: 240, width: 130, height: 160 },
+      { id: 'town_flower_bed', x: 5240, y: 380, width: 70, height: 40 },
+      { id: 'town_gazebo', x: 5360, y: 250, width: 120, height: 140 }
     ];
+    this.townObjects = JSON.parse(JSON.stringify(this.defaultTownObjects));
 
     // Home Interior: Placed Furniture & Decor
     this.homeObjects = [
@@ -272,7 +312,15 @@ class NadiaPetGame {
         const d = JSON.parse(saved);
         if (d.player) Object.assign(this.player, d.player);
         if (d.inventory) this.inventory = d.inventory;
-        if (d.townObjects) this.townObjects = d.townObjects;
+        if (d.townObjects) {
+          const hasLighthouse = d.townObjects.some(o => o.id === 'town_lighthouse');
+          if (!hasLighthouse) {
+            const newLandmarks = this.defaultTownObjects.filter(o => o.x > 1400);
+            this.townObjects = [...d.townObjects, ...newLandmarks];
+          } else {
+            this.townObjects = d.townObjects;
+          }
+        }
         if (d.homeObjects) this.homeObjects = d.homeObjects;
         if (d.roomTheme) this.roomTheme = d.roomTheme;
         loaded = true;
@@ -480,8 +528,15 @@ class NadiaPetGame {
       isMouseDown = true;
       audio.init();
       const pos = getCanvasPos(e);
-      const worldX = (this.currentScene === 'town') ? pos.x + this.cameraX : pos.x;
-      const worldY = pos.y;
+      let worldX, worldY;
+      if (this.currentScene === 'town') {
+        const zoom = this.zoom || 1.0;
+        worldX = this.cameraX + pos.x / zoom;
+        worldY = (pos.y - this.canvas.height * (1 - zoom)) / zoom;
+      } else {
+        worldX = pos.x;
+        worldY = pos.y;
+      }
       this.mouseWorldPos = { x: worldX, y: worldY };
 
       // 1. Build Mode Handling: Pick / Place Object
@@ -574,6 +629,15 @@ class NadiaPetGame {
             } else if (obj.id === 'town_boutique') {
               this.openShopModal('boutique');
               return;
+            } else if (obj.id === 'town_windmill') {
+              this.visitWindmill(obj);
+              return;
+            } else if (obj.id === 'town_lighthouse') {
+              this.visitLighthouse(obj);
+              return;
+            } else if (obj.id === 'town_beach_umbrella') {
+              this.relaxBeachUmbrella(obj);
+              return;
             }
           }
         }
@@ -590,8 +654,15 @@ class NadiaPetGame {
 
     const handlePointerMove = (e) => {
       const pos = getCanvasPos(e);
-      const worldX = (this.currentScene === 'town') ? pos.x + this.cameraX : pos.x;
-      const worldY = pos.y;
+      let worldX, worldY;
+      if (this.currentScene === 'town') {
+        const zoom = this.zoom || 1.0;
+        worldX = this.cameraX + pos.x / zoom;
+        worldY = (pos.y - this.canvas.height * (1 - zoom)) / zoom;
+      } else {
+        worldX = pos.x;
+        worldY = pos.y;
+      }
       this.mouseWorldPos = { x: worldX, y: worldY };
 
       if (isMouseDown && this.draggedObject) {
@@ -688,6 +759,28 @@ class NadiaPetGame {
       if (btn) btn.innerText = isMuted ? '🔇 Audio Off' : '🎵 Audio On';
     });
 
+    // Zoom Toggle Button
+    document.getElementById('btnToggleZoom')?.addEventListener('click', () => this.toggleZoom());
+
+    // Fullscreen / Large mode Toggle Button
+    document.getElementById('btnToggleFullscreen')?.addEventListener('click', () => this.toggleFullscreen());
+
+    // Window resize listener for responsive / fullscreen canvas
+    window.addEventListener('resize', () => this.handleResize());
+
+    // Mouse wheel zoom in town
+    this.canvas.addEventListener('wheel', (e) => {
+      if (this.currentScene === 'town') {
+        e.preventDefault();
+        const zoomDelta = e.deltaY < 0 ? 0.05 : -0.05;
+        this.zoom = Math.max(0.5, Math.min(1.2, (this.zoom || 1.0) + zoomDelta));
+        const btn = document.getElementById('btnToggleZoom');
+        if (btn) {
+          btn.innerText = `🔍 ซูม: ${Math.round(this.zoom * 100)}%`;
+        }
+      }
+    }, { passive: false });
+
     // Care Toolbar Buttons
     const tools = ['soap', 'shower', 'brush', 'ball', 'feed'];
     tools.forEach(tool => {
@@ -744,12 +837,14 @@ class NadiaPetGame {
       this.player.y = 440;
       this.player.targetX = 420;
       this.player.targetY = 440;
+      this.updateZonePills();
     } else {
       this.player.x = 450;
       this.player.y = 420;
       this.player.targetX = 450;
       this.player.targetY = 420;
       this.cameraX = 0;
+      document.getElementById('worldNavBar')?.classList.add('hidden');
     }
   }
 
@@ -806,10 +901,13 @@ class NadiaPetGame {
 
     // 2. Camera Follows Player in Town (smooth lerp)
     if (this.currentScene === 'town') {
-      const desiredCameraX = this.player.x - this.canvas.width / 2;
-      const maxCameraX = this.worldWidth - this.canvas.width;
+      const zoom = this.zoom || 1.0;
+      const visibleW = this.canvas.width / zoom;
+      const desiredCameraX = this.player.x - visibleW / 2;
+      const maxCameraX = Math.max(0, this.worldWidth - visibleW);
       this.targetCameraX = Math.max(0, Math.min(maxCameraX, desiredCameraX));
-      this.cameraX += (this.targetCameraX - this.cameraX) * 0.1;
+      this.cameraX += (this.targetCameraX - this.cameraX) * 0.12;
+      this.updateZonePills();
     } else {
       this.cameraX = 0;
     }
@@ -895,9 +993,18 @@ class NadiaPetGame {
   render() {
     this.renderer.clear(this.canvas.width, this.canvas.height);
 
+    const zoom = (this.currentScene === 'town') ? (this.zoom || 1.0) : 1.0;
+    const ctx = this.renderer.ctx;
+
     // 1. Draw Background & Scene Environment
     if (this.currentScene === 'town') {
-      this.renderer.drawTown(this.cameraX, this.worldWidth, this.canvas.width, this.canvas.height);
+      ctx.save();
+      if (zoom !== 1.0) {
+        ctx.translate(0, this.canvas.height * (1 - zoom));
+        ctx.scale(zoom, zoom);
+      }
+      this.renderer.drawTown(this.cameraX, this.worldWidth, this.canvas.width / zoom, this.canvas.height / zoom);
+      ctx.restore();
     } else if (this.currentScene === 'partner_home') {
       this.renderer.drawHome(this.partnerRoomTheme, this.cameraX);
     } else {
@@ -911,9 +1018,12 @@ class NadiaPetGame {
     // Sort by Y for depth layering
     const sortedObjects = [...objects].sort((a, b) => (a.y + a.height) - (b.y + b.height));
 
-    const ctx = this.renderer.ctx;
     ctx.save();
     if (this.currentScene === 'town') {
+      if (zoom !== 1.0) {
+        ctx.translate(0, this.canvas.height * (1 - zoom));
+        ctx.scale(zoom, zoom);
+      }
       ctx.translate(-this.cameraX, 0);
     }
 
@@ -1133,6 +1243,131 @@ class NadiaPetGame {
       }, 600);
     }
     this.updateHUD();
+  }
+
+  // Windmill Lookout
+  visitWindmill(obj) {
+    audio.playPop(700);
+    this.spawnHearts(obj.x + obj.width / 2, obj.y + 40, 6);
+    this.addCoins(20);
+    this.addXP(25);
+    this.showSaveToast('🎡 คุณขึ้นไปรับสายลมสดชื่นบนเนินกังหันลม! (+20 Coins, +25 XP) ✨');
+  }
+
+  // Harbor Lighthouse
+  visitLighthouse(obj) {
+    audio.playWaterSplash();
+    this.spawnHearts(obj.x + obj.width / 2, obj.y + 30, 8);
+    this.addCoins(30);
+    this.addXP(40);
+    this.showSaveToast('🗼 คุณปีนขึ้นประภาคารชมวิวทะเลกว้างสุดขอบฟ้า! (+30 Coins, +40 XP) 🌊');
+  }
+
+  // Beach Umbrella Lounge
+  relaxBeachUmbrella(obj) {
+    audio.playPop(620);
+    this.player.stats.happiness = 100;
+    this.player.stats.energy = 100;
+    this.updateHUD();
+    this.spawnHearts(this.player.x, this.player.y - 30, 8);
+    this.showSaveToast('⛱️ นอนเล่นรับลมริมทะเล ดื่มน้ำมะพร้าวเย็นชื่นใจ! พลังงาน & ความสุข 100%! 🥥🍹');
+  }
+
+  // Quick Travel to Zone (Open World GPS)
+  travelToZone(zoneKey) {
+    audio.init();
+    audio.playPop(750);
+    if (this.currentScene !== 'town') {
+      this.switchScene('town');
+    }
+    const zoneTargets = {
+      village: { x: 380, name: 'หมู่บ้านแสนหวาน (Sweet Village)' },
+      shopping: { x: 1650, name: 'ถนนช้อปปิ้ง & คาเฟ่ (Shopping Boulevard)' },
+      plaza: { x: 2880, name: 'สวนน้ำพุกลางเมือง (Central Park Plaza)' },
+      beach: { x: 3950, name: 'หาดทราย & ทะเลสายลม (Sunny Beach & Ocean)' },
+      windmill: { x: 5100, name: 'เนินเขากังหันลม (Windmill Meadow)' }
+    };
+    const target = zoneTargets[zoneKey] || zoneTargets.village;
+    this.player.x = target.x;
+    this.player.targetX = target.x;
+    this.player.y = 440;
+    this.player.targetY = 440;
+    this.showSaveToast(`🚀 เดินทางถึง: ${target.name} แล้ว! ✨`);
+    this.spawnHearts(this.player.x, this.player.y - 40, 6);
+    this.updateZonePills();
+  }
+
+  // Update Active World GPS Nav Pills
+  updateZonePills() {
+    const navBar = document.getElementById('worldNavBar');
+    if (!navBar) return;
+    if (this.currentScene !== 'town') {
+      navBar.classList.add('hidden');
+      return;
+    }
+    navBar.classList.remove('hidden');
+
+    const x = this.player.x;
+    let currentKey = 'village';
+    if (x >= 4700) currentKey = 'windmill';
+    else if (x >= 3600) currentKey = 'beach';
+    else if (x >= 2400) currentKey = 'plaza';
+    else if (x >= 1200) currentKey = 'shopping';
+
+    ['village', 'shopping', 'plaza', 'beach', 'windmill'].forEach(k => {
+      const el = document.getElementById(`pill_${k}`);
+      if (el) {
+        if (k === currentKey) el.classList.add('active');
+        else el.classList.remove('active');
+      }
+    });
+  }
+
+  // Toggle Fullscreen / Large Canvas Mode
+  toggleFullscreen() {
+    audio.init();
+    audio.playPop(650);
+    const wrapper = document.getElementById('gameWrapper');
+    if (!wrapper) return;
+    const isFull = wrapper.classList.toggle('fullscreen-mode');
+    const btn = document.getElementById('btnToggleFullscreen');
+    if (btn) {
+      btn.innerHTML = isFull ? '⛶ จอปกติ' : '⛶ จอใหญ่';
+    }
+    this.handleResize();
+    this.showSaveToast(isFull ? '⛶ เปิดโหมดจอใหญ่เต็มตาแล้ว!' : '⛶ สลับกลับมุมมองปกติ');
+  }
+
+  // Toggle Camera View Zoom
+  toggleZoom() {
+    audio.init();
+    audio.playPop(600);
+    const zoomLevels = [1.0, 0.75, 0.58];
+    const currentIndex = zoomLevels.findIndex(z => Math.abs(z - (this.zoom || 1.0)) < 0.05);
+    const nextIndex = (currentIndex + 1) % zoomLevels.length;
+    this.zoom = zoomLevels[nextIndex];
+    const btn = document.getElementById('btnToggleZoom');
+    if (btn) {
+      const labels = {
+        1.0: '🔍 ซูม: 100%',
+        0.75: '🔍 ซูม: 75% (กว้าง)',
+        0.58: '🔍 ซูม: 58% (พาโนรามา)'
+      };
+      btn.innerText = labels[this.zoom] || `🔍 ซูม: ${Math.round(this.zoom * 100)}%`;
+    }
+    this.showSaveToast(`🔍 มุมมองโลกกว้าง: ${Math.round(this.zoom * 100)}%`);
+  }
+
+  // Resize Handler for Responsive Fullscreen
+  handleResize() {
+    const wrapper = document.getElementById('gameWrapper');
+    if (wrapper && wrapper.classList.contains('fullscreen-mode')) {
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
+    } else {
+      this.canvas.width = 960;
+      this.canvas.height = 640;
+    }
   }
 
   // ==========================================

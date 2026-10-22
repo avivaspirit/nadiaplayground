@@ -171,109 +171,352 @@ class GameRenderer {
   // -------------------------------------------------------------
   // DRAW SCENE: OPEN WORLD TOWN
   // -------------------------------------------------------------
-  drawTown(cameraX, worldWidth = 2000, canvasW = 900, canvasH = 600) {
+  drawTown(cameraX, worldWidth = 5600, canvasW = 960, canvasH = 640) {
     const ctx = this.ctx;
     const h = canvasH;
+    const centerWorldX = cameraX + canvasW * 0.5;
+    const worldProgress = Math.max(0, Math.min(1, centerWorldX / worldWidth));
 
-    // Sky Gradient
-    const sky = ctx.createLinearGradient(0, 0, 0, h * 0.6);
-    sky.addColorStop(0, '#cce3de');
-    sky.addColorStop(0.5, '#eaf4f4');
-    sky.addColorStop(1, '#f6fff8');
+    // Dynamic Zone Sky Gradient (Smoothly evolves from village morning -> daylight -> beach blue -> twilight)
+    const sky = ctx.createLinearGradient(0, 0, 0, h * 0.65);
+    if (worldProgress < 0.22) {
+      // Zone 1: Morning Pastel Mint & Pink
+      sky.addColorStop(0, '#cce3de');
+      sky.addColorStop(0.5, '#eaf4f4');
+      sky.addColorStop(1, '#f6fff8');
+    } else if (worldProgress < 0.65) {
+      // Zone 2 & 3: Vibrant Daylight Sky
+      sky.addColorStop(0, '#a2d2ff');
+      sky.addColorStop(0.5, '#bde0fe');
+      sky.addColorStop(1, '#eaf4f4');
+    } else if (worldProgress < 0.84) {
+      // Zone 4: Sunny Tropical Beach Blue
+      sky.addColorStop(0, '#38bdf8');
+      sky.addColorStop(0.5, '#7dd3fc');
+      sky.addColorStop(1, '#f0f9ff');
+    } else {
+      // Zone 5: Golden Sunset & Lavender Highlands
+      sky.addColorStop(0, '#cdb4db');
+      sky.addColorStop(0.5, '#ffc8dd');
+      sky.addColorStop(1, '#fde2e4');
+    }
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, canvasW, h);
 
-    // Sun with soft halo
+    // Sun with soft glowing halo
+    const sunScreenX = 300 + (worldWidth * 0.45 - cameraX) * 0.15;
     ctx.fillStyle = 'rgba(255, 230, 109, 0.35)';
     ctx.beginPath();
-    ctx.arc(220 - cameraX * 0.1, 90, 55, 0, Math.PI * 2);
+    ctx.arc(sunScreenX, 90, 60, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = '#ffe66d';
     ctx.beginPath();
-    ctx.arc(220 - cameraX * 0.1, 90, 36, 0, Math.PI * 2);
+    ctx.arc(sunScreenX, 90, 36, 0, Math.PI * 2);
     ctx.fill();
 
-    // Background rolling hills (Parallax)
+    // Village Rainbow (Visible in Zone 1)
+    const rainbowScreenX = 450 - cameraX * 0.25;
+    if (rainbowScreenX >= -200 && rainbowScreenX <= canvasW + 200) {
+      ctx.save();
+      ctx.lineWidth = 4;
+      const rainbowColors = ['rgba(255,112,166,0.45)', 'rgba(255,209,102,0.45)', 'rgba(6,214,160,0.45)', 'rgba(17,138,178,0.45)'];
+      rainbowColors.forEach((c, idx) => {
+        ctx.strokeStyle = c;
+        ctx.beginPath();
+        ctx.arc(rainbowScreenX, 240, 180 + idx * 5, Math.PI, 0);
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    // Beach Seagulls (Visible in Zone 4)
+    const gullsBaseX = 4050 - cameraX * 0.35;
+    if (gullsBaseX >= -150 && gullsBaseX <= canvasW + 150) {
+      ctx.save();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      const gulls = [{ x: gullsBaseX, y: 70 }, { x: gullsBaseX + 60, y: 95 }, { x: gullsBaseX - 45, y: 110 }];
+      gulls.forEach(g => {
+        const wingFlap = Math.sin(this.time * 6 + g.x) * 4;
+        ctx.beginPath();
+        ctx.moveTo(g.x - 10, g.y + wingFlap);
+        ctx.quadraticCurveTo(g.x - 5, g.y - 4, g.x, g.y);
+        ctx.quadraticCurveTo(g.x + 5, g.y - 4, g.x + 10, g.y + wingFlap);
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    // Floating Hot Air Balloon over Highlands (Visible in Zone 5)
+    const balloonScreenX = 5200 - cameraX * 0.3;
+    if (balloonScreenX >= -100 && balloonScreenX <= canvasW + 100) {
+      ctx.save();
+      const bob = Math.sin(this.time * 2) * 8;
+      ctx.translate(balloonScreenX, 90 + bob);
+      ctx.fillStyle = '#ff70a6';
+      ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#ffd166';
+      ctx.beginPath(); ctx.ellipse(0, 0, 10, 22, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#b08968';
+      ctx.fillRect(-6, 28, 12, 10);
+      ctx.strokeStyle = '#6c757d'; ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(-4, 22); ctx.lineTo(-4, 28);
+      ctx.moveTo(4, 22); ctx.lineTo(4, 28);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Background Rolling Hills (Parallax 0.2x)
     ctx.save();
     ctx.translate(-cameraX * 0.2, 0);
     ctx.fillStyle = '#b7e4c7';
     ctx.beginPath();
     ctx.moveTo(-100, h * 0.6);
-    for (let x = -100; x < worldWidth + 200; x += 300) {
-      ctx.quadraticCurveTo(x + 150, h * 0.42, x + 300, h * 0.6);
+    for (let x = -100; x < worldWidth + 300; x += 320) {
+      ctx.quadraticCurveTo(x + 160, h * 0.42, x + 320, h * 0.6);
     }
-    ctx.lineTo(worldWidth + 200, h);
+    ctx.lineTo(worldWidth + 300, h);
     ctx.lineTo(-100, h);
     ctx.fill();
     ctx.restore();
 
-    // Midground hills with cute pastel houses in background
+    // Midground Hills (Parallax 0.5x)
     ctx.save();
     ctx.translate(-cameraX * 0.5, 0);
     ctx.fillStyle = '#95d5b2';
     ctx.beginPath();
     ctx.moveTo(-100, h * 0.65);
-    for (let x = -100; x < worldWidth + 200; x += 260) {
+    for (let x = -100; x < worldWidth + 300; x += 260) {
       ctx.quadraticCurveTo(x + 130, h * 0.52, x + 260, h * 0.65);
     }
-    ctx.lineTo(worldWidth + 200, h);
+    ctx.lineTo(worldWidth + 300, h);
     ctx.lineTo(-100, h);
     ctx.fill();
     ctx.restore();
 
-    // Foreground Town Ground (Street & Green Plaza)
+    // Foreground Town Ground (5 Connected Themed Zones Across 5600px)
     ctx.save();
     ctx.translate(-cameraX, 0);
 
     const groundY = h * 0.62;
-    // Lawn
-    ctx.fillStyle = '#74c69d';
-    ctx.fillRect(0, groundY, worldWidth, h - groundY);
-
-    // Stone Cobblestone Town Path
+    const groundH = h - groundY;
     const pathY = groundY + 45;
     const pathH = 140;
-    ctx.fillStyle = '#eed7a1';
-    ctx.fillRect(0, pathY, worldWidth, pathH);
 
-    // Path Cobblestone texture lines
+    // --- ZONE 1: Sweet Village Suburb (0 to 1200) ---
+    ctx.fillStyle = '#74c69d';
+    ctx.fillRect(0, groundY, 1200, groundH);
+    ctx.fillStyle = '#eed7a1';
+    ctx.fillRect(0, pathY, 1200, pathH);
     ctx.strokeStyle = '#e0c080';
     ctx.lineWidth = 2;
-    for (let x = 0; x < worldWidth; x += 45) {
+    for (let x = 0; x < 1200; x += 45) {
       ctx.beginPath();
       ctx.moveTo(x, pathY);
-      ctx.lineTo(x + 10, pathY + pathH);
+      ctx.lineTo(x + 8, pathY + pathH);
       ctx.stroke();
     }
     ctx.beginPath();
-    ctx.moveTo(0, pathY + 45);
-    ctx.lineTo(worldWidth, pathY + 45);
-    ctx.moveTo(0, pathY + 95);
-    ctx.lineTo(worldWidth, pathY + 95);
+    ctx.moveTo(0, pathY + 45); ctx.lineTo(1200, pathY + 45);
+    ctx.moveTo(0, pathY + 95); ctx.lineTo(1200, pathY + 95);
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, pathY - 5, 1200, 5);
+    ctx.fillRect(0, pathY + pathH, 1200, 5);
+    for (let x = 30; x < 1180; x += 65) {
+      const fy = groundY + 12 + ((x * 19) % 22);
+      ctx.fillStyle = (x % 2 === 0) ? '#ff70a6' : '#ffd166';
+      ctx.beginPath(); ctx.arc(x, fy, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.arc(x, fy, 1.5, 0, Math.PI * 2); ctx.fill();
+    }
+    this.drawTownZoneSign(70, groundY + 5, '🏡 Sweet Village (หมู่บ้านแสนหวาน)', '#ff70a6');
+
+    // --- ZONE 2: Shopping Boulevard & Cafe (1200 to 2400) ---
+    ctx.fillStyle = '#f5ebe0';
+    ctx.fillRect(1200, groundY, 1200, groundH);
+    ctx.fillStyle = '#eed7c5';
+    ctx.fillRect(1200, pathY, 1200, pathH);
+    ctx.strokeStyle = '#ddb892';
+    ctx.lineWidth = 2;
+    for (let x = 1200; x < 2400; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, pathY); ctx.lineTo(x, pathY + pathH);
+      ctx.stroke();
+    }
+    for (let y = pathY + 28; y < pathY + pathH; y += 28) {
+      ctx.beginPath();
+      ctx.moveTo(1200, y); ctx.lineTo(2400, y);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#b7b7a4';
+    ctx.fillRect(1200, pathY - 6, 1200, 6);
+    ctx.fillRect(1200, pathY + pathH, 1200, 6);
+    // Festive shop bunting pennants
+    for (let bx = 1260; bx < 2300; bx += 220) {
+      ctx.strokeStyle = 'rgba(74, 78, 105, 0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(bx, groundY - 80);
+      ctx.quadraticCurveTo(bx + 110, groundY - 50, bx + 220, groundY - 80);
+      ctx.stroke();
+      const flagColors = ['#ff70a6', '#ffd166', '#06d6a0', '#118ab2', '#cdb4db'];
+      for (let fi = 0; fi < 5; fi++) {
+        const fx = bx + 25 + fi * 38;
+        const fy = groundY - 65 + Math.sin(fi * 0.7) * 8;
+        ctx.fillStyle = flagColors[fi % flagColors.length];
+        ctx.beginPath();
+        ctx.moveTo(fx, fy);
+        ctx.lineTo(fx + 18, fy);
+        ctx.lineTo(fx + 9, fy + 18);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+    this.drawTownZoneSign(1250, groundY + 5, '🛍️ Shopping Blvd & Cafe (ถนนสายแฟชั่น)', '#e07a5f');
+
+    // --- ZONE 3: Central Park & Grand Plaza (2400 to 3600) ---
+    ctx.fillStyle = '#52b788';
+    ctx.fillRect(2400, groundY, 1200, groundH);
+    ctx.fillStyle = '#e9edc9';
+    ctx.fillRect(2400, pathY, 1200, pathH);
+    ctx.strokeStyle = '#ccd5ae';
+    ctx.lineWidth = 2;
+    for (let x = 2400; x < 3600; x += 50) {
+      ctx.beginPath();
+      ctx.moveTo(x, pathY); ctx.lineTo(x + 10, pathY + pathH);
+      ctx.stroke();
+    }
+    // Grand Plaza circular paving around Fountain (x=2840)
+    ctx.fillStyle = '#d8f3dc';
+    ctx.beginPath();
+    ctx.ellipse(2890, pathY + pathH * 0.5, 170, 75, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#74c69d';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.strokeStyle = '#b7e4c7';
+    ctx.lineWidth = 2;
+    for (let a = 0; a < Math.PI * 2; a += Math.PI / 4) {
+      ctx.beginPath();
+      ctx.moveTo(2890, pathY + pathH * 0.5);
+      ctx.lineTo(2890 + Math.cos(a) * 165, pathY + pathH * 0.5 + Math.sin(a) * 70);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(2400, pathY - 5, 1200, 5);
+    ctx.fillRect(2400, pathY + pathH, 1200, 5);
+    for (let x = 2420; x < 3580; x += 70) {
+      const fy = groundY + 14 + ((x * 13) % 20);
+      ctx.fillStyle = (x % 3 === 0) ? '#ff4d6d' : (x % 3 === 1 ? '#ffb703' : '#a2d2ff');
+      ctx.beginPath(); ctx.arc(x, fy, 4.5, 0, Math.PI * 2); ctx.fill();
+    }
+    this.drawTownZoneSign(2450, groundY + 5, '⛲ Central Park Plaza (สวนน้ำพุกลางเมือง)', '#2a9d8f');
+
+    // --- ZONE 4: Sunny Sandy Beach & Ocean (3600 to 4700) ---
+    // Smooth transition from grass to sand
+    const sandGrad = ctx.createLinearGradient(3600, 0, 3750, 0);
+    sandGrad.addColorStop(0, '#52b788');
+    sandGrad.addColorStop(1, '#fde047');
+    ctx.fillStyle = sandGrad;
+    ctx.fillRect(3600, groundY, 150, groundH);
+
+    // Warm golden sand
+    ctx.fillStyle = '#fed7aa';
+    ctx.fillRect(3750, groundY, 650, groundH);
+
+    // Boardwalk wooden planks walkway
+    const boardH = 90;
+    ctx.fillStyle = '#d4a373';
+    ctx.fillRect(3700, pathY + 25, 680, boardH);
+    ctx.strokeStyle = '#bc6c25';
+    ctx.lineWidth = 2;
+    for (let bx = 3700; bx < 4380; bx += 24) {
+      ctx.beginPath();
+      ctx.moveTo(bx, pathY + 25);
+      ctx.lineTo(bx, pathY + 25 + boardH);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#99582a';
+    ctx.fillRect(3700, pathY + 23, 680, 4);
+    ctx.fillRect(3700, pathY + 25 + boardH, 680, 4);
+
+    // Seashells & starfish on sand
+    for (let sx = 3740; sx < 4350; sx += 85) {
+      const sy = groundY + 16 + ((sx * 23) % 25);
+      if (sx % 2 === 0) {
+        ctx.fillStyle = '#ff70a6';
+        ctx.beginPath(); ctx.arc(sx, sy, 5, 0, Math.PI * 2); ctx.fill();
+      } else {
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(sx, sy, 4, Math.PI, 0); ctx.closePath(); ctx.fill();
+      }
+    }
+
+    // Animated Turquoise Ocean Waves (4380 to 4700)
+    const tideOffset = Math.sin(this.time * 2) * 16;
+    const waveBaseX = 4380 + tideOffset;
+    ctx.fillStyle = '#0284c7';
+    ctx.fillRect(waveBaseX + 60, groundY, 4700 - (waveBaseX + 60), groundH);
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.moveTo(waveBaseX + 25, groundY);
+    for (let y = groundY; y <= h; y += 30) {
+      const waveX = waveBaseX + 25 + Math.sin(y * 0.05 + this.time * 3) * 14;
+      ctx.lineTo(waveX, y);
+    }
+    ctx.lineTo(4700, h);
+    ctx.lineTo(4700, groundY);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(waveBaseX, groundY);
+    for (let y = groundY; y <= h; y += 25) {
+      const foamX = waveBaseX + Math.sin(y * 0.06 + this.time * 3) * 12;
+      ctx.lineTo(foamX, y);
+    }
     ctx.stroke();
 
-    // Town Road Border Curb
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, pathY - 6, worldWidth, 6);
-    ctx.fillRect(0, pathY + pathH, worldWidth, 6);
+    this.drawTownZoneSign(3640, groundY + 5, '🏖️ Sunshine Beach & Ocean (หาดทรายสายลม)', '#0284c7');
 
-    // Little flowers on grass
-    for (let i = 0; i < worldWidth; i += 75) {
-      const fy = groundY + 12 + ((i * 17) % 24);
-      ctx.fillStyle = (i % 2 === 0) ? '#ff70a6' : '#ffd166';
+    // --- ZONE 5: Windmill Meadow & Highland Vista (4700 to 5600) ---
+    ctx.fillStyle = '#80ed99';
+    ctx.fillRect(4700, groundY, 900, groundH);
+    ctx.fillStyle = '#c7f9cc';
+    ctx.fillRect(4700, pathY, 900, pathH);
+    ctx.strokeStyle = '#57cc99';
+    ctx.lineWidth = 2;
+    for (let x = 4700; x < 5600; x += 45) {
       ctx.beginPath();
-      ctx.arc(i, fy, 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(i, fy, 1.5, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.moveTo(x, pathY); ctx.lineTo(x + 12, pathY + pathH);
+      ctx.stroke();
     }
+    // Highland Lavender Wildflower carpets
+    for (let x = 4720; x < 5580; x += 40) {
+      const fy1 = groundY + 8 + ((x * 17) % 28);
+      const fy2 = pathY + pathH + 8 + ((x * 31) % 24);
+      ctx.strokeStyle = '#7b2cbf';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x, fy1); ctx.lineTo(x, fy1 - 12); ctx.stroke();
+      ctx.fillStyle = (x % 2 === 0) ? '#c77dff' : '#e0aaff';
+      ctx.beginPath(); ctx.arc(x, fy1 - 13, 3.5, 0, Math.PI * 2); ctx.fill();
+
+      if (fy2 < h - 10) {
+        ctx.fillStyle = '#ffd166';
+        ctx.beginPath(); ctx.arc(x + 15, fy2, 3, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    this.drawTownZoneSign(4750, groundY + 5, '🎡 Windmill Meadow (เนินเขากังหันลม)', '#6a4c93');
 
     ctx.restore();
 
-    // Blossom petals blowing in wind
-    ctx.fillStyle = 'rgba(255, 182, 193, 0.75)';
+    // Drifting Blossom Petals
+    ctx.fillStyle = 'rgba(255, 182, 193, 0.8)';
     this.blossomPetals.forEach(p => {
       const screenX = p.x - cameraX * 0.8;
       if (screenX >= -20 && screenX <= canvasW + 20) {
@@ -286,6 +529,25 @@ class GameRenderer {
         ctx.restore();
       }
     });
+  }
+
+  // Draw Cute Wooden Signpost at Zone Entrance
+  drawTownZoneSign(x, y, text, accentColor = '#ff70a6') {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.fillStyle = '#9c6644';
+    ctx.fillRect(x + 12, y + 10, 8, 48);
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = accentColor;
+    ctx.lineWidth = 2.5;
+    this.roundRect(x - 10, y - 10, 240, 26, 8, true, true);
+    ctx.fillStyle = accentColor;
+    this.roundRect(x - 8, y - 8, 22, 22, 6, true, false);
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillStyle = '#343a40';
+    ctx.textAlign = 'left';
+    ctx.fillText(text, x + 20, y + 7);
+    ctx.restore();
   }
 
   // -------------------------------------------------------------
@@ -340,6 +602,15 @@ class GameRenderer {
         break;
       case 'town_stone_path':
         this.drawStonePathArt(item.width, item.height);
+        break;
+      case 'town_beach_umbrella':
+        this.drawBeachUmbrellaArt(item.width, item.height);
+        break;
+      case 'town_palm_tree':
+        this.drawPalmTreeArt(item.width, item.height);
+        break;
+      case 'town_lighthouse':
+        this.drawLighthouseArt(item.width, item.height);
         break;
       // Furniture Interior
       case 'furn_sofa':
@@ -765,6 +1036,267 @@ class GameRenderer {
     ctx.beginPath();
     ctx.ellipse(w * 0.35, h * 0.5, 16, 10, 0.2, 0, Math.PI * 2);
     ctx.ellipse(w * 0.75, h * 0.55, 14, 9, -0.1, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // --- Beach & Maritime Vector Arts ---
+  drawBeachUmbrellaArt(w, h) {
+    const ctx = this.ctx;
+    // Slanted umbrella pole
+    ctx.strokeStyle = '#ced4da';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(w * 0.38, 20);
+    ctx.lineTo(w * 0.3, h - 8);
+    ctx.stroke();
+
+    // Beach umbrella canopy (striped wedges)
+    const cx = w * 0.38;
+    const cy = 24;
+    const rad = w * 0.42;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    // Draw striped segments
+    const colors = ['#ff70a6', '#ffffff', '#ff9f1c', '#ffffff', '#38bdf8', '#ffffff'];
+    const wedgeCount = colors.length;
+    for (let i = 0; i < wedgeCount; i++) {
+      const a1 = Math.PI + (i * Math.PI) / wedgeCount;
+      const a2 = Math.PI + ((i + 1) * Math.PI) / wedgeCount;
+      ctx.fillStyle = colors[i];
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, rad, a1, a2);
+      ctx.closePath();
+      ctx.fill();
+    }
+    // Scalloped dangling hem
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, rad, Math.PI, Math.PI * 2);
+    ctx.stroke();
+
+    // Little finial cap
+    ctx.fillStyle = '#ffd166';
+    ctx.beginPath();
+    ctx.arc(0, -2, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // Folding beach deck chair beside the umbrella
+    const chairX = w * 0.48;
+    const chairY = h - 38;
+    ctx.fillStyle = '#d4a373';
+    ctx.strokeStyle = '#bc6c25';
+    ctx.lineWidth = 2;
+    // Wooden frame leg
+    ctx.beginPath();
+    ctx.moveTo(chairX, chairY + 28);
+    ctx.lineTo(chairX + 28, chairY);
+    ctx.moveTo(chairX + 4, chairY);
+    ctx.lineTo(chairX + 24, chairY + 28);
+    ctx.stroke();
+    // Canvas fabric
+    ctx.strokeStyle = '#06d6a0';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(chairX + 2, chairY + 2);
+    ctx.lineTo(chairX + 16, chairY + 24);
+    ctx.lineTo(chairX + 32, chairY + 22);
+    ctx.stroke();
+
+    // Tropical Coconut Drink on ground
+    ctx.fillStyle = '#7f4f24';
+    ctx.beginPath();
+    ctx.arc(w * 0.22, h - 14, 7, 0, Math.PI * 2);
+    ctx.fill();
+    // Straw
+    ctx.strokeStyle = '#ff5d8f';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(w * 0.22, h - 14);
+    ctx.lineTo(w * 0.22 + 4, h - 24);
+    ctx.stroke();
+  }
+
+  drawPalmTreeArt(w, h) {
+    const ctx = this.ctx;
+    // Curved trunk
+    ctx.save();
+    ctx.strokeStyle = '#a68a64';
+    ctx.fillStyle = '#b08968';
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+    ctx.moveTo(w * 0.35, h - 6);
+    ctx.quadraticCurveTo(w * 0.25, h * 0.5, w * 0.5, 34);
+    ctx.lineTo(w * 0.5 + 14, 34);
+    ctx.quadraticCurveTo(w * 0.25 + 14, h * 0.5, w * 0.35 + 18, h - 6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Trunk segments / texture notches
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+    ctx.lineWidth = 2;
+    for (let y = h - 20; y > 40; y -= 16) {
+      const t = (y - 34) / (h - 40);
+      const tx = w * 0.35 * t + w * 0.5 * (1 - t) - (1 - t) * 8;
+      ctx.beginPath();
+      ctx.moveTo(tx, y);
+      ctx.lineTo(tx + 14, y - 2);
+      ctx.stroke();
+    }
+
+    // Coconut cluster
+    ctx.fillStyle = '#582f0e';
+    ctx.beginPath();
+    ctx.arc(w * 0.48, 38, 6, 0, Math.PI * 2);
+    ctx.arc(w * 0.56, 36, 5.5, 0, Math.PI * 2);
+    ctx.arc(w * 0.52, 42, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Swaying Palm Fronds / Leaves
+    const leafSway = Math.sin(this.time * 2) * 0.08;
+    const leaves = [
+      { a: -2.3, l: 42, bend: -0.4 },
+      { a: -1.7, l: 48, bend: -0.2 },
+      { a: -1.0, l: 46, bend: 0.1 },
+      { a: -0.4, l: 44, bend: 0.3 },
+      { a: 0.2, l: 40, bend: 0.5 },
+      { a: -2.8, l: 38, bend: -0.6 }
+    ];
+
+    leaves.forEach(leaf => {
+      ctx.save();
+      ctx.translate(w * 0.52, 34);
+      ctx.rotate(leaf.a + leafSway);
+      ctx.fillStyle = '#2d6a4f';
+      ctx.strokeStyle = '#40916c';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(leaf.l * 0.5, leaf.bend * 25, leaf.l, 0);
+      ctx.quadraticCurveTo(leaf.l * 0.5, leaf.bend * 10 - 12, 0, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      // Rib line
+      ctx.strokeStyle = '#74c69d';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(leaf.l * 0.5, leaf.bend * 15, leaf.l - 4, 0);
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    ctx.restore();
+  }
+
+  drawLighthouseArt(w, h) {
+    const ctx = this.ctx;
+    // Stone base foundation
+    ctx.fillStyle = '#6c757d';
+    ctx.strokeStyle = '#495057';
+    ctx.lineWidth = 3;
+    this.roundRect(14, h - 22, w - 28, 18, 5, true, true);
+
+    // Conical lighthouse tower with red & white stripes
+    const topW = 42;
+    const botW = w - 40;
+    const towerTopY = 48;
+    const towerH = h - 22 - towerTopY;
+    const stripeCount = 4;
+    const stripeH = towerH / stripeCount;
+
+    for (let i = 0; i < stripeCount; i++) {
+      const y1 = towerTopY + i * stripeH;
+      const y2 = y1 + stripeH;
+      const t1 = i / stripeCount;
+      const t2 = (i + 1) / stripeCount;
+      const w1 = topW + (botW - topW) * t1;
+      const w2 = topW + (botW - topW) * t2;
+      const x1 = (w - w1) / 2;
+      const x2 = (w - w2) / 2;
+
+      ctx.fillStyle = (i % 2 === 0) ? '#e63946' : '#ffffff';
+      ctx.strokeStyle = '#343a40';
+      ctx.lineWidth = 2.5;
+
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x1 + w1, y1);
+      ctx.lineTo(x2 + w2, y2);
+      ctx.lineTo(x2, y2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Arched window on white stripes
+      if (i % 2 === 1) {
+        ctx.fillStyle = '#ffd166';
+        ctx.beginPath();
+        ctx.arc(w / 2, y1 + stripeH * 0.5, 5, Math.PI, 0);
+        ctx.lineTo(w / 2 + 5, y1 + stripeH * 0.7);
+        ctx.lineTo(w / 2 - 5, y1 + stripeH * 0.7);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#495057';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    }
+
+    // Observation deck platform & black iron railing
+    ctx.fillStyle = '#343a40';
+    ctx.fillRect(w / 2 - topW * 0.65, towerTopY - 4, topW * 1.3, 6);
+    ctx.strokeStyle = '#212529';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(w / 2 - topW * 0.65, towerTopY - 14, topW * 1.3, 10);
+    for (let rx = w / 2 - topW * 0.6; rx <= w / 2 + topW * 0.6; rx += 7) {
+      ctx.beginPath();
+      ctx.moveTo(rx, towerTopY - 4);
+      ctx.lineTo(rx, towerTopY - 14);
+      ctx.stroke();
+    }
+
+    // Glass Lantern room
+    ctx.fillStyle = '#ffea00';
+    ctx.fillRect(w / 2 - 12, towerTopY - 26, 24, 12);
+    ctx.strokeStyle = '#212529';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(w / 2 - 12, towerTopY - 26, 24, 12);
+
+    // Glowing sweeping beacon light ray across the sea
+    ctx.save();
+    ctx.translate(w / 2, towerTopY - 20);
+    const beaconAngle = this.time * 1.2;
+    ctx.rotate(beaconAngle);
+    const beamGrad = ctx.createLinearGradient(0, 0, 110, 0);
+    beamGrad.addColorStop(0, 'rgba(255, 240, 100, 0.85)');
+    beamGrad.addColorStop(1, 'rgba(255, 240, 100, 0)');
+    ctx.fillStyle = beamGrad;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(110, -26);
+    ctx.lineTo(110, 26);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // Dark blue roof cupola
+    ctx.fillStyle = '#1d3557';
+    ctx.beginPath();
+    ctx.moveTo(w / 2, towerTopY - 38);
+    ctx.lineTo(w / 2 + 16, towerTopY - 26);
+    ctx.lineTo(w / 2 - 16, towerTopY - 26);
+    ctx.closePath();
+    ctx.fill();
+    // Finial ball
+    ctx.fillStyle = '#ffd166';
+    ctx.beginPath();
+    ctx.arc(w / 2, towerTopY - 40, 3, 0, Math.PI * 2);
     ctx.fill();
   }
 

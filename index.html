@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nadia Playground: Pet Society World 🐾</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="petsociety.css">
 </head>
 <body>
 
@@ -51,6 +51,8 @@
         <button class="nav-btn active" id="btnNavTown">🌳 เมืองทาวน์</button>
         <button class="nav-btn" id="btnNavHome">🏡 บ้านของฉัน</button>
         <button class="nav-btn build-mode-btn" id="btnToggleBuild">🛠️ แต่งเมือง</button>
+        <button class="nav-btn zoom-btn" id="btnToggleZoom" title="ปรับระยะซูมมุมมองโลกกว้าง (100% / 75% / 58%)">🔍 ซูม: 100%</button>
+        <button class="nav-btn fullscreen-btn" id="btnToggleFullscreen" title="ขยายเต็มจอ / ย่อขนาด (Large / Fullscreen Mode)">⛶ จอใหญ่</button>
         <button class="nav-btn" id="btnToggleMusic">🎵 เสียง</button>
       </div>
     </div>
@@ -95,6 +97,38 @@
 
     <!-- Main HTML5 Canvas -->
     <canvas id="gameCanvas" width="960" height="640"></canvas>
+
+    <!-- World GPS Quick Travel Bar (For Big & Large Open World) -->
+    <div id="worldNavBar" class="world-nav-bar">
+      <div class="world-nav-title">🗺️ แผนที่โลกกว้าง:</div>
+      <div class="world-nav-pills">
+        <button class="zone-pill-btn active" id="pill_village" onclick="gameInstance.travelToZone('village')">
+          <span class="pill-icon">🏡</span>
+          <span class="pill-name">หมู่บ้าน</span>
+          <span class="pill-tag">0m</span>
+        </button>
+        <button class="zone-pill-btn" id="pill_shopping" onclick="gameInstance.travelToZone('shopping')">
+          <span class="pill-icon">🛍️</span>
+          <span class="pill-name">ช้อปปิ้ง & คาเฟ่</span>
+          <span class="pill-tag">1400m</span>
+        </button>
+        <button class="zone-pill-btn" id="pill_plaza" onclick="gameInstance.travelToZone('plaza')">
+          <span class="pill-icon">⛲</span>
+          <span class="pill-name">สวนน้ำพุ</span>
+          <span class="pill-tag">2700m</span>
+        </button>
+        <button class="zone-pill-btn" id="pill_beach" onclick="gameInstance.travelToZone('beach')">
+          <span class="pill-icon">🏖️</span>
+          <span class="pill-name">หาดทราย & ทะเล</span>
+          <span class="pill-tag">4000m</span>
+        </button>
+        <button class="zone-pill-btn" id="pill_windmill" onclick="gameInstance.travelToZone('windmill')">
+          <span class="pill-icon">🎡</span>
+          <span class="pill-name">กังหันลมชมวิว</span>
+          <span class="pill-tag">5100m</span>
+        </button>
+      </div>
+    </div>
 
     <!-- Food Quick Drawer (Opens when feeding) -->
     <div id="foodDrawer" class="food-drawer-panel hidden">
@@ -344,9 +378,9 @@
   </div>
 
   <!-- Scripts -->
-  <script src="data.js"></script>
-  <script src="audio.js"></script>
-  <script src="renderer.js"></script>
-  <script src="game.js"></script>
+  <script src="petsociety_data.js"></script>
+  <script src="petsociety_audio.js"></script>
+  <script src="petsociety_renderer.js"></script>
+  <script src="petsociety_game.js"></script>
 </body>
 </html>
