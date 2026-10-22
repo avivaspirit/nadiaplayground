@@ -239,16 +239,20 @@
             <div style="font-weight: 800; font-size: 13px; color: #ff70a6; margin-bottom: 8px;">✨ กระจกแต่งหน้าวิเศษ</div>
             <canvas id="facePreviewCanvas" width="180" height="220" style="background:#fff; border-radius:14px; border:2px dashed #ffccd5;"></canvas>
             <div id="faceMoodDesc" style="margin-top: 8px; font-size: 12px; font-weight:700; color: #ff70a6; text-align: center;">ยิ้มหวานสดใส ✨</div>
-            <button class="nav-btn" id="btnRandomFace" style="margin-top:8px; width:100%; justify-content:center; background:linear-gradient(135deg,#ff9ebb,#70d6ff); color:#fff; border:none; padding:8px 12px; font-weight:800; border-radius:12px; cursor:pointer;">🎲 สุ่มหน้าน่ารัก (Random!)</button>
+            <button class="nav-btn" id="btnSaveFace" style="margin-top:8px; width:100%; justify-content:center; background:linear-gradient(135deg,#52b788,#2d6a4f); color:#fff; border:none; padding:8px 12px; font-weight:800; border-radius:12px; cursor:pointer;">💾 บันทึกหน้านี้ (Save Look)</button>
+            <button class="nav-btn" id="btnResetFace" style="margin-top:6px; width:100%; justify-content:center; background:linear-gradient(135deg,#ff70a6,#e76f51); color:#fff; border:none; padding:8px 12px; font-weight:800; border-radius:12px; cursor:pointer;">🔄 คืนค่าหน้าเดิม (Reset Cute)</button>
+            <button class="nav-btn" id="btnRandomFace" style="margin-top:6px; width:100%; justify-content:center; background:linear-gradient(135deg,#ff9ebb,#70d6ff); color:#fff; border:none; padding:8px 12px; font-weight:800; border-radius:12px; cursor:pointer;">🎲 สุ่มหน้าน่ารัก (Random!)</button>
           </div>
 
           <!-- Feature Categories & Selector Grid -->
           <div class="wardrobe-items-col">
             <div class="wardrobe-tabs" id="faceTabs">
-              <button class="wardrobe-tab-btn active" data-facetab="eyes">👀 ลูกตา (Eyes)</button>
-              <button class="wardrobe-tab-btn" data-facetab="mouth">👄 ปาก (Mouth)</button>
+              <button class="wardrobe-tab-btn active" data-facetab="eyes">👀 ตา (Eyes)</button>
+              <button class="wardrobe-tab-btn" data-facetab="brows">〰️ คิ้ว (Brows)</button>
               <button class="wardrobe-tab-btn" data-facetab="nose">👃 จมูก (Nose)</button>
-              <button class="wardrobe-tab-btn" data-facetab="blush">🌸 แก้ม/บลัช (Blush)</button>
+              <button class="wardrobe-tab-btn" data-facetab="mouth">👄 ปาก (Mouth)</button>
+              <button class="wardrobe-tab-btn" data-facetab="ears">👂 หู (Ears)</button>
+              <button class="wardrobe-tab-btn" data-facetab="blush">🌸 แก้ม (Blush)</button>
               <button class="wardrobe-tab-btn" data-facetab="emotion">✨ อารมณ์ (Emotion)</button>
             </div>
             <div class="wardrobe-grid" id="faceFeatureList" style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));">

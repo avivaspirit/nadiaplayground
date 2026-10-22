@@ -105,6 +105,20 @@
   })();
 
   /* ---------------- STATE MANAGEMENT ---------------- */
+  var DOGNEY_DEFAULT_CUTE = {
+    eyes: 'classic_boba',
+    brows: 'puppy_dots',
+    nose: 'glossy_black',
+    mouth: 'puppy_smile',
+    ears: 'floppy_golden',
+    blush: 'soft_rosy',
+    emotion: 'happy',
+    hat: 'none',
+    collar: 'collar_red',
+    glasses: 'none',
+    coat: 'none'
+  };
+
   var DEFAULT = {
     born: Date.now(),
     love: 0,
@@ -117,7 +131,8 @@
     bellyRubs: 0,
     boops: 0,
     days: 0,
-    outfit: { eyes: 'boba_sparkle', mouth: 'kitty_3', blush: 'hearts', emotion: 'happy', hat: 'none', collar: 'collar_red', glasses: 'none', coat: 'none' },
+    outfit: JSON.parse(JSON.stringify(DOGNEY_DEFAULT_CUTE)),
+    savedLooks: [],
     album: []
   };
 
@@ -130,13 +145,11 @@
     save();
   } else {
     for (var k in DEFAULT) if (S[k] === undefined) S[k] = DEFAULT[k];
-    if (!S.outfit) S.outfit = JSON.parse(JSON.stringify(DEFAULT.outfit));
-    if (!S.outfit.eyes) S.outfit.eyes = 'boba_sparkle';
-    if (!S.outfit.mouth) S.outfit.mouth = 'kitty_3';
-    if (!S.outfit.blush) S.outfit.blush = 'hearts';
-    if (!S.outfit.emotion) S.outfit.emotion = 'happy';
-    if (!S.outfit.glasses) S.outfit.glasses = 'none';
-    if (!S.outfit.coat) S.outfit.coat = 'none';
+    if (!S.outfit) S.outfit = JSON.parse(JSON.stringify(DOGNEY_DEFAULT_CUTE));
+    for (var dk in DOGNEY_DEFAULT_CUTE) {
+      if (S.outfit[dk] === undefined) S.outfit[dk] = DOGNEY_DEFAULT_CUTE[dk];
+    }
+    if (!S.savedLooks) S.savedLooks = [];
     if (!S.album) S.album = [];
   }
 
@@ -154,32 +167,54 @@
 
   var DRESS_ITEMS = {
     eyes: [
-      { id: 'boba_sparkle', name: 'ตากลมโตวิ้งวับ (Sparkle Boba)', icon: '👀' },
+      { id: 'classic_boba', name: 'ตากลมโตเงาวับ (Classic Boba)', icon: '👀' },
+      { id: 'sparkle_anime', name: 'ตาวิ้งวับประกาย (Sparkle Anime)', icon: '✨' },
       { id: 'heart_eyes', name: 'ตาหัวใจหวานฉ่ำ (Sweet Heart)', icon: '💖' },
-      { id: 'star_anime', name: 'ตาดาวเปล่งประกาย (Star Twinkle)', icon: '⭐' },
+      { id: 'star_twinkle', name: 'ตาดาวส่องสว่าง (Star Twinkle)', icon: '⭐' },
       { id: 'happy_arcs', name: 'ตายิ้มหยีฟินๆ (Happy Arcs ᵔᵕᵔ)', icon: 'ᵔᵕᵔ' },
-      { id: 'wink_star', name: 'ขยิบตาวิ้งขี้เล่น (Playful Wink)', icon: '😉' },
-      { id: 'sleepy_cozy', name: 'ตาปรือขี้เซาอุ่น (Sleepy Cozy)', icon: '😌' }
+      { id: 'playful_wink', name: 'ขยิบตาวิ้ง (Playful Wink 😉)', icon: '😉' },
+      { id: 'sleepy_cozy', name: 'ตาปรือขี้เซา (Sleepy Cozy 😌)', icon: '😌' }
+    ],
+    brows: [
+      { id: 'puppy_dots', name: 'คิ้วจุดโกลเด้นแท้ (Puppy Dots)', icon: '• •' },
+      { id: 'sweet_arcs', name: 'คิ้วโค้งละมุน (Sweet Arcs)', icon: '⌒ ⌒' },
+      { id: 'slanted_innocent', name: 'คิ้วขี้อ้อน (Puppy Eyes)', icon: '╱ ╲' },
+      { id: 'bold_happy', name: 'คิ้วซนร่าเริง (Bold Playful)', icon: '◠ ◠' },
+      { id: 'none', name: 'ซ่อนคิ้วธรรมชาติ (No Brows)', icon: '—' }
+    ],
+    nose: [
+      { id: 'glossy_black', name: 'จมูกปุ่มดำเงาแท้ (Glossy Black)', icon: '👃' },
+      { id: 'heart_nose', name: 'จมูกหัวใจสีเข้ม (Sweet Heart)', icon: '🖤' },
+      { id: 'pink_puff', name: 'จมูกชมพูนุ่ม (Pink Button)', icon: '🌸' },
+      { id: 'choco_brown', name: 'จมูกช็อกโกแลต (Choco Brown)', icon: '🍫' },
+      { id: 'tiny_dot', name: 'จมูกจุดจิ๋ว (Tiny Dot)', icon: '•' }
     ],
     mouth: [
-      { id: 'kitty_3', name: 'ปากตูบน้อย (:3) มินิ', icon: '🐶' },
-      { id: 'sweet_smile', name: 'ยิ้มหวานสดใส (Sweet Smile)', icon: '😊' },
+      { id: 'puppy_smile', name: 'ปากตูบยิ้มหวาน (Puppy :3)', icon: '🐶' },
       { id: 'blep_tongue', name: 'แลบลิ้นจิ๋วขี้อ้อน (Cute Blep 👅)', icon: '👅' },
-      { id: 'happy_open', name: 'อ้าปากหัวเราะร่าเริง (Joyful Open)', icon: '😄' },
+      { id: 'happy_open', name: 'อ้าปากร่าเริง (Joyful Open 😄)', icon: '😄' },
+      { id: 'sweet_line', name: 'อมยิ้มน้อยๆ (Sweet Smile 😊)', icon: '😊' },
       { id: 'tiny_o', name: 'ปากจิ๋วทำหน้าสงสัย (Tiny \'o\')', icon: '😮' }
     ],
+    ears: [
+      { id: 'floppy_golden', name: 'หูตูบสีทองแท้ (Floppy Golden)', icon: '👂' },
+      { id: 'perky_up', name: 'หูตั้งกระดิก (Perky Up)', icon: '▲' },
+      { id: 'folded_cute', name: 'หูพับครึ่งจิ๋ว (Folded Ears)', icon: '▼' },
+      { id: 'bunny_long', name: 'หูกระต่ายยาว (Bunny Ears)', icon: '🐰' },
+      { id: 'bear_round', name: 'หูกลมเท็ดดี้ (Round Bear)', icon: '🧸' }
+    ],
     blush: [
-      { id: 'hearts', name: 'หัวใจคู่หวานที่แก้ม (Double Hearts 💕)', icon: '💕' },
-      { id: 'circles', name: 'แก้มชมพูกลมระเรื่อ (Rosy Glow)', icon: '🌸' },
-      { id: 'stars', name: 'ประกายดาววิบวับ (Star Glitters ✨)', icon: '✨' },
-      { id: 'stripes', name: 'ขีดแก้มเขินอนิเมะ (Manga Lines ///)', icon: '///' },
-      { id: 'natural', name: 'ธรรมชาติสะอาดใส (Natural)', icon: '🍃' }
+      { id: 'soft_rosy', name: 'แก้มชมพูแอร์บรัชแท้ (Soft Rosy)', icon: '🌸' },
+      { id: 'peachy_glow', name: 'แก้มส้มพีชฉ่ำ (Peachy Glow)', icon: '🍑' },
+      { id: 'kawaii_hearts', name: 'ลายหัวใจคู่เวกเตอร์ (Kawaii Hearts)', icon: '💕' },
+      { id: 'anime_lines', name: 'ขีดเขินอะนิเมะ (Anime Blushing)', icon: '///' },
+      { id: 'none', name: 'ธรรมชาติ (No Blush)', icon: '—' }
     ],
     emotion: [
-      { id: 'happy', name: 'ร่าเริงสดใสแจ่มใส (Happy Bouncy)', icon: '🎈' },
-      { id: 'cozy', name: 'อบอุ่นสบายใจเกาพุง (Cozy Cuddle)', icon: '🧺' },
-      { id: 'excited', name: 'ตื่นเต้นตาวาวคาบบอล (Excited)', icon: '⚡' },
-      { id: 'silly', name: 'ทะเล้นกวนๆ วิ่งซน (Silly Playful)', icon: '🤪' }
+      { id: 'happy', name: 'ร่าเริงสดใส (Happy Arf!)', icon: '✨' },
+      { id: 'cozy', name: 'ฟินเคลิ้มอบอุ่น (Cozy Warm)', icon: '🥰' },
+      { id: 'excited', name: 'ตื่นเต้นกระดิกหาง (Excited Wag)', icon: '🐾' },
+      { id: 'shy', name: 'เขินอายขี้อ้อน (Shy Puppy)', icon: '🥺' }
     ],
     collar: [
       { id: 'none', name: 'ไม่ใส่ปลอกคอ', icon: '❌' },
@@ -321,9 +356,25 @@
     s += '<ellipse cx="0" cy="-6" rx="46" ry="40" fill="' + cFur + '" stroke="' + cInk + '" stroke-width="2.6"/>';
     s += '<path d="M -16 -40 Q 0 -44 16 -40" stroke="rgba(255,255,255,0.7)" stroke-width="4" fill="none" stroke-linecap="round"/>';
 
-    // Floppy Puppy Ears!
-    s += '<g class="earL"><path d="M -40 -20 C -60 -10, -56 26, -42 28 C -32 28, -34 4, -36 -12 Z" fill="' + cFurDark + '" stroke="' + cInk + '" stroke-width="2.4"/></g>';
-    s += '<g class="earR"><path d="M 40 -20 C 60 -10, 56 26, 42 28 C 32 28, 34 4, 36 -12 Z" fill="' + cFurDark + '" stroke="' + cInk + '" stroke-width="2.4"/></g>';
+    // Customizable Ears
+    var earStyle = (S.outfit && S.outfit.ears) || 'floppy_golden';
+    if (earStyle === 'perky_up') {
+      s += '<g class="earL"><polygon points="-38,-20 -52,-54 -24,-36" fill="' + cFurDark + '" stroke="' + cInk + '" stroke-width="2.4"/><polygon points="-36,-24 -46,-48 -26,-36" fill="#ffccd5"/></g>';
+      s += '<g class="earR"><polygon points="38,-20 52,-54 24,-36" fill="' + cFurDark + '" stroke="' + cInk + '" stroke-width="2.4"/><polygon points="36,-24 46,-48 26,-36" fill="#ffccd5"/></g>';
+    } else if (earStyle === 'folded_cute') {
+      s += '<g class="earL"><path d="M -36 -20 C -52 -18, -48 10, -36 8 Z" fill="' + cFurDark + '" stroke="' + cInk + '" stroke-width="2.2"/></g>';
+      s += '<g class="earR"><path d="M 36 -20 C 52 -18, 48 10, 36 8 Z" fill="' + cFurDark + '" stroke="' + cInk + '" stroke-width="2.2"/></g>';
+    } else if (earStyle === 'bunny_long') {
+      s += '<g class="earL"><ellipse cx="-20" cy="-56" rx="9" ry="26" fill="' + cFur + '" stroke="' + cInk + '" stroke-width="2.4" transform="rotate(-10 -20 -56)"/><ellipse cx="-20" cy="-56" rx="5" ry="18" fill="#ffccd5" transform="rotate(-10 -20 -56)"/></g>';
+      s += '<g class="earR"><ellipse cx="20" cy="-56" rx="9" ry="26" fill="' + cFur + '" stroke="' + cInk + '" stroke-width="2.4" transform="rotate(10 20 -56)"/><ellipse cx="20" cy="-56" rx="5" ry="18" fill="#ffccd5" transform="rotate(10 20 -56)"/></g>';
+    } else if (earStyle === 'bear_round') {
+      s += '<g class="earL"><circle cx="-38" cy="-32" r="14" fill="' + cFurDark + '" stroke="' + cInk + '" stroke-width="2.4"/><circle cx="-38" cy="-32" r="8" fill="#ffccd5"/></g>';
+      s += '<g class="earR"><circle cx="38" cy="-32" r="14" fill="' + cFurDark + '" stroke="' + cInk + '" stroke-width="2.4"/><circle cx="38" cy="-32" r="8" fill="#ffccd5"/></g>';
+    } else {
+      // Default: Iconic Floppy Puppy Ears!
+      s += '<g class="earL"><path d="M -40 -20 C -60 -10, -56 26, -42 28 C -32 28, -34 4, -36 -12 Z" fill="' + cFurDark + '" stroke="' + cInk + '" stroke-width="2.4"/></g>';
+      s += '<g class="earR"><path d="M 40 -20 C 60 -10, 56 26, 42 28 C 32 28, 34 4, 36 -12 Z" fill="' + cFurDark + '" stroke="' + cInk + '" stroke-width="2.4"/></g>';
+    }
 
     // White Muzzle
     s += '<ellipse cx="0" cy="4" rx="22" ry="16" fill="' + cWhite + '" stroke="' + cFurDark + '" stroke-width="1.4"/>';

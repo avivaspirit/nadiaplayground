@@ -310,6 +310,19 @@
   })();
 
   /* ---------------- STATE MANAGEMENT ---------------- */
+  var BOBA_DEFAULT_CUTE = {
+    eyes: 'boba_pearl',
+    brows: 'curved_soft',
+    nose: 'heart_black',
+    mouth: 'kitty_smile',
+    flippers: 'classic_flippers',
+    blush: 'rosy_airbrush',
+    emotion: 'cozy',
+    hat: 'none',
+    collar: 'none',
+    cloth: 'none'
+  };
+
   var DEFAULT = {
     born: Date.now(),
     love: 0,
@@ -328,7 +341,8 @@
     },
     lastTick: Date.now(),
     days: 0,
-    outfit: { eyes: 'boba_pearl', mouth: 'kitty_smile', blush: 'rosy_airbrush', emotion: 'cozy', hat: 'none', collar: 'none', cloth: 'none' },
+    outfit: JSON.parse(JSON.stringify(BOBA_DEFAULT_CUTE)),
+    savedLooks: [],
     favFood: 'squid',
     album: [],
     boops: 0,
@@ -361,11 +375,11 @@
     save();
   } else {
     for (var k in DEFAULT) if (S[k] === undefined) S[k] = DEFAULT[k];
-    if (!S.outfit) S.outfit = { eyes: 'boba_pearl', mouth: 'kitty_smile', blush: 'rosy_airbrush', emotion: 'cozy', hat: 'none', collar: 'none', cloth: 'none' };
-    if (!S.outfit.eyes) S.outfit.eyes = 'boba_pearl';
-    if (!S.outfit.mouth) S.outfit.mouth = 'kitty_smile';
-    if (!S.outfit.blush) S.outfit.blush = 'rosy_airbrush';
-    if (!S.outfit.emotion) S.outfit.emotion = 'cozy';
+    if (!S.outfit) S.outfit = JSON.parse(JSON.stringify(BOBA_DEFAULT_CUTE));
+    for (var bk in BOBA_DEFAULT_CUTE) {
+      if (S.outfit[bk] === undefined) S.outfit[bk] = BOBA_DEFAULT_CUTE[bk];
+    }
+    if (!S.savedLooks) S.savedLooks = [];
     if (!S.album) S.album = [];
     if (!S.society) S.society = JSON.parse(JSON.stringify(DEFAULT.society));
     if (!S.society.aff) S.society.aff = JSON.parse(JSON.stringify(DEFAULT.society.aff));
@@ -728,8 +742,40 @@
     h += '<g class="sealWhiskerL"><path d="M -26 12 Q -48 10 -62 6 M -26 16 Q -48 18 -60 22 M -24 20 Q -44 26 -56 32" stroke="' + GR_LINE + '" stroke-width="2" stroke-linecap="round" fill="none"/></g>';
     h += '<g class="sealWhiskerR"><path d="M 26 12 Q 48 10 62 6 M 26 16 Q 48 18 60 22 M 24 20 Q 44 26 56 32" stroke="' + GR_LINE + '" stroke-width="2" stroke-linecap="round" fill="none"/></g>';
 
-    h += '<path d="M -6.5 5 C -7 0, 7 0, 6.5 5 C 6 9.5, -6 9.5, -6.5 5 Z" fill="' + INK + '"/>';
-    h += '<ellipse cx="-2.2" cy="3.8" rx="2.2" ry="1.2" fill="#fff" opacity=".85"/>';
+    // Brows
+    var browStyle = (S.outfit && S.outfit.brows) || 'curved_soft';
+    if (browStyle === 'cute_dots') {
+      h += '<ellipse cx="-23" cy="-28" rx="3.5" ry="2.6" fill="' + GR_LINE + '"/>' +
+           '<ellipse cx="23" cy="-28" rx="3.5" ry="2.6" fill="' + GR_LINE + '"/>';
+    } else if (browStyle === 'slant_innocent') {
+      h += '<path d="M -29 -26 L -17 -30" stroke="' + GR_LINE + '" stroke-width="2.5" stroke-linecap="round"/>' +
+           '<path d="M 29 -26 L 17 -30" stroke="' + GR_LINE + '" stroke-width="2.5" stroke-linecap="round"/>';
+    } else if (browStyle === 'bold_happy') {
+      h += '<path d="M -30 -30 Q -23 -35 -16 -30" stroke="' + GR_LINE + '" stroke-width="3.2" fill="none" stroke-linecap="round"/>' +
+           '<path d="M 16 -30 Q 23 -35 30 -30" stroke="' + GR_LINE + '" stroke-width="3.2" fill="none" stroke-linecap="round"/>';
+    } else if (browStyle === 'none') {
+      // none
+    } else {
+      // Default: Soft curved seal brows (Authentic Boba)
+      h += '<path d="M -29 -28 Q -23 -32 -17 -28" stroke="' + GR_LINE + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+           '<path d="M 17 -28 Q 23 -32 29 -28" stroke="' + GR_LINE + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+    }
+
+    // Nose
+    var noseStyle = (S.outfit && S.outfit.nose) || 'heart_black';
+    if (noseStyle === 'button_black') {
+      h += '<ellipse cx="0" cy="5" rx="6.5" ry="5.5" fill="' + INK + '"/>' +
+           '<ellipse cx="-2" cy="3.5" rx="2" ry="1.2" fill="#fff" opacity=".85"/>';
+    } else if (noseStyle === 'pink_heart') {
+      h += '<path d="M -6.5 5 C -7 0, 7 0, 6.5 5 C 6 9.5, -6 9.5, -6.5 5 Z" fill="#ff758f"/>' +
+           '<ellipse cx="-2" cy="3.5" rx="2" ry="1.2" fill="#fff" opacity=".85"/>';
+    } else if (noseStyle === 'tiny_dot') {
+      h += '<circle cx="0" cy="5" r="4" fill="' + INK + '"/>';
+    } else {
+      // Default: Iconic Boba Dark Heart Nose
+      h += '<path d="M -6.5 5 C -7 0, 7 0, 6.5 5 C 6 9.5, -6 9.5, -6.5 5 Z" fill="' + INK + '"/>';
+      h += '<ellipse cx="-2.2" cy="3.8" rx="2.2" ry="1.2" fill="#fff" opacity=".85"/>';
+    }
 
     var mouthStyle = (S.outfit && S.outfit.mouth) || 'kitty_smile';
     if (opts.chomp) {
@@ -793,10 +839,9 @@
       return '<path d="M ' + (cx - 12) + ' -12 Q ' + cx + ' -24 ' + (cx + 12) + ' -12" stroke="' + INK + '" stroke-width="4.2" fill="none" stroke-linecap="round"/>' +
         '<text x="' + (cx - 4) + '" y="-18" font-size="12">✨</text>';
     }
-    if (mood === 'cozy') {
+    if (eyeStyle === 'happy_arcs') {
       return '<path d="M ' + (cx - 12) + ' -12 Q ' + cx + ' -24 ' + (cx + 12) + ' -12" stroke="' + INK + '" stroke-width="4.2" fill="none" stroke-linecap="round"/>' +
-        '<ellipse cx="' + cx + '" cy="-7" rx="9" ry="4.5" fill="#ff7da7" opacity=".5"/>' +
-        '<text x="' + (cx - 6) + '" y="-16" font-size="11">💕</text>';
+        '<ellipse cx="' + cx + '" cy="-7" rx="9" ry="4.5" fill="#ff7da7" opacity=".5"/>';
     }
     if (mood === 'beg') {
       return '<ellipse cx="' + cx + '" cy="-14" rx="13" ry="14" fill="' + INK + '"/>' +
@@ -975,13 +1020,94 @@
   ];
   var DRESS_MAP = {
     eyes: EYES,
+    brows: BROWS,
+    nose: NOSES,
     mouth: MOUTHS,
+    flippers: FLIPPERS,
     blush: BLUSHES,
     emotion: EMOTIONS,
     hat: HATS,
     collar: COLLARS,
     cloth: CLOTHES
   };
+
+  var DRESS_LABELS = {
+    eyes: '👁️ ตา (Eyes)',
+    brows: '〰️ คิ้ว (Brows)',
+    nose: '👃 จมูก (Nose)',
+    mouth: '👄 ปาก (Mouth)',
+    flippers: '👂 ครีบ/หู (Flippers)',
+    blush: '🌸 แก้ม (Blush)',
+    emotion: '💖 อารมณ์ (Mood)',
+    hat: '🧢 หมวก',
+    collar: '🎀 ปลอกคอ',
+    cloth: '👗 เสื้อผ้า'
+  };
+
+  function showToast(msg) {
+    var t = $('toastNotice');
+    var txt = $('toastMsg');
+    if (!t || !txt) return;
+    txt.textContent = msg;
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function () {
+      t.style.opacity = '0';
+      t.style.transform = 'translateX(-50%) translateY(80px)';
+    }, 2500);
+  }
+
+  function resetToDefaultCute() {
+    S.outfit = JSON.parse(JSON.stringify(BOBA_DEFAULT_CUTE));
+    save();
+    renderDress();
+    renderHome();
+    showToast('✨ คืนค่าหน้าเดิมที่น่ารักของน้อง Boba เรียบร้อยแล้ว!');
+    say('Boba is back to original super cute baby seal! 🦭💙');
+    Snd.play('pearl');
+  }
+
+  function saveCurrentLook() {
+    save();
+    if (!S.savedLooks) S.savedLooks = [];
+    var lookCopy = JSON.parse(JSON.stringify(S.outfit));
+    S.savedLooks.unshift({
+      id: Date.now(),
+      outfit: lookCopy,
+      time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+    });
+    if (S.savedLooks.length > 8) S.savedLooks.pop();
+    save();
+    renderSavedLooksUI();
+    showToast('💾 บันทึกลุคนี้เรียบร้อยแล้ว! สลับลุคได้ตลอดเวลา');
+    Snd.play('pearl');
+  }
+
+  function renderSavedLooksUI() {
+    var row = $('savedLooksRow');
+    if (!row) return;
+    row.innerHTML = '';
+    if (!S.savedLooks || S.savedLooks.length === 0) {
+      row.innerHTML = '<span style="font-size:0.75rem;color:var(--ink-soft);padding:4px">ยังไม่มีลุคที่บันทึกไว้ — แต่งแล้วกด "💾 บันทึกลุคนี้" ได้เลย!</span>';
+      return;
+    }
+    S.savedLooks.forEach(function (lk, idx) {
+      var chip = document.createElement('button');
+      chip.className = 'sub-chip';
+      chip.style.cssText = 'padding:5px 12px;border-radius:999px;border:2px solid #a2d2ff;background:#fff;font-weight:800;font-size:0.78rem;cursor:pointer;display:inline-flex;align-items:center;gap:5px;flex-shrink:0;color:#0077b6;';
+      chip.innerHTML = '💙 ลุคที่ ' + (idx + 1) + ' (' + lk.time + ')';
+      chip.addEventListener('click', function () {
+        S.outfit = JSON.parse(JSON.stringify(lk.outfit));
+        save();
+        renderDress();
+        renderHome();
+        showToast('✨ เรียกดูลุคที่ ' + (idx + 1) + ' สำเร็จแล้ว!');
+        Snd.play('pearl');
+      });
+      row.appendChild(chip);
+    });
+  }
 
   /* ---------------- FOODS & ANIMATED FOOD SVGS ---------------- */
   var FOODS = [
@@ -1883,7 +2009,9 @@
     });
   }
 
-  $('dressClear').addEventListener('click', function () {
+  $('btnSaveLook')?.addEventListener('click', saveCurrentLook);
+  $('btnResetCute')?.addEventListener('click', resetToDefaultCute);
+  $('dressClear')?.addEventListener('click', function () {
     S.outfit = { eyes: 'boba_pearl', mouth: 'kitty_smile', blush: 'rosy_airbrush', emotion: 'cozy', hat: 'none', collar: 'none', cloth: 'none' };
     save();
     renderDress();

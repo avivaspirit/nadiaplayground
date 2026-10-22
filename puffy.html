@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Puffystagram — Raise Puffy the Cat!</title>
+<meta name="description" content="Puffystagram — adopt Puffy, the orange-white kitten! Feed, dress up, scratch her head, walk in the park, snap cute photos.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='58' r='26' fill='%23ffb066'/><circle cx='34' cy='34' r='11' fill='%23ffb066'/><circle cx='66' cy='34' r='11' fill='%23ffb066'/><circle cx='42' cy='56' r='3' fill='%23402'/><circle cx='58' cy='56' r='3' fill='%23402'/><path d='M46 64 q4 4 8 0' stroke='%23402' fill='none'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#3d2b33; --ink-soft:#a8798c; --orange:#f08c3a; --orange-deep:#c9640a; --cream:#fff8f0; }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; user-select:none; }
+  body { font-family:'Inter',sans-serif; color:var(--ink); background:radial-gradient(900px 460px at 85% -10%,#ffe9d6,transparent 60%),radial-gradient(700px 420px at -10% 110%,#fff0d9,transparent 55%),#fff9f2; min-height:100vh; }
+  .back-hub { position:fixed; top:14px; left:16px; z-index:40; background:#fff; border:2px solid #ffe0c9; color:var(--orange-deep); border-radius:999px; padding:7px 14px; font:800 .8rem 'Inter'; text-decoration:none; box-shadow:0 6px 18px rgba(150,80,30,.15); }
+  .wrap { max-width:960px; margin:0 auto; padding:16px 14px 60px; }
+  header { text-align:center; padding:46px 0 4px; }
+  h1 { font-family:'Fraunces',serif; font-size:clamp(1.9rem,5vw,2.6rem); }
+  h1 .hl { color:var(--orange); }
+  .sub { color:var(--ink-soft); font-weight:600; margin-top:4px; font-size:.95rem; }
+  .tabs { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:18px 0 14px; }
+  .tab { border:2px solid #ffe0c9; background:#fff; border-radius:999px; padding:10px 18px; font:800 .88rem 'Inter'; color:var(--ink-soft); cursor:pointer; }
+  .tab.on { background:linear-gradient(135deg,#ffb066,#f08c3a); color:#fff; border-color:transparent; box-shadow:0 6px 16px rgba(240,140,58,.3); }
+  .panel { display:none; }
+  .panel.on { display:block; }
+  /* ---- home / pet stage ---- */
+  .stage { background:#fff; border-radius:24px; padding:16px; box-shadow:0 18px 50px rgba(160,80,20,.13); text-align:center; }
+  #petBox { border-radius:18px; overflow:hidden; cursor:pointer; }
+  #petBox svg { display:block; width:100%; height:auto; }
+  .stats { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:12px; }
+  .stat { background:var(--cream); border:2px solid #ffe0c9; border-radius:14px; padding:8px 14px; min-width:92px; }
+  .stat b { display:block; font-family:'Fraunces',serif; font-size:1.3rem; color:var(--orange-deep); }
+  .stat span { font:700 .64rem 'Inter'; color:var(--ink-soft); }
+  .barow { display:flex; align-items:center; gap:8px; margin-top:10px; }
+  .barow .blab { font:800 .72rem 'Inter'; color:var(--ink-soft); width:52px; text-align:right; }
+  .bar { flex:1; height:14px; border-radius:8px; background:#ffe9d6; overflow:hidden; }
+  .bar i { display:block; height:100%; border-radius:8px; transition:width .35s; }
+  .acts { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:14px; }
+  .abtn { border:none; border-radius:16px; padding:13px 20px; font:800 .92rem 'Inter'; cursor:pointer; color:#fff; background:linear-gradient(135deg,#ffb066,#f08c3a); box-shadow:0 8px 18px rgba(240,140,58,.3); }
+  .abtn.alt { background:#fff; color:var(--orange-deep); border:2px solid #ffe0c9; box-shadow:none; }
+  .abtn:active { transform:scale(.95); }
+  .bubble { position:relative; display:inline-block; margin-top:6px; background:#fff; border:2px solid #ffe0c9; border-radius:16px; padding:8px 14px; font:700 .85rem 'Inter'; color:var(--ink); min-height:20px; }
+  .logline { font:600 .78rem 'Inter'; color:var(--ink-soft); margin-top:8px; min-height:18px; }
+  /* ---- grids ---- */
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-top:12px; }
+  .it { background:#fff; border:2px solid #ffe0c9; border-radius:16px; padding:10px 6px; text-align:center; cursor:pointer; transition:transform .12s; }
+  .it:hover { transform:translateY(-2px); }
+  .it.on { border-color:var(--orange); background:#fff3e4; }
+  .it .e { font-size:1.7rem; }
+  .it span { display:block; font:700 .68rem 'Inter'; color:var(--ink-soft); margin-top:3px; }
+  .it small { display:block; font:800 .74rem 'Inter'; color:var(--orange-deep); margin-top:2px; }
+  /* ---- walk ---- */
+  .walkwrap { position:relative; border-radius:18px; overflow:hidden; background:#dff2e9; }
+  .walkwrap svg { display:block; width:100%; height:auto; }
+  .walkctl { display:flex; gap:10px; justify-content:center; margin-top:12px; flex-wrap:wrap; }
+  .place-row { display:flex; gap:8px; overflow-x:auto; padding:4px 2px 10px; }
+  .place { flex:0 0 auto; border:2px solid #ffe0c9; background:#fff; border-radius:14px; padding:8px 14px; font:800 .8rem 'Inter'; color:var(--ink-soft); cursor:pointer; }
+  .place.on { border-color:var(--orange); background:#fff3e4; color:var(--orange-deep); }
+  /* ---- photos ---- */
+  .phots { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-top:12px; }
+  .ph { background:#fff; border:2px solid #ffe0c9; border-radius:16px; overflow:hidden; }
+  .ph svg { width:100%; height:auto; display:block; }
+  .ph .pm { padding:8px 10px; font:700 .7rem 'Inter'; color:var(--ink-soft); display:flex; justify-content:space-between; }
+  .hint { text-align:center; color:var(--ink-soft); font:600 .78rem 'Inter'; margin-top:10px; }
+  /* ---- cute idle animations ---- */
+  @keyframes catWag { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(8deg)} }
+  @keyframes catEarL { 0%,88%,100%{transform:rotate(0deg)} 92%{transform:rotate(-6deg)} 96%{transform:rotate(2deg)} }
+  @keyframes catEarR { 0%,84%,100%{transform:rotate(0deg)} 88%{transform:rotate(6deg)} 92%{transform:rotate(-2deg)} }
+  @keyframes catBlink { 0%,93%,100%{transform:scaleY(1)} 96%{transform:scaleY(.08)} }
+  #petBox .puffyTail, #petBox2 .puffyTail { animation:catWag 2.6s ease-in-out infinite; transform-origin:32px 56px; }
+  #petBox .puffyEarL, #petBox2 .puffyEarL { animation:catEarL 5.2s ease-in-out infinite; transform-origin:-30px -24px; }
+  #petBox .puffyEarR, #petBox2 .puffyEarR { animation:catEarR 6.1s ease-in-out infinite; transform-origin:30px -24px; }
+  #petBox .puffyBlink, #petBox2 .puffyBlink { animation:catBlink 4.4s ease-in-out infinite; transform-origin:0px 0px; }
+  @media (max-width:600px){ .barow .blab{width:44px} .stat{min-width:80px} }
+</style>
+</head>
+<body>
+<a class="back-hub" href="index.html">⬅ All games</a>
+<div class="wrap">
+  <header>
+    <h1>🐱 <span class="hl">Puffystagram</span></h1>
+    <p class="sub">Adopt Puffy — the fluffiest orange &amp; white kitten! Feed her, dress her up, scratch her head &amp; walk together 🧡</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab on" id="tabHome">🏡 Home</button>
+    <button class="tab" id="tabFeed">🍽 Feeding</button>
+    <button class="tab" id="tabDress">🎀 Dress up</button>
+    <button class="tab" id="tabWalk">🌳 Walkies</button>
+    <button class="tab" id="tabPhotos">📸 Photos</button>
+  </div>
+
+  <!-- HOME -->
+  <section class="panel on" id="pHome">
+    <div class="stage">
+      <div id="petBox" title="Tap to pet Puffy!"></div>
+      <div class="bubble" id="say">Meow~ 🧡</div>
+      <div class="stats">
+        <div class="stat"><b id="stAge">0</b><span>days together</span></div>
+        <div class="stat"><b id="stLove">0</b><span>love 💕</span></div>
+        <div class="stat"><b id="stCoin">0</b><span>treats 🍪</span></div>
+      </div>
+      <div class="barow"><span class="blab">Food</span><div class="bar"><i id="bFood" style="width:80%;background:linear-gradient(90deg,#8ce99a,#57a773)"></i></div></div>
+      <div class="barow"><span class="blab">Happy</span><div class="bar"><i id="bHappy" style="width:80%;background:linear-gradient(90deg,#ffd166,#f08c3a)"></i></div></div>
+      <div class="barow"><span class="blab">Clean</span><div class="bar"><i id="bClean" style="width:80%;background:linear-gradient(90deg,#7bdff2,#4f83c2)"></i></div></div>
+      <div class="acts">
+        <button class="abtn" id="actFace" style="background:linear-gradient(135deg,#ff70a6,#f08c3a);color:#fff;font-weight:900">🪞 แต่งหน้าตา (Face &amp; Mood)</button>
+        <button class="abtn" id="actPet">✋ Scratch head</button>
+        <a class="abtn alt" href="grooming.html" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#cbf3f0,#2ec4b6);color:#0f4c5c;font-weight:800">🛁 ร้านกรูมมิ่ง (Salon)</a>
+        <button class="abtn alt" id="actSnap">📸 Snap photo</button>
+      </div>
+      <div class="logline" id="log">Puffy wags her tail happily~</div>
+    </div>
+  </section>
+
+  <!-- FEED -->
+  <section class="panel" id="pFeed">
+    <div class="stage">
+      <h3 style="font-family:'Fraunces',serif">🍽 Pick Puffy's meal</h3>
+      <p class="hint" style="margin:4px 0 8px">Tap a treat below &amp; press <b>Feed now!</b> to watch Puffy eat 🧡</p>
+      <div id="feedBox" title="Tap to feed Puffy!" style="max-width:340px;margin:0 auto;border-radius:20px;overflow:hidden;cursor:pointer"></div>
+      <div class="barow" style="max-width:340px;margin:10px auto 4px"><span class="blab">Food</span><div class="bar"><i id="bFoodFeed" style="width:80%;background:linear-gradient(90deg,#8ce99a,#57a773)"></i></div></div>
+      <div class="grid" id="foodGrid"></div>
+      <div class="acts" style="margin-top:16px">
+        <button class="abtn" id="feedBtn">🍽 Feed now!</button>
+      </div>
+      <div class="logline" id="feedLog">What shall we eat today?</div>
+    </div>
+  </section>
+
+  <!-- DRESS -->
+  <section class="panel" id="pDress">
+    <div class="stage">
+      <div id="petBox2" style="border-radius:18px;overflow:hidden"></div>
+      <div class="place-row" id="dressCats" style="margin-top:12px"></div>
+      <div class="grid" id="dressGrid" style="grid-template-columns:repeat(auto-fill,minmax(104px,1fr))"></div>
+      <div class="acts" style="margin-top:12px;gap:8px;justify-content:center">
+        <button class="abtn" id="btnSaveLook" style="background:linear-gradient(135deg,#52b788,#2d6a4f);box-shadow:0 6px 16px rgba(45,106,79,.3)">💾 บันทึกลุคนี้ (Save Look)</button>
+        <button class="abtn" id="btnResetCute" style="background:linear-gradient(135deg,#ff70a6,#e76f51);box-shadow:0 6px 16px rgba(255,112,166,.3)">🔄 คืนค่าหน้าเดิมที่น่ารัก (Reset Cute)</button>
+        <button class="abtn alt" id="dressRandom">🎲 สุ่มลุคน่ารัก</button>
+      </div>
+      <div id="savedLooksSection" style="margin-top:12px;padding:10px 14px;background:#fff8f0;border:2px dashed #ffcba4;border-radius:18px;text-align:left">
+        <div style="font-weight:800;font-size:0.82rem;color:var(--orange-deep);margin-bottom:6px;display:flex;justify-content:space-between">
+          <span>📁 คลังลุคที่บันทึกไว้ (My Saved Looks)</span>
+          <span style="font-size:0.75rem;color:var(--ink-soft)">แตะเพื่อสลับลุคได้ทันที</span>
+        </div>
+        <div id="savedLooksRow" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WALK -->
+  <section class="panel" id="pWalk">
+    <div class="stage">
+      <div class="walkwrap" id="walkBox"></div>
+      <div class="place-row" id="placeRow" style="margin-top:12px"></div>
+      <div class="walkctl">
+        <button class="abtn alt" id="wLeft">◀</button>
+        <button class="abtn" id="wPlay">🎾 Play fetch</button>
+        <button class="abtn alt" id="wRight">▶</button>
+      </div>
+      <div class="logline" id="walkLog">Where shall we go today?</div>
+    </div>
+  </section>
+
+  <!-- PHOTOS -->
+  <section class="panel" id="pPhotos">
+    <div class="stage">
+      <h3 style="font-family:'Fraunces',serif">📸 Puffy's Photo Album</h3>
+      <div class="phots" id="album"></div>
+      <p class="hint">Photos taken at Home &amp; on Walkies appear here. Tap 🗑 to remove.</p>
+    </div>
+  </section>
+</div>
+
+<script src="scenes.js?v=2"></script>
+<script src="stats.js?v=1"></script>
+<script src="puffy.js?v=5"></script>
+<script src="magic-touch.js?v=1"></script>
+<div id="toastNotice" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(45,25,15,0.92);color:#fff;font-weight:800;font-size:0.9rem;padding:10px 22px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,0.25);z-index:9999;opacity:0;pointer-events:none;transition:all 0.28s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;gap:8px"><span id="toastMsg">บันทึกเรียบร้อย</span></div>
+</body>
+</html>

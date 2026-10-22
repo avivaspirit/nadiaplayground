@@ -226,11 +226,19 @@
   <section class="panel" id="pDress">
     <div class="stage">
       <div id="petBox2"></div>
+      <div id="savedLooksSection" style="margin-top:12px;padding:10px 14px;background:#fff8f0;border:2px dashed #fed18c;border-radius:18px;text-align:left">
+        <div style="font-weight:800;font-size:0.82rem;color:var(--orange-deep);margin-bottom:6px;display:flex;justify-content:space-between">
+          <span>📁 คลังลุคที่บันทึกไว้ (My Saved Looks)</span>
+          <span style="font-size:0.75rem;color:var(--ink-soft)">แตะเพื่อสลับลุคได้ทันที</span>
+        </div>
+        <div id="savedLooksRow" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px"></div>
+      </div>
       <div class="place-row" id="dressCats" style="margin-top:12px"></div>
       <div class="grid" id="dressGrid" style="grid-template-columns:repeat(auto-fill,minmax(104px,1fr))"></div>
       <div class="acts" style="margin-top:14px">
-        <button class="abtn" id="dressRandom" style="background:linear-gradient(135deg,#ff9f1c,#e76f51)">🎲 สุ่มชุดน้องหมา (Random Look!)</button>
-        <button class="abtn alt" id="dressClear">✨ ขนธรรมชาตินุ่มฟู (Natural Pup)</button>
+        <button class="abtn" id="btnSaveLook" style="background:linear-gradient(135deg,#52b788,#2d6a4f);box-shadow:0 6px 16px rgba(45,106,79,.3)">💾 บันทึกลุคนี้ (Save Look)</button>
+        <button class="abtn" id="btnResetCute" style="background:linear-gradient(135deg,#ff70a6,#e76f51);box-shadow:0 6px 16px rgba(255,112,166,.3)">🔄 คืนค่าหน้าเดิมที่น่ารัก (Reset Cute)</button>
+        <button class="abtn alt" id="dressRandom">🎲 สุ่มลุคน่ารัก</button>
       </div>
     </div>
   </section>
@@ -261,5 +269,6 @@
 
 <script src="stats.js?v=1"></script>
 <script src="dogney.js?v=1"></script>
+<div id="toastNotice" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(45,27,24,0.92);color:#fff;font-weight:800;font-size:0.9rem;padding:10px 22px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,0.25);z-index:9999;opacity:0;pointer-events:none;transition:all 0.28s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;gap:8px"><span id="toastMsg">บันทึกเรียบร้อย</span></div>
 </body>
 </html>

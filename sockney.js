@@ -96,6 +96,21 @@
   })();
 
   /* ---------------- STATE MANAGEMENT ---------------- */
+  var SOCKNEY_DEFAULT_CUTE = {
+    pattern: 'classic',
+    eyes: 'sparkle_boba',
+    brows: 'soft_dots',
+    nose: 'pink_button',
+    mouth: 'kitty_3',
+    ears: 'ribbed_cuff',
+    blush: 'rosy_glow',
+    emotion: 'cheerful',
+    hat: 'none',
+    collar: 'none',
+    glasses: 'none',
+    pin: 'none'
+  };
+
   var DEFAULT = {
     born: Date.now(),
     love: 0,
@@ -419,6 +434,41 @@
       s += drawSparkleBobaEye(14, -10);
     }
 
+    // Eyebrows
+    var browStyle = (S.outfit && S.outfit.brows) || 'soft_dots';
+    if (browStyle === 'sweet_arcs') {
+      s += '<path d="M -19 -21 Q -14 -25 -9 -21" stroke="#3c2a3e" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
+           '<path d="M 9 -21 Q 14 -25 19 -21" stroke="#3c2a3e" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
+    } else if (browStyle === 'shy_slant') {
+      s += '<path d="M -19 -20 L -9 -23" stroke="#3c2a3e" stroke-width="2" stroke-linecap="round"/>' +
+           '<path d="M 19 -20 L 9 -23" stroke="#3c2a3e" stroke-width="2" stroke-linecap="round"/>';
+    } else if (browStyle === 'bold_happy') {
+      s += '<path d="M -20 -23 Q -14 -27 -8 -23" stroke="#3c2a3e" stroke-width="2.8" fill="none" stroke-linecap="round"/>' +
+           '<path d="M 8 -23 Q 14 -27 20 -23" stroke="#3c2a3e" stroke-width="2.8" fill="none" stroke-linecap="round"/>';
+    } else if (browStyle === 'none') {
+      // none
+    } else {
+      // Default: Soft cute brow dots
+      s += '<circle cx="-14" cy="-21" r="2.2" fill="#e08bb2"/>' +
+           '<circle cx="14" cy="-21" r="2.2" fill="#e08bb2"/>';
+    }
+
+    // Nose
+    var noseStyle = (S.outfit && S.outfit.nose) || 'pink_button';
+    if (noseStyle === 'heart_nose') {
+      s += '<path d="M -3 -1 C -4 -4, 4 -4, 3 -1 C 2 1.5, -2 1.5, -3 -1 Z" fill="#ff70a6"/>';
+    } else if (noseStyle === 'btn_nose') {
+      s += '<circle cx="0" cy="0" r="3.2" fill="#ffffff" stroke="#c94b7a" stroke-width="1.2"/><circle cx="0" cy="0" r="1.2" fill="#ffd166"/>';
+    } else if (noseStyle === 'tiny_dot') {
+      s += '<circle cx="0" cy="0" r="2.2" fill="#3c2a3e"/>';
+    } else if (noseStyle === 'none') {
+      // none
+    } else {
+      // Default: Soft Pink Button Nose
+      s += '<ellipse cx="0" cy="0" rx="3.5" ry="2.6" fill="#ff70a6"/>' +
+           '<ellipse cx="-1" cy="-0.8" rx="1.2" ry="0.8" fill="#ffffff" opacity=".8"/>';
+    }
+
     // Mouth Selection
     var mouthStyle = (S.outfit && S.outfit.mouth) || 'kitty_3';
     if (mouthStyle === 'sweet_smile') {
@@ -722,6 +772,7 @@
 
   function renderWardrobe() {
     $('petBox2').innerHTML = sockneySVG({});
+    renderSavedLooksUI();
     var cr = $('dressCats');
     cr.innerHTML = '';
     ['eyes', 'mouth', 'blush', 'emotion', 'pattern', 'hat', 'acc', 'button'].forEach(function (c) {
@@ -773,22 +824,9 @@
     save();
   });
 
-  $('dressClear')?.addEventListener('click', function () {
-    S.outfit = {
-      pattern: 'classic',
-      eyes: 'sparkle_boba',
-      mouth: 'kitty_3',
-      blush: 'rosy_glow',
-      emotion: 'cheerful',
-      hat: 'none',
-      button: 'none',
-      acc: 'acc_bell'
-    };
-    renderWardrobe();
-    renderHome();
-    Snd.play('chime');
-    save();
-  });
+  $('btnSaveLook')?.addEventListener('click', saveCurrentLook);
+  $('btnResetCute')?.addEventListener('click', resetToDefaultCute);
+  $('dressClear')?.addEventListener('click', resetToDefaultCute);
 
   /* ---------------- YARN PLAYROOM TAB ---------------- */
   var yarnX = 250, yarnY = 175, isPlayingYarn = false;

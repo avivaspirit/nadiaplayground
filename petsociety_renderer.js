@@ -2265,7 +2265,7 @@ class GameRenderer {
       ctx.ellipse(-26, 32, 14, 8, -0.4, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
-    } else if (species.id === 'cat') {
+    } else if (targetEar === 'cat' || targetEar === 'cat_pointy') {
       // Curved cat tail swaying
       const sway = Math.sin(this.time * 4) * 0.2;
       ctx.save();
@@ -2279,7 +2279,7 @@ class GameRenderer {
       ctx.lineCap = 'round';
       ctx.stroke();
       ctx.restore();
-    } else if (species.id === 'dog') {
+    } else if (targetEar === 'dog' || targetEar === 'dog_floppy') {
       // Wagging tail
       const wag = Math.sin(this.time * 16) * 0.4;
       ctx.save();
@@ -2290,7 +2290,7 @@ class GameRenderer {
       ctx.fill();
       ctx.stroke();
       ctx.restore();
-    } else if (species.id === 'bear' || species.id === 'panda') {
+    } else if (targetEar === 'bear' || targetEar === 'bear_round' || species.id === 'panda') {
       ctx.fillStyle = (species.id === 'panda') ? '#2b2d42' : fur;
       ctx.beginPath();
       ctx.arc(-20, 24, 8, 0, Math.PI * 2);
@@ -2312,7 +2312,9 @@ class GameRenderer {
     const stroke = this.darkenColor(fur, 0.3);
     ctx.lineWidth = 2.5;
 
-    if (species.id === 'bunny') {
+    const targetEar = (pet && pet.earShape && pet.earShape !== 'species_default') ? pet.earShape : species.id;
+
+    if (targetEar === 'bunny' || targetEar === 'bunny_long') {
       // Long floppy or upright bunny ears with sweet inner pink
       const earFlop = Math.sin(this.time * 4) * 2;
       // Left ear
@@ -2616,10 +2618,45 @@ class GameRenderer {
     const isSeal = (species.id === 'seal');
     const isSock = (species.id === 'sock');
     const eyeShape = pet.eyeShape || (isSeal || isSock ? 'boba_sparkle' : 'classic');
+    const browStyle = pet.browStyle || (isSeal ? 'sweet_arcs' : 'soft_dots');
     const blushStyle = pet.blush || 'circles';
     const mouthShape = pet.mouthShape || 'kitty_3';
     const noseShape = pet.noseShape || (isSeal ? 'dark_heart' : (isSock ? 'pink_oval' : 'pink_oval'));
     const emotion = pet.emotion || 'happy';
+
+    // 0. EYEBROWS
+    const browColor = isSeal ? '#7b9cb8' : '#2b2d42';
+    if (browStyle === 'soft_dots') {
+      ctx.fillStyle = browColor;
+      ctx.beginPath();
+      ctx.arc(-14, -25, 2.3, 0, Math.PI * 2);
+      ctx.arc(14, -25, 2.3, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (browStyle === 'sweet_arcs') {
+      ctx.strokeStyle = browColor;
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(-14, -24, 6.5, 1.1 * Math.PI, 1.9 * Math.PI, false);
+      ctx.arc(14, -24, 6.5, 1.1 * Math.PI, 1.9 * Math.PI, false);
+      ctx.stroke();
+    } else if (browStyle === 'slant_innocent') {
+      ctx.strokeStyle = browColor;
+      ctx.lineWidth = 2.2;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-19, -23); ctx.lineTo(-10, -26);
+      ctx.moveTo(19, -23); ctx.lineTo(10, -26);
+      ctx.stroke();
+    } else if (browStyle === 'bold_happy') {
+      ctx.strokeStyle = browColor;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(-14, -25, 7, 1.15 * Math.PI, 1.85 * Math.PI, false);
+      ctx.arc(14, -25, 7, 1.15 * Math.PI, 1.85 * Math.PI, false);
+      ctx.stroke();
+    }
 
     // Blink calculation: blink every ~4 seconds
     const isBlinking = (Math.sin(this.time * 2) > 0.96);
@@ -2774,13 +2811,7 @@ class GameRenderer {
         ctx.arc(x - 1.2, -10, 0.9, 0, Math.PI * 2);
         ctx.fill();
 
-        // Gentle brow arc
-        ctx.strokeStyle = isSeal ? '#7b9cb8' : '#3c2a3e';
-        ctx.lineWidth = 1.8;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.arc(x, -22, 6, 1.1 * Math.PI, 1.9 * Math.PI, false);
-        ctx.stroke();
+
       });
     } else {
       // CLASSIC PET SOCIETY SHINY EYES
@@ -3012,7 +3043,6 @@ class GameRenderer {
       else if (emotion === 'shy') ctx.fillText('🌸', -28, -26);
       else if (emotion === 'silly') ctx.fillText('😋', -28, -26);
     }
-  }
   }
 
   // Pet Arms & Held Props

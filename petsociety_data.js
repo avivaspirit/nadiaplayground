@@ -103,6 +103,22 @@ const GAME_DATA = {
     { id: 'c_seal', name: 'Aqua Seal', hex: '#b5e2fa' }
   ],
 
+  browStyles: [
+    { id: 'soft_dots', name: 'Puppy Dots (คิ้วจุดกลมน่ารัก)', icon: '• •' },
+    { id: 'sweet_arcs', name: 'Sweet Arcs (คิ้วโค้งละมุน)', icon: '⌒ ⌒' },
+    { id: 'slant_innocent', name: 'Innocent Slant (คิ้วอ้อน)', icon: '╱ ╲' },
+    { id: 'bold_happy', name: 'Bold Happy (คิ้วซนร่าเริง)', icon: '◠ ◠' },
+    { id: 'none', name: 'No Brows (ธรรมชาติ)', icon: '—' }
+  ],
+
+  earShapes: [
+    { id: 'species_default', name: 'Species Default (หูแท้ตามสายพันธุ์)', icon: '🐾' },
+    { id: 'bunny_long', name: 'Fluffy Bunny (หูกระต่ายยาว)', icon: '🐰' },
+    { id: 'cat_pointy', name: 'Pointy Kitty (หูแมวสามเหลี่ยม)', icon: '🐱' },
+    { id: 'bear_round', name: 'Teddy Bear (หูหมีกลม)', icon: '🧸' },
+    { id: 'dog_floppy', name: 'Golden Floppy (หูตูบโกลเด้น)', icon: '🐶' }
+  ],
+
   eyeShapes: [
     { id: 'boba_sparkle', name: 'Boba Sparkle (ตาน้องอุ๋งประกายวิ้ง)', icon: '👀' },
     { id: 'classic', name: 'Classic Shiny (ตาโตคลาสสิกประกายกลม)', icon: '✨' },

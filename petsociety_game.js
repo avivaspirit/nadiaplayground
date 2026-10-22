@@ -2058,6 +2058,37 @@ class NadiaPetGame {
       };
     });
 
+    // Save Face button
+    const btnSave = document.getElementById('btnSaveFace');
+    if (btnSave) {
+      btnSave.onclick = () => {
+        audio.playChime();
+        this.saveState();
+        this.showSaveToast('💾 บันทึกหน้าตาสัตว์เลี้ยงเรียบร้อยแล้ว! 💖✨');
+      };
+    }
+
+    // Reset to Default Cute Face button
+    const btnReset = document.getElementById('btnResetFace');
+    if (btnReset) {
+      btnReset.onclick = () => {
+        // Find default preset for player species
+        const preset = GAME_DATA.characterPresets.find(c => c.species === this.player.species) || GAME_DATA.characterPresets[0];
+        this.player.eyeShape = preset.eyeShape || 'classic';
+        this.player.browStyle = 'soft_dots';
+        this.player.mouthShape = 'kitty_3';
+        this.player.noseShape = (this.player.species === 'seal') ? 'dark_heart' : 'pink_oval';
+        this.player.earShape = 'species_default';
+        this.player.blush = preset.blush || 'circles';
+        this.player.emotion = 'happy';
+        audio.playPop(520);
+        this.renderFaceFeatures(this.activeFaceTab);
+        this.renderFacePreview();
+        this.saveState();
+        this.showSaveToast('✨ คืนค่าหน้าเดิมที่น่ารักของน้องแล้ว! 🐾💖');
+      };
+    }
+
     // Randomize face button
     const btnRand = document.getElementById('btnRandomFace');
     if (btnRand) {
@@ -2090,14 +2121,22 @@ class NadiaPetGame {
       items = GAME_DATA.eyeShapes;
       activeVal = this.player.eyeShape || 'boba_sparkle';
       prop = 'eyeShape';
-    } else if (category === 'mouth') {
-      items = GAME_DATA.mouthShapes;
-      activeVal = this.player.mouthShape || 'kitty_3';
-      prop = 'mouthShape';
+    } else if (category === 'brows') {
+      items = GAME_DATA.browStyles || [];
+      activeVal = this.player.browStyle || 'soft_dots';
+      prop = 'browStyle';
     } else if (category === 'nose') {
       items = GAME_DATA.noseShapes;
       activeVal = this.player.noseShape || 'pink_oval';
       prop = 'noseShape';
+    } else if (category === 'mouth') {
+      items = GAME_DATA.mouthShapes;
+      activeVal = this.player.mouthShape || 'kitty_3';
+      prop = 'mouthShape';
+    } else if (category === 'ears') {
+      items = GAME_DATA.earShapes || [];
+      activeVal = this.player.earShape || 'species_default';
+      prop = 'earShape';
     } else if (category === 'blush') {
       items = GAME_DATA.blushStyles;
       activeVal = this.player.blush || 'circles';
