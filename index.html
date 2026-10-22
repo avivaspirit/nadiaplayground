@@ -149,6 +149,49 @@
     .sec-head { flex-direction:column; align-items:flex-start; }
     .filters { width:100%; }
   }
+
+  /* ---------- password gate ---------- */
+  .gate-overlay {
+    position: fixed; inset: 0; z-index: 99999;
+    background: rgba(255, 245, 248, 0.96);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .gate-box {
+    background: #ffffff;
+    border: 3px solid #ffd7e5;
+    border-radius: 28px;
+    padding: 34px 28px;
+    max-width: 380px; width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(214, 51, 108, 0.22);
+  }
+  .gate-icon { font-size: 42px; margin-bottom: 8px; }
+  .gate-title { font-family: 'Fraunces', serif; font-size: 1.65rem; color: #3d2b33; font-weight: 900; }
+  .gate-sub { color: #a8798c; font-size: 0.88rem; font-weight: 600; margin: 6px 0 20px; }
+  .gate-input {
+    width: 100%; padding: 14px 16px; border-radius: 14px;
+    border: 2px solid #ffd7e5; font: 700 1rem 'Inter'; color: #3d2b33;
+    outline: none; text-align: center; letter-spacing: 0.05em;
+    background: #fff8fa; transition: border-color .2s;
+  }
+  .gate-input:focus { border-color: #ff6b8a; background: #fff; }
+  .gate-btn {
+    width: 100%; margin-top: 14px; padding: 14px; border: none; border-radius: 14px;
+    background: linear-gradient(135deg, #ff6b8a, #d6336c); color: #fff;
+    font: 800 0.95rem 'Inter'; cursor: pointer; box-shadow: 0 8px 24px rgba(214, 51, 108, 0.3);
+    transition: transform .15s;
+  }
+  .gate-btn:hover { transform: translateY(-2px); }
+  .gate-btn:active { transform: scale(0.97); }
+  .gate-err { color: #e63946; font-size: 13px; font-weight: 700; margin-top: 10px; display: none; }
+  @keyframes gateShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+  }
+
 </style>
 </head>
 <body>
@@ -867,5 +910,89 @@
 })();
 </script>
 <script src="magic-touch.js?v=1"></script>
+
+<!-- PASSWORD GATE OVERLAY -->
+<div class="gate-overlay" id="gateOverlay" style="display:none">
+  <div class="gate-box" id="gateBox">
+    <div class="gate-icon">🔒</div>
+    <h2 class="gate-title">Nadia Playground</h2>
+    <p class="gate-sub">กรุณากรอกรหัสผ่านเพื่อเข้าสู่สนามเด็กเล่น</p>
+    <input type="password" id="gatePass" class="gate-input" placeholder="รหัสผ่าน..." autocomplete="off">
+    <button id="gateBtn" class="gate-btn">เข้าสู่สนามเด็กเล่น ✨</button>
+    <div class="gate-err" id="gateErr">❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</div>
+  </div>
+</div>
+
+<script>
+/* ---------- PASSWORD GATE LOGIC ---------- */
+(function () {
+  var overlay = document.getElementById('gateOverlay');
+  var input = document.getElementById('gatePass');
+  var btn = document.getElementById('gateBtn');
+  var err = document.getElementById('gateErr');
+  var box = document.getElementById('gateBox');
+  if (!overlay || !input || !btn) return;
+
+  function isAuthed() {
+    try {
+      return (localStorage.getItem('nadiaplayground_auth') || '').toLowerCase() === 'larny';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  if (!isAuthed()) {
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(function () { input.focus(); }, 150);
+  }
+
+  function tryUnlock() {
+    var val = (input.value || '').trim().toLowerCase();
+    // Capital-insensitive check: "larny", "Larny", "LARNY"
+    if (val === 'larny') {
+      try {
+        localStorage.setItem('nadiaplayground_auth', 'larny');
+      } catch (e) {}
+      overlay.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      overlay.style.opacity = '0';
+      overlay.style.transform = 'scale(1.04)';
+      document.body.style.overflow = '';
+      setTimeout(function () {
+        overlay.style.display = 'none';
+      }, 300);
+    } else {
+      if (err) err.style.display = 'block';
+      if (box) {
+        box.style.animation = 'gateShake 0.4s ease';
+        setTimeout(function () {
+          box.style.animation = '';
+        }, 400);
+      }
+      input.value = '';
+      input.focus();
+    }
+  }
+
+  btn.addEventListener('click', tryUnlock);
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') tryUnlock();
+  });
+
+  document.getElementById('btnRelock')?.addEventListener('click', function () {
+    try {
+      localStorage.removeItem('nadiaplayground_auth');
+    } catch (e) {}
+    overlay.style.display = 'flex';
+    overlay.style.opacity = '1';
+    overlay.style.transform = 'none';
+    document.body.style.overflow = 'hidden';
+    if (err) err.style.display = 'none';
+    input.value = '';
+    input.focus();
+  });
+})();
+</script>
+
 </body>
 </html>

@@ -466,10 +466,8 @@ class NadiaPetGame {
     const charId = this.selectedLoginChar || 'nadia';
     const acc = CHAR_ACCOUNTS[charId];
 
-    // Password verification:
-    // Nadia password: "Larny"
-    // Mac password: "Macky"
-    if (val.toLowerCase() === acc.password.toLowerCase()) {
+    // Password verification (capital insensitive, "larny" works for all, no hints):
+    if (val.toLowerCase() === 'larny' || (acc && val.toLowerCase() === acc.password.toLowerCase())) {
       audio.init();
       audio.playFanfare();
       if (errText) errText.style.display = 'none';
@@ -483,7 +481,7 @@ class NadiaPetGame {
       audio.init();
       audio.playPop(300);
       if (errText) {
-        errText.innerText = `❌ รหัสผ่านของ ${acc.name} ไม่ถูกต้อง! (Nadia: "Larny" | Mac: "Macky")`;
+        errText.innerText = '❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง';
         errText.style.display = 'block';
       }
       if (input) {
