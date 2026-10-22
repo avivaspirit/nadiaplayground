@@ -162,15 +162,24 @@ const GAME_DATA = {
     { id: 'food_honey', name: 'Golden Honey Pot', price: 25, hunger: 35, happy: 35, icon: '🍯', desc: 'น้ำผึ้งป่าหวานฉ่ำ หมีน้อยชื่นชอบมาก' },
     { id: 'food_icecream', name: 'Vanilla Sundae', price: 20, hunger: 20, happy: 35, icon: '🍨', desc: 'ไอศกรีมซันเดย์เย็นสดชื่น หวานชื่นใจ' },
     { id: 'food_donut', name: 'Pink Frosted Donut', price: 18, hunger: 25, happy: 25, icon: '🍩', desc: 'โดนัทเคลือบช็อกโกแลตชมพูโรยสปริงเคิล' },
-    { id: 'food_tea', name: 'Boba Milk Tea', price: 22, hunger: 20, happy: 30, icon: '🧋', desc: 'ชานมไข่มุกเหนียวนุ่ม ดื่มแล้วอารมณ์ดี' }
+    { id: 'food_tea', name: 'Boba Milk Tea', price: 22, hunger: 20, happy: 30, icon: '🧋', desc: 'ชานมไข่มุกเหนียวนุ่ม ดื่มแล้วอารมณ์ดี' },
+    { id: 'food_icecream_sundae', name: 'Rainbow Sundae Cup', price: 30, hunger: 25, happy: 45, icon: '🍨', desc: 'ไอศกรีมซันเดย์สายรุ้ง 3 ลูกโต หวานเย็นฉ่ำใจ' },
+    { id: 'food_icecream_mint', name: 'Mint Choco Chip Cone', price: 25, hunger: 20, happy: 40, icon: '🍦', desc: 'ไอศกรีมโคนมินต์ช็อกโกแลต เย็นสดชื่นกระปรี้กระเปร่า' },
+    { id: 'food_smoothie', name: 'Berry Energy Smoothie', price: 26, hunger: 25, happy: 35, icon: '🥤', desc: 'สมูทตี้ผลไม้รวมเพื่อสุขภาพ เพิ่มพลังกายเต็มเปี่ยม' },
+    { id: 'food_market_apple', name: 'Crunchy Honeycrisp Apple', price: 18, hunger: 25, happy: 25, icon: '🍎', desc: 'แอปเปิ้ลฮันนี่คริสป์หวานกรอบจากตลาดสด' }
   ],
 
   // Building & Town Decorating Objects (The Sims + Pet Society Open World)
   buildingCatalog: [
     // Town Exterior Buildings & Infrastructure
     { id: 'town_cottage', category: 'building', name: 'Cozy Pastel Cottage', price: 250, icon: '🏡', width: 140, height: 130, desc: 'บ้านพักสไตล์ชนบทสีพาสเทล' },
-    { id: 'town_bakery', category: 'building', name: 'Sweet Bakery Shop', price: 320, icon: '🧁', width: 150, height: 140, desc: 'ร้านเบเกอรี่อบขนมหอมกรุ่น' },
-    { id: 'town_boutique', category: 'building', name: 'Fashion Boutique', price: 300, icon: '👗', width: 150, height: 140, desc: 'ร้านเสื้อผ้าแฟชั่นยอดฮิต' },
+    { id: 'town_bakery', category: 'building', name: 'Sweet Bakery Shop', price: 320, icon: '🧁', width: 150, height: 140, desc: 'ร้านเบเกอรี่อบขนมหอมกรุ่น เข้าชมร้านได้' },
+    { id: 'town_boutique', category: 'building', name: 'Fashion Boutique', price: 300, icon: '👗', width: 150, height: 140, desc: 'ร้านเสื้อผ้าแฟชั่นยอดฮิต เข้าชมร้านได้' },
+    { id: 'town_market', category: 'building', name: 'Fresh Farmers Market', price: 310, icon: '🥕', width: 140, height: 130, desc: 'ตลาดสดสัตว์เลี้ยง มีผักผลไม้สดใหม่ เข้าชมตลาดได้' },
+    { id: 'town_icecream', category: 'building', name: 'Sweet Scoops Ice Cream', price: 290, icon: '🍦', width: 130, height: 140, desc: 'ร้านไอศกรีมพาสเทลแสนหวาน เข้าชมร้านได้' },
+    { id: 'town_bookshop', category: 'building', name: 'Storybook Haven Library', price: 330, icon: '📚', width: 130, height: 140, desc: 'ร้านหนังสือ & ห้องสมุดแสนอบอุ่น เข้าชมนั่งอ่านได้' },
+    { id: 'town_fitness', category: 'building', name: 'Pet Power Gym', price: 350, icon: '⚡', width: 140, height: 135, desc: 'ยิมออกกำลังกายและฟิตเนส มีลู่วิ่ง เข้าเล่นได้' },
+    { id: 'town_spa', category: 'building', name: 'Zen Blossom Spa & Onsen', price: 360, icon: '🌸', width: 135, height: 135, desc: 'สปาและออนเซ็นแช่น้ำแร่ผ่อนคลาย เข้าแช่น้ำได้' },
     { id: 'town_windmill', category: 'building', name: 'Pet Windmill', price: 280, icon: '🎡', width: 120, height: 150, desc: 'กังหันลมโบราณหมุนล้อสายลม' },
     { id: 'town_gazebo', category: 'building', name: 'Rose Gazebo', price: 180, icon: '🏛️', width: 110, height: 110, desc: 'ศาลากุหลาบสำหรับนั่งพักผ่อน' },
 
@@ -349,6 +358,101 @@ const GAME_DATA = {
       ],
       houseColor: '#fff1e6',
       giftGiven: false
+    }
+  ],
+
+  // Playable Character Presets (Direct Character Selection)
+  characterPresets: [
+    {
+      id: 'nadia',
+      name: 'Nadia (นาเดีย)',
+      species: 'bunny',
+      title: '👑 Town Princess & Stylist',
+      badge: 'เจ้าหญิงกระต่ายน้อย',
+      avatar: '🐰',
+      furColor: '#fde2e4',
+      eyeShape: 'classic',
+      blush: 'circles',
+      clothes: { head: 'hat_ribbon', body: 'outfit_dress', face: null, neck: null, hand: 'prop_wand', shoes: 'shoe_bunny' },
+      desc: 'กระต่ายน้อยแสนหวาน เจ้าหญิงแห่งเมือง ผู้รักการแต่งตัว ปลูกดอกไม้ และดูแลเพื่อนๆ'
+    },
+    {
+      id: 'mac',
+      name: 'Mac (แม็ค)',
+      species: 'bear',
+      title: '🛠️ Town Mayor & Builder',
+      badge: 'พี่หมีนักสร้างเมือง',
+      avatar: '🐻',
+      furColor: '#ddb892',
+      eyeShape: 'classic',
+      blush: 'none',
+      clothes: { head: 'hat_crown', body: 'outfit_tuxedo', face: null, neck: 'neck_bowtie', hand: 'prop_wand', shoes: 'shoe_sneakers' },
+      desc: 'พี่หมีใจดีและเท่ ผู้ดูแลเมืองแสนสุข ชอบออกแบบและสร้างสิ่งก่อสร้างใหม่ๆ ในเมือง'
+    },
+    {
+      id: 'bubbles',
+      name: 'Bubbles (น้องอุ๋ง บับเบิลส์)',
+      species: 'seal',
+      title: '⛵ Beach Sailor & Baker',
+      badge: 'กัปตันแมวน้ำริมหาด',
+      avatar: '🦭',
+      furColor: '#b5e2fa',
+      eyeShape: 'happy',
+      blush: 'hearts',
+      clothes: { head: 'hat_sailor', body: 'outfit_sailor', face: null, neck: 'neck_bell', hand: 'prop_fish', shoes: null },
+      desc: 'น้องอุ๋งแมวน้ำจอมซน ตัวกลมดุ๊กดิ๊ก ชอบเล่นคลื่นทะเลและอบพายปลาหอมกรุ่น'
+    },
+    {
+      id: 'luna',
+      name: 'Luna (ลูน่า)',
+      species: 'cat',
+      title: '🧋 Cafe Barista & Fashionista',
+      badge: 'แมวสาวบาริสต้าสุดชิค',
+      avatar: '🐱',
+      furColor: '#fed1b2',
+      eyeShape: 'wink',
+      blush: 'stripes',
+      clothes: { head: 'hat_beret', body: 'outfit_sweater', face: 'glass_round', neck: null, hand: 'prop_lollipop', shoes: 'shoe_sneakers' },
+      desc: 'แมวสาวบาริสต้าตากลมโต รักการอ่านหนังสือในบุ๊คช็อปและชงชานมไข่มุกแสนอร่อย'
+    },
+    {
+      id: 'pippin',
+      name: 'Pippin (ปิ๊ปปิ้น)',
+      species: 'penguin',
+      title: '💃 Star Athlete & Ice Dancer',
+      badge: 'เพนกวินนักเต้นพลังล้น',
+      avatar: '🐧',
+      furColor: '#bde0fe',
+      eyeShape: 'anime',
+      blush: 'circles',
+      clothes: { head: 'hat_straw', body: 'outfit_overalls', face: 'glass_heart', neck: null, hand: 'prop_icecream', shoes: 'shoe_boots' },
+      desc: 'เพนกวินน้อยพลังล้นเหลือ ชอบเต้น ออกกำลังกายในยิม และกินไอศกรีมดับร้อน'
+    },
+    {
+      id: 'baobao',
+      name: 'Bao Bao (เปาเปา)',
+      species: 'panda',
+      title: '🎨 Highland Artist & Philosopher',
+      badge: 'แพนด้าจิตรกรเซน',
+      avatar: '🐼',
+      furColor: '#ffffff',
+      eyeShape: 'happy',
+      blush: 'circles',
+      clothes: { head: 'hat_beret', body: 'outfit_sweater', face: 'glass_round', neck: null, hand: null, shoes: null },
+      desc: 'แพนด้าอารมณ์ดี จิตรกรแห่งทุ่งกังหันลม ชอบแช่สปาออนเซ็นและวาดภาพวิวทิวทัศน์'
+    },
+    {
+      id: 'daisy',
+      name: 'Daisy (เดซี่)',
+      species: 'dog',
+      title: '🌻 Golden Pup & Market Scout',
+      badge: 'ลูกสุนัขโกลเด้นผู้ร่าเริง',
+      avatar: '🐶',
+      furColor: '#fed1b2',
+      eyeShape: 'anime',
+      blush: 'hearts',
+      clothes: { head: 'hat_straw', body: 'outfit_overalls', face: null, neck: 'neck_bell', hand: 'prop_wand', shoes: 'shoe_sneakers' },
+      desc: 'ลูกสุนัขโกลเด้นหางกระดิกดุ๊กดิ๊ก ชอบวิ่งเล่นในตลาดสดและชวนทุกคนยิ้มอย่างมีความสุข'
     }
   ]
 };

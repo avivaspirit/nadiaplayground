@@ -93,6 +93,304 @@ class GameRenderer {
     this.drawWallClock(w / 2, 80);
   }
 
+  // -------------------------------------------------------------
+  // DRAW SCENE: ENTERABLE SHOP & VENUE INTERIORS
+  // -------------------------------------------------------------
+  drawShopInterior(shopType, canvasW = 960, canvasH = 640) {
+    const ctx = this.ctx;
+    const w = canvasW;
+    const h = canvasH;
+    const wallH = h * 0.62;
+    const floorY = wallH;
+    const floorH = h - wallH;
+
+    const configs = {
+      shop_market: {
+        title: '🥕 Fresh Farmers Market (ตลาดสดสัตว์เลี้ยง)',
+        wallA: '#faedcd', wallB: '#e9d8a6',
+        floorA: '#ddb892', floorB: '#b08968',
+        sub: '🌾 ผักผลไม้สดส่งตรงจากฟาร์ม • ออร์แกนิก 100% 🍎',
+        color: '#f77f00'
+      },
+      shop_icecream: {
+        title: '🍨 Sweet Scoops Parlor (ร้านไอศกรีมพาสเทล)',
+        wallA: '#ffe5ec', wallB: '#ffccd5',
+        floorA: '#ffffff', floorB: '#ffb3c6',
+        sub: '🍦 ไอศกรีมโคนและซันเดย์ 12 รสชาติสุดสดชื่น ✨',
+        color: '#ff70a6'
+      },
+      shop_bookshop: {
+        title: '📚 Storybook Haven Library (ร้านหนังสือ & ห้องสมุด)',
+        wallA: '#2d6a4f', wallB: '#1b4332',
+        floorA: '#7f4f24', floorB: '#582f0e',
+        sub: '📖 มุมสงบแห่งจินตนาการ • นั่งอ่านเพิ่มพลังปัญญา 🕯️',
+        color: '#52b788'
+      },
+      shop_fitness: {
+        title: '⚡ Pet Power Gym (ยิมฟิตเนสออกกำลังกาย)',
+        wallA: '#1e293b', wallB: '#334155',
+        floorA: '#0f172a', floorB: '#0284c7',
+        sub: '🏋️ ฟิตหุ่นบนลู่วิ่ง • ยกดัมเบลล์ • เผาผลาญพลังงาน 🔥',
+        color: '#38bdf8'
+      },
+      shop_spa: {
+        title: '🌸 Zen Blossom Spa (สปา & บิวตี้ออนเซ็น)',
+        wallA: '#f8edeb', wallB: '#fcd5ce',
+        floorA: '#ccd5ae', floorB: '#e9edc9',
+        sub: '♨️ อ่างออนเซ็นน้ำแร่กลีบกุหลาบ • ผ่อนคลายร่างกาย 🪷',
+        color: '#ff758f'
+      },
+      shop_bakery: {
+        title: '🧁 Bubbles\' Gourmet Bakery (ร้านเบเกอรี่อบสด)',
+        wallA: '#fff1e6', wallB: '#fde2e4',
+        floorA: '#e07a5f', floorB: '#d4a373',
+        sub: '🥐 พายปลาทะเลหอมกรุ่น • ครัวซองต์เนยสด • เค้กนุ่ม 🍰',
+        color: '#e07a5f'
+      },
+      shop_boutique: {
+        title: '👗 Fashion Boutique (ร้านเสื้อผ้าแฟชั่น)',
+        wallA: '#f3c4fb', wallB: '#e2afff',
+        floorA: '#f8f9fa', floorB: '#dee2e6',
+        sub: '✨ เสื้อผ้าคอลเลกชันใหม่ • หมวกและพร็อพสุดเก๋ 🎀',
+        color: '#c77dff'
+      }
+    };
+
+    const cfg = configs[shopType] || configs.shop_market;
+
+    // 1. Wallpaper with vertical stripes
+    ctx.fillStyle = cfg.wallA;
+    ctx.fillRect(0, 0, w, wallH);
+    ctx.fillStyle = cfg.wallB;
+    for (let x = 0; x < w; x += 44) {
+      ctx.fillRect(x, 0, 22, wallH);
+    }
+
+    // Baseboard moulding
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, wallH - 16, w, 16);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(0, wallH - 4, w, 4);
+
+    // 2. Flooring (Planks or tiles)
+    ctx.fillStyle = cfg.floorA;
+    ctx.fillRect(0, floorY, w, floorH);
+    ctx.strokeStyle = cfg.floorB;
+    ctx.lineWidth = 1.8;
+    for (let y = floorY; y < h; y += 34) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+    for (let x = 0; x < w; x += 68) {
+      ctx.beginPath(); ctx.moveTo(x, floorY); ctx.lineTo(x, h); ctx.stroke();
+    }
+
+    // 3. Header Title Plaque
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    this.roundRect(w / 2 - 250, 14, 500, 44, 14, true, false);
+    ctx.strokeStyle = cfg.color;
+    ctx.lineWidth = 2.5;
+    this.roundRect(w / 2 - 250, 14, 500, 44, 14, false, true);
+    ctx.font = 'bold 15px sans-serif';
+    ctx.fillStyle = '#2b2d42';
+    ctx.textAlign = 'center';
+    ctx.fillText(cfg.title, w / 2, 34);
+    ctx.font = '11px sans-serif';
+    ctx.fillStyle = cfg.color;
+    ctx.fillText(cfg.sub, w / 2, 50);
+
+    // 4. Exit Door (Left Wall: x=40, y=140)
+    ctx.fillStyle = '#ffffff';
+    this.roundRect(35, wallH - 180, 80, 180, 8, true, true);
+    ctx.fillStyle = '#e2e8f0';
+    this.roundRect(41, wallH - 174, 68, 170, 6, true, false);
+    ctx.fillStyle = '#94a3b8';
+    this.roundRect(48, wallH - 150, 54, 55, 4, true, false);
+    ctx.fillStyle = '#f59e0b';
+    ctx.beginPath(); ctx.arc(102, wallH - 85, 4.5, 0, Math.PI * 2); ctx.fill();
+    // Exit sign above door
+    ctx.fillStyle = '#10b981';
+    this.roundRect(38, wallH - 208, 74, 20, 5, true, false);
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('🚪 ออกไปเมือง', 75, wallH - 194);
+    // Welcome doormat
+    ctx.fillStyle = cfg.color;
+    this.roundRect(26, floorY + 4, 98, 28, 6, true, false);
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('WELCOME', 75, floorY + 22);
+
+    // 5. Windows with outside view
+    this.drawWindow(w - 180, 75, 110, 125);
+
+    // 6. Detailed Venue Props & Interactive Activity Stations
+    this.drawVenueInteriorProps(shopType, w, h, wallH, floorY);
+  }
+
+  drawVenueInteriorProps(shopType, w, h, wallH, floorY) {
+    const ctx = this.ctx;
+
+    if (shopType === 'shop_market') {
+      // Produce Shelves & Crates Counter
+      ctx.fillStyle = '#b08968';
+      this.roundRect(220, wallH - 60, 240, 75, 8, true, true);
+      // Striped awning over counter
+      for (let i = 0; i < 6; i++) {
+        ctx.fillStyle = (i % 2 === 0) ? '#f77f00' : '#ffffff';
+        ctx.fillRect(220 + i * 40, wallH - 85, 40, 25);
+      }
+      ctx.font = '22px sans-serif';
+      ctx.fillText('🥕🍎🍌🍇', 340, wallH - 20);
+
+      // Interactive Harvest Station (x: 580, y: 310)
+      ctx.fillStyle = '#e9edc9';
+      this.roundRect(550, wallH - 80, 140, 95, 12, true, true);
+      ctx.fillStyle = '#cb997e';
+      this.roundRect(565, wallH - 30, 110, 42, 6, true, true);
+      ctx.font = '26px sans-serif';
+      ctx.fillText('🧺🥕', 620, wallH);
+      // Interactive Badge
+      ctx.fillStyle = '#f77f00';
+      this.roundRect(560, wallH - 74, 120, 24, 12, true, false);
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('✨ สเตชั่นเก็บเกี่ยว', 620, wallH - 58);
+    } else if (shopType === 'shop_icecream') {
+      // Gelato Ice Cream Counter
+      ctx.fillStyle = '#ffffff';
+      this.roundRect(210, wallH - 65, 250, 80, 10, true, true);
+      ctx.fillStyle = '#ffafcc';
+      this.roundRect(220, wallH - 55, 230, 35, 6, true, false);
+      ctx.font = '18px sans-serif';
+      ctx.fillText('🍨🍦🍧🍓', 335, wallH - 30);
+
+      // Interactive Sundae Bar (x: 570)
+      ctx.fillStyle = '#fff0f3';
+      this.roundRect(540, wallH - 85, 150, 100, 12, true, true);
+      ctx.font = '36px sans-serif';
+      ctx.fillText('🍨', 615, wallH);
+      // Interactive Badge
+      ctx.fillStyle = '#ff70a6';
+      this.roundRect(550, wallH - 78, 130, 24, 12, true, false);
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('✨ ตักไอศกรีม 3 รส', 615, wallH - 62);
+    } else if (shopType === 'shop_bookshop') {
+      // Bookshelf filled with books
+      ctx.fillStyle = '#582f0e';
+      this.roundRect(190, 70, 260, wallH - 60, 6, true, true);
+      for (let shelf = 0; shelf < 3; shelf++) {
+        const sy = 120 + shelf * 65;
+        ctx.fillStyle = '#7f4f24';
+        ctx.fillRect(196, sy, 248, 10);
+        // Colorful books
+        const bookCols = ['#e63946', '#ffd166', '#457b9d', '#2a9d8f', '#e76f51', '#f4a261', '#9b5de5'];
+        for (let b = 0; b < 12; b++) {
+          ctx.fillStyle = bookCols[b % bookCols.length];
+          ctx.fillRect(205 + b * 19, sy - 42, 16, 42);
+        }
+      }
+
+      // Interactive Reading Chair & Desk (x: 560)
+      ctx.fillStyle = '#e2ece9';
+      this.roundRect(540, wallH - 85, 150, 100, 12, true, true);
+      ctx.font = '36px sans-serif';
+      ctx.fillText('🛋️📖', 615, wallH);
+      // Interactive Badge
+      ctx.fillStyle = '#2d6a4f';
+      this.roundRect(550, wallH - 78, 130, 24, 12, true, false);
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('✨ นั่งอ่านหนังสือ', 615, wallH - 62);
+    } else if (shopType === 'shop_fitness') {
+      // Gym Mirror and Dumbbell Rack
+      ctx.fillStyle = '#64748b';
+      this.roundRect(200, 75, 240, wallH - 80, 6, true, true);
+      ctx.fillStyle = '#cbd5e1';
+      this.roundRect(206, 81, 228, wallH - 92, 4, true, false);
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillStyle = '#0369a1';
+      ctx.fillText('💪 NO PAIN NO GAIN', 320, 110);
+      ctx.font = '22px sans-serif';
+      ctx.fillText('🏋️‍♂️🏆🥊', 320, wallH - 30);
+
+      // Interactive Treadmill (x: 560)
+      ctx.fillStyle = '#1e293b';
+      this.roundRect(540, wallH - 85, 150, 100, 12, true, true);
+      // Treadmill belt
+      ctx.fillStyle = '#0284c7';
+      this.roundRect(555, wallH - 25, 120, 35, 6, true, false);
+      ctx.font = '28px sans-serif';
+      ctx.fillText('🏃⚡', 615, wallH - 5);
+      // Interactive Badge
+      ctx.fillStyle = '#0284c7';
+      this.roundRect(550, wallH - 78, 130, 24, 12, true, false);
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('✨ วิ่งลู่ออกกำลัง', 615, wallH - 62);
+    } else if (shopType === 'shop_spa') {
+      // Bamboo Screen Partition
+      ctx.fillStyle = '#d4a373';
+      this.roundRect(190, 75, 230, wallH - 75, 6, true, true);
+      ctx.font = '26px sans-serif';
+      ctx.fillText('🎋🪷🍵', 305, wallH - 30);
+
+      // Steaming Onsen Hot Tub (x: 550)
+      ctx.fillStyle = '#faedcd';
+      this.roundRect(520, wallH - 85, 180, 105, 14, true, true);
+      // Wooden barrel tub
+      ctx.fillStyle = '#b08968';
+      this.roundRect(545, wallH - 40, 130, 50, 8, true, true);
+      // Water with floating petals
+      ctx.fillStyle = '#38bdf8';
+      this.roundRect(555, wallH - 35, 110, 22, 6, true, false);
+      ctx.font = '16px sans-serif';
+      ctx.fillText('🪷♨️', 610, wallH - 18);
+      // Interactive Badge
+      ctx.fillStyle = '#ff758f';
+      this.roundRect(545, wallH - 78, 130, 24, 12, true, false);
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('✨ แช่น้ำแร่ออนเซ็น', 610, wallH - 62);
+    } else if (shopType === 'shop_bakery') {
+      // Pastry Glass Display Counter
+      ctx.fillStyle = '#ffffff';
+      this.roundRect(210, wallH - 65, 250, 80, 10, true, true);
+      ctx.fillStyle = '#fde2e4';
+      this.roundRect(220, wallH - 55, 230, 35, 6, true, false);
+      ctx.font = '18px sans-serif';
+      ctx.fillText('🥐🥖🍰🧁', 335, wallH - 30);
+
+      // Interactive Pastry Tasting Table
+      ctx.fillStyle = '#fff1e6';
+      this.roundRect(540, wallH - 85, 150, 100, 12, true, true);
+      ctx.font = '36px sans-serif';
+      ctx.fillText('🥧', 615, wallH);
+      ctx.fillStyle = '#e07a5f';
+      this.roundRect(550, wallH - 78, 130, 24, 12, true, false);
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('✨ ชิมพาย & ขนมปัง', 615, wallH - 62);
+    } else if (shopType === 'shop_boutique') {
+      // Clothing Rack with Outfits
+      ctx.fillStyle = '#f8f9fa';
+      this.roundRect(200, 75, 250, wallH - 75, 8, true, true);
+      ctx.font = '24px sans-serif';
+      ctx.fillText('👗🧥👑🎀', 325, wallH - 30);
+
+      // Interactive Dressing Mirror
+      ctx.fillStyle = '#f3c4fb';
+      this.roundRect(540, wallH - 85, 150, 100, 12, true, true);
+      ctx.font = '36px sans-serif';
+      ctx.fillText('🪞', 615, wallH);
+      ctx.fillStyle = '#c77dff';
+      this.roundRect(550, wallH - 78, 130, 24, 12, true, false);
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('✨ กระจกลองชุดหรู', 615, wallH - 62);
+    }
+  }
+
   drawWindow(x, y, w, h) {
     const ctx = this.ctx;
     // Window Frame
@@ -612,6 +910,21 @@ class GameRenderer {
       case 'town_lighthouse':
         this.drawLighthouseArt(item.width, item.height);
         break;
+      case 'town_market':
+        this.drawMarketArt(item.width, item.height);
+        break;
+      case 'town_icecream':
+        this.drawIceCreamShopArt(item.width, item.height);
+        break;
+      case 'town_bookshop':
+        this.drawBookshopArt(item.width, item.height);
+        break;
+      case 'town_fitness':
+        this.drawFitnessArt(item.width, item.height);
+        break;
+      case 'town_spa':
+        this.drawSpaArt(item.width, item.height);
+        break;
       // Furniture Interior
       case 'furn_sofa':
         this.drawSofaArt(item.width, item.height);
@@ -774,6 +1087,229 @@ class GameRenderer {
     // Door
     ctx.fillStyle = '#e0aaff';
     this.roundRect(w - 50, 60, 34, h - 65, 6, true, true);
+  }
+
+  // --- Town Public Venues & Shops ---
+  drawMarketArt(w, h) {
+    const ctx = this.ctx;
+    // Wooden stall frame
+    ctx.fillStyle = '#faedcd';
+    ctx.strokeStyle = '#cb997e';
+    ctx.lineWidth = 3;
+    this.roundRect(8, 48, w - 16, h - 52, 8, true, true);
+
+    // Striped Awning (Orange & White farm market stripes)
+    const stripes = 7;
+    const stripeW = (w + 8) / stripes;
+    for (let i = 0; i < stripes; i++) {
+      ctx.fillStyle = (i % 2 === 0) ? '#f77f00' : '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(-4 + i * stripeW, 44);
+      ctx.lineTo(-4 + (i + 1) * stripeW, 44);
+      ctx.lineTo(-4 + (i + 1) * stripeW - 4, 68);
+      ctx.lineTo(-4 + i * stripeW - 4, 68);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Market Signboard
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#f77f00';
+    ctx.lineWidth = 2.5;
+    this.roundRect(w / 2 - 40, 12, 80, 28, 6, true, true);
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillStyle = '#d62828';
+    ctx.textAlign = 'center';
+    ctx.fillText('🥕 MARKET', w / 2, 30);
+
+    // Wooden Produce Display Crates
+    ctx.fillStyle = '#ddb892';
+    this.roundRect(16, 75, 58, 45, 5, true, true);
+    ctx.font = '16px sans-serif';
+    ctx.fillText('🍎🥕', 45, 102);
+
+    // Entrance Door
+    ctx.fillStyle = '#b7b7a4';
+    this.roundRect(w - 52, 70, 36, h - 74, 5, true, true);
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('IN', w - 34, 95);
+  }
+
+  drawIceCreamShopArt(w, h) {
+    const ctx = this.ctx;
+    // Mint green pastel building
+    ctx.fillStyle = '#d8f3dc';
+    ctx.strokeStyle = '#95d5b2';
+    ctx.lineWidth = 3;
+    this.roundRect(10, 46, w - 20, h - 50, 10, true, true);
+
+    // Scalloped Pastel Pink Awning
+    const stripes = 6;
+    const stripeW = (w + 10) / stripes;
+    for (let i = 0; i < stripes; i++) {
+      ctx.fillStyle = (i % 2 === 0) ? '#ff70a6' : '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(-5 + i * stripeW, 42);
+      ctx.lineTo(-5 + (i + 1) * stripeW, 42);
+      ctx.lineTo(-5 + (i + 1) * stripeW - 3, 64);
+      ctx.lineTo(-5 + i * stripeW - 3, 64);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Giant Ice Cream Cone on Roof
+    const cx = w / 2;
+    // Waffle Cone
+    ctx.fillStyle = '#d4a373';
+    ctx.beginPath();
+    ctx.moveTo(cx - 12, 28);
+    ctx.lineTo(cx + 12, 28);
+    ctx.lineTo(cx, 44);
+    ctx.closePath();
+    ctx.fill();
+    // Scoops (Pink, Mint, Yellow + Cherry)
+    ctx.fillStyle = '#ffd166';
+    ctx.beginPath(); ctx.arc(cx - 7, 22, 9, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#52b788';
+    ctx.beginPath(); ctx.arc(cx + 7, 22, 9, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ff70a6';
+    ctx.beginPath(); ctx.arc(cx, 12, 10, 0, Math.PI * 2); ctx.fill();
+    // Cherry
+    ctx.fillStyle = '#e63946';
+    ctx.beginPath(); ctx.arc(cx, 3, 4, 0, Math.PI * 2); ctx.fill();
+
+    // Display window with sundae
+    ctx.fillStyle = '#ffffff';
+    this.roundRect(18, 74, 52, 45, 6, true, true);
+    ctx.font = '20px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🍨', 44, 104);
+
+    // Pastel Door
+    ctx.fillStyle = '#bde0fe';
+    this.roundRect(w - 50, 70, 32, h - 74, 6, true, true);
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillStyle = '#023e8a';
+    ctx.fillText('IN', w - 34, 94);
+  }
+
+  drawBookshopArt(w, h) {
+    const ctx = this.ctx;
+    // Cozy Victorian Timber & Sage Green facade
+    ctx.fillStyle = '#40916c';
+    ctx.strokeStyle = '#2d6a4f';
+    ctx.lineWidth = 3;
+    this.roundRect(10, 45, w - 20, h - 49, 8, true, true);
+
+    // Gabled Roof with Chimney
+    ctx.fillStyle = '#6c584c';
+    ctx.beginPath();
+    ctx.moveTo(w / 2, 12);
+    ctx.lineTo(w + 5, 46);
+    ctx.lineTo(-5, 46);
+    ctx.closePath();
+    ctx.fill();
+    // Chimney
+    ctx.fillStyle = '#b76935';
+    ctx.fillRect(w - 35, 14, 14, 24);
+
+    // Hanging Signboard: Open Book
+    ctx.fillStyle = '#f8edeb';
+    ctx.strokeStyle = '#ffd166';
+    ctx.lineWidth = 2;
+    this.roundRect(w / 2 - 36, 28, 72, 22, 6, true, true);
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillStyle = '#344e41';
+    ctx.textAlign = 'center';
+    ctx.fillText('📚 BOOKS', w / 2, 43);
+
+    // Bay Window filled with Books
+    ctx.fillStyle = '#fefae0';
+    this.roundRect(18, 70, 55, 48, 6, true, true);
+    ctx.font = '16px sans-serif';
+    ctx.fillText('📖📚', 45, 100);
+
+    // Wood Panelled Door
+    ctx.fillStyle = '#7f4f24';
+    this.roundRect(w - 48, 68, 30, h - 72, 6, true, true);
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillStyle = '#ffd166';
+    ctx.fillText('IN', w - 33, 92);
+  }
+
+  drawFitnessArt(w, h) {
+    const ctx = this.ctx;
+    // Electric blue athletic building
+    ctx.fillStyle = '#1d3557';
+    ctx.strokeStyle = '#457b9d';
+    ctx.lineWidth = 3;
+    this.roundRect(8, 44, w - 16, h - 48, 8, true, true);
+
+    // Modern angular roof band
+    ctx.fillStyle = '#e63946';
+    this.roundRect(0, 24, w, 22, 4, true, false);
+
+    // Barbell & Lightning Emblem
+    ctx.fillStyle = '#ffd166';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('⚡ POWER GYM 🏋️', w / 2, 39);
+
+    // Glass Window with Treadmill
+    ctx.fillStyle = '#f1faee';
+    this.roundRect(16, 68, 62, 50, 6, true, true);
+    ctx.font = '20px sans-serif';
+    ctx.fillText('🏃💨', 47, 102);
+
+    // Modern Glass Gym Door
+    ctx.fillStyle = '#a8dadc';
+    this.roundRect(w - 52, 64, 34, h - 68, 6, true, true);
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillStyle = '#1d3557';
+    ctx.fillText('FIT', w - 35, 90);
+  }
+
+  drawSpaArt(w, h) {
+    const ctx = this.ctx;
+    // Japanese Zen Bamboo & Cream facade
+    ctx.fillStyle = '#faedcd';
+    ctx.strokeStyle = '#d4a373';
+    ctx.lineWidth = 3;
+    this.roundRect(10, 46, w - 20, h - 50, 10, true, true);
+
+    // Pagoda Curved Roof (Dark teak wood)
+    ctx.fillStyle = '#582f0e';
+    ctx.beginPath();
+    ctx.moveTo(w / 2, 14);
+    ctx.quadraticCurveTo(w + 15, 34, w + 10, 48);
+    ctx.lineTo(-10, 48);
+    ctx.quadraticCurveTo(-15, 34, w / 2, 14);
+    ctx.closePath();
+    ctx.fill();
+
+    // Hot Tub Steam Emblem & Signboard
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#ff70a6';
+    ctx.lineWidth = 2;
+    this.roundRect(w / 2 - 35, 26, 70, 22, 6, true, true);
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillStyle = '#ff70a6';
+    ctx.textAlign = 'center';
+    ctx.fillText('♨️ ZEN SPA', w / 2, 41);
+
+    // Bamboo Shoji Window
+    ctx.fillStyle = '#fdf0d5';
+    this.roundRect(18, 70, 52, 48, 6, true, true);
+    ctx.font = '20px sans-serif';
+    ctx.fillText('🌸🛁', 44, 102);
+
+    // Sliding Shoji Door
+    ctx.fillStyle = '#e9d8a6';
+    this.roundRect(w - 50, 68, 32, h - 72, 4, true, true);
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillStyle = '#7f4f24';
+    ctx.fillText('ZEN', w - 34, 92);
   }
 
   drawWindmillArt(w, h) {

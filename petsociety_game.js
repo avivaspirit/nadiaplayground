@@ -83,6 +83,7 @@ class NadiaPetGame {
     this.cameraX = 0;
     this.targetCameraX = 0;
     this.zoom = 1.0;
+    this.lastTownPlayerPos = { x: 380, y: 440 };
 
     // Simulation Clock
     this.lastTime = performance.now();
@@ -163,9 +164,9 @@ class NadiaPetGame {
       { id: 'town_lamp', x: 540, y: 320, width: 40, height: 100 },
       { id: 'town_cottage', x: 620, y: 270, width: 140, height: 130 },
       { id: 'town_flower_bed', x: 790, y: 380, width: 70, height: 40 },
-      { id: 'town_fence', x: 880, y: 390, width: 60, height: 40 },
-      { id: 'town_apple_tree', x: 1000, y: 260, width: 85, height: 115 },
-      { id: 'town_lamp', x: 1120, y: 320, width: 40, height: 100 },
+      { id: 'town_market', x: 860, y: 260, width: 140, height: 130 }, // Fresh Farmers Market
+      { id: 'town_apple_tree', x: 1040, y: 260, width: 85, height: 115 },
+      { id: 'town_lamp', x: 1140, y: 320, width: 40, height: 100 },
 
       // ZONE 2: Shopping Boulevard & Terrace Cafe (1200 - 2400)
       { id: 'town_bakery', x: 1320, y: 260, width: 150, height: 140 },
@@ -173,28 +174,29 @@ class NadiaPetGame {
       { id: 'town_boutique', x: 1620, y: 260, width: 150, height: 140 },
       { id: 'town_lamp', x: 1800, y: 320, width: 40, height: 100 },
       { id: 'furn_table', x: 1880, y: 350, width: 80, height: 60 },
-      { id: 'town_bench', x: 1990, y: 390, width: 70, height: 50 },
-      { id: 'town_lamp', x: 2100, y: 320, width: 40, height: 100 },
-      { id: 'town_blossom_tree', x: 2220, y: 260, width: 90, height: 120 },
+      { id: 'town_icecream', x: 2000, y: 250, width: 130, height: 140 }, // Sweet Scoops Ice Cream
+      { id: 'town_lamp', x: 2150, y: 320, width: 40, height: 100 },
+      { id: 'town_blossom_tree', x: 2260, y: 260, width: 90, height: 120 },
 
       // ZONE 3: Central Park & Grand Plaza (2400 - 3600)
-      { id: 'town_flower_bed', x: 2480, y: 380, width: 70, height: 40 },
-      { id: 'town_lamp', x: 2580, y: 320, width: 40, height: 100 },
+      { id: 'town_flower_bed', x: 2420, y: 380, width: 70, height: 40 },
+      { id: 'town_bookshop', x: 2520, y: 250, width: 130, height: 140 }, // Storybook Haven Library
       { id: 'town_bench', x: 2680, y: 390, width: 70, height: 50 },
       { id: 'town_fountain', x: 2840, y: 340, width: 100, height: 100 },
       { id: 'town_bench', x: 3020, y: 390, width: 70, height: 50 },
       { id: 'town_lamp', x: 3140, y: 320, width: 40, height: 100 },
       { id: 'town_blossom_tree', x: 3240, y: 260, width: 90, height: 120 },
-      { id: 'town_gazebo', x: 3380, y: 250, width: 120, height: 140 },
+      { id: 'town_spa', x: 3360, y: 250, width: 135, height: 135 }, // Zen Blossom Spa & Onsen
       { id: 'town_apple_tree', x: 3540, y: 260, width: 85, height: 115 },
 
       // ZONE 4: Sunny Sandy Beach & Marina (3600 - 4700)
-      { id: 'town_palm_tree', x: 3720, y: 250, width: 85, height: 130 },
-      { id: 'town_beach_umbrella', x: 3850, y: 350, width: 75, height: 85 },
-      { id: 'town_palm_tree', x: 4020, y: 250, width: 85, height: 130 },
-      { id: 'town_beach_umbrella', x: 4160, y: 350, width: 75, height: 85 },
-      { id: 'town_bench', x: 4320, y: 390, width: 70, height: 50 },
-      { id: 'town_lighthouse', x: 4460, y: 240, width: 110, height: 160 },
+      { id: 'town_fitness', x: 3700, y: 250, width: 140, height: 135 }, // Pet Power Gym
+      { id: 'town_palm_tree', x: 3860, y: 250, width: 85, height: 130 },
+      { id: 'town_beach_umbrella', x: 3980, y: 350, width: 75, height: 85 },
+      { id: 'town_palm_tree', x: 4120, y: 250, width: 85, height: 130 },
+      { id: 'town_beach_umbrella', x: 4240, y: 350, width: 75, height: 85 },
+      { id: 'town_bench', x: 4360, y: 390, width: 70, height: 50 },
+      { id: 'town_lighthouse', x: 4480, y: 240, width: 110, height: 160 },
 
       // ZONE 5: Windmill Meadow & Highland Vista (4700 - 5600)
       { id: 'town_fence', x: 4720, y: 390, width: 60, height: 40 },
@@ -313,9 +315,9 @@ class NadiaPetGame {
         if (d.player) Object.assign(this.player, d.player);
         if (d.inventory) this.inventory = d.inventory;
         if (d.townObjects) {
-          const hasLighthouse = d.townObjects.some(o => o.id === 'town_lighthouse');
-          if (!hasLighthouse) {
-            const newLandmarks = this.defaultTownObjects.filter(o => o.x > 1400);
+          const hasMarket = d.townObjects.some(o => o.id === 'town_market');
+          if (!hasMarket) {
+            const newLandmarks = this.defaultTownObjects.filter(o => ['town_market', 'town_icecream', 'town_bookshop', 'town_fitness', 'town_spa', 'town_lighthouse'].includes(o.id));
             this.townObjects = [...d.townObjects, ...newLandmarks];
           } else {
             this.townObjects = d.townObjects;
@@ -599,7 +601,27 @@ class NadiaPetGame {
         }
       }
 
-      // 3. Click Neighbor to Interact
+      // 3. Inside Shop Venues: Click Exit Door, Host NPC, or Interactive Station
+      if (this.currentScene.startsWith('shop_')) {
+        // Exit Door (Left side: x < 125, y > 220)
+        if (worldX < 125 && worldY > 220) {
+          this.exitShop();
+          return;
+        }
+        // Host NPC (x: 290 - 410, y: 320 - 450)
+        const host = this.getShopHostNPC(this.currentScene);
+        if (host && Math.hypot(worldX - host.x, worldY - host.y) < 65) {
+          this.interactShopHost(this.currentScene);
+          return;
+        }
+        // Interactive Activity Station (x: 520 - 720, y: 260 - 460)
+        if (worldX >= 520 && worldX <= 720 && worldY >= 260 && worldY <= 460) {
+          this.interactShopStation(this.currentScene);
+          return;
+        }
+      }
+
+      // 4. Click Neighbor to Interact
       if (this.currentScene === 'town') {
         for (const n of this.neighbors) {
           const d = Math.hypot(worldX - n.position.x, worldY - n.position.y);
@@ -610,7 +632,7 @@ class NadiaPetGame {
           }
         }
 
-        // 4. Click Town Apple Tree / Fountain / Cottage to interact
+        // 5. Click Town Buildings / Venues to Enter or Interact
         for (const obj of this.townObjects) {
           if (worldX >= obj.x && worldX <= obj.x + obj.width &&
               worldY >= obj.y && worldY <= obj.y + obj.height) {
@@ -623,11 +645,26 @@ class NadiaPetGame {
             } else if (obj.id === 'town_fountain') {
               this.wishFountain(obj);
               return;
+            } else if (obj.id === 'town_market') {
+              this.enterShop('shop_market');
+              return;
+            } else if (obj.id === 'town_icecream') {
+              this.enterShop('shop_icecream');
+              return;
+            } else if (obj.id === 'town_bookshop') {
+              this.enterShop('shop_bookshop');
+              return;
+            } else if (obj.id === 'town_fitness') {
+              this.enterShop('shop_fitness');
+              return;
+            } else if (obj.id === 'town_spa') {
+              this.enterShop('shop_spa');
+              return;
             } else if (obj.id === 'town_bakery') {
-              this.openShopModal('bakery');
+              this.enterShop('shop_bakery');
               return;
             } else if (obj.id === 'town_boutique') {
-              this.openShopModal('boutique');
+              this.enterShop('shop_boutique');
               return;
             } else if (obj.id === 'town_windmill') {
               this.visitWindmill(obj);
@@ -643,9 +680,9 @@ class NadiaPetGame {
         }
       }
 
-      // 5. Normal Movement: Walk to clicked point
+      // 6. Normal Movement: Walk to clicked point
       // Clamp Y to walking ground
-      const minY = (this.currentScene === 'town') ? 370 : 330;
+      const minY = (this.currentScene === 'town' || this.currentScene.startsWith('shop_')) ? 370 : 330;
       const maxY = 510;
       const targetYClamped = Math.max(minY, Math.min(maxY, worldY));
       this.player.targetX = worldX;
@@ -735,8 +772,14 @@ class NadiaPetGame {
     document.getElementById('btnSwitchUser')?.addEventListener('click', () => {
       audio.init();
       audio.playPop(600);
-      this.openLoginModal();
+      this.openCharSelectModal();
     });
+
+    // Character Selector Button
+    document.getElementById('btnOpenCharSelect')?.addEventListener('click', () => this.openCharSelectModal());
+
+    // Exit Shop to Town Button
+    document.getElementById('btnExitToTown')?.addEventListener('click', () => this.exitShop());
 
     // Manual Save Button
     document.getElementById('btnSaveGame')?.addEventListener('click', () => {
@@ -828,17 +871,37 @@ class NadiaPetGame {
     this.currentScene = sceneName;
     audio.playPop(550);
 
-    // Update active nav button
-    document.getElementById('btnNavTown')?.classList.toggle('active', sceneName === 'town');
-    document.getElementById('btnNavHome')?.classList.toggle('active', sceneName === 'home');
+    const isTown = (sceneName === 'town');
+    const isHome = (sceneName === 'home');
+    const isShop = sceneName.startsWith('shop_');
 
-    if (sceneName === 'town') {
-      this.player.x = 420;
-      this.player.y = 440;
-      this.player.targetX = 420;
-      this.player.targetY = 440;
+    // Update active nav button
+    document.getElementById('btnNavTown')?.classList.toggle('active', isTown);
+    document.getElementById('btnNavHome')?.classList.toggle('active', isHome);
+    document.getElementById('btnExitToTown')?.classList.toggle('hidden', !isShop);
+
+    if (isTown) {
+      if (this.lastTownPlayerPos) {
+        this.player.x = this.lastTownPlayerPos.x;
+        this.player.y = this.lastTownPlayerPos.y;
+        this.player.targetX = this.lastTownPlayerPos.x;
+        this.player.targetY = this.lastTownPlayerPos.y;
+      } else {
+        this.player.x = 420;
+        this.player.y = 440;
+        this.player.targetX = 420;
+        this.player.targetY = 440;
+      }
       this.updateZonePills();
+    } else if (isShop) {
+      this.player.x = 220;
+      this.player.y = 440;
+      this.player.targetX = 220;
+      this.player.targetY = 440;
+      this.cameraX = 0;
+      document.getElementById('worldNavBar')?.classList.add('hidden');
     } else {
+      // home / partner_home
       this.player.x = 450;
       this.player.y = 420;
       this.player.targetX = 450;
@@ -846,6 +909,240 @@ class NadiaPetGame {
       this.cameraX = 0;
       document.getElementById('worldNavBar')?.classList.add('hidden');
     }
+  }
+
+  enterShop(shopType) {
+    this.lastTownPlayerPos = { x: this.player.x, y: this.player.y };
+    audio.playFanfare();
+    this.switchScene(shopType);
+    const shopNames = {
+      shop_market: '🥕 ตลาดสดสัตว์เลี้ยง (Farmers Market)',
+      shop_icecream: '🍨 ร้านไอศกรีมพาสเทล (Sweet Scoops)',
+      shop_bookshop: '📚 ร้านหนังสือ & ห้องสมุด (Storybook Haven)',
+      shop_fitness: '⚡ ยิมฟิตเนสออกกำลังกาย (Pet Power Gym)',
+      shop_spa: '🌸 สปา & บิวตี้ออนเซ็น (Zen Blossom Spa)',
+      shop_bakery: '🧁 ร้านเบเกอรี่อบสด (Bubbles\' Bakery)',
+      shop_boutique: '👗 ร้านเสื้อผ้าบูติก (Fashion Boutique)'
+    };
+    this.showSaveToast(`🚪 เดินเข้าสู่ ${shopNames[shopType] || 'ร้านค้า'}! ✨`);
+  }
+
+  exitShop() {
+    audio.playPop(520);
+    this.switchScene('town');
+    this.showSaveToast('🚪 เดินกลับออกมาสู่เมืองทาวน์แล้ว! 🌳');
+  }
+
+  getShopHostNPC(shopType) {
+    const hosts = {
+      shop_market: {
+        name: 'Daisy (เดซี่)',
+        species: 'dog',
+        furColor: '#fed1b2',
+        eyeShape: 'anime',
+        blush: 'hearts',
+        clothes: { head: 'hat_straw', body: 'outfit_overalls', face: null, neck: 'neck_bell', hand: 'prop_wand', shoes: 'shoe_sneakers' },
+        x: 340, y: 390,
+        title: 'แม่ค้าชาวสวน'
+      },
+      shop_icecream: {
+        name: 'Pippin (ปิ๊ปปิ้น)',
+        species: 'penguin',
+        furColor: '#bde0fe',
+        eyeShape: 'anime',
+        blush: 'circles',
+        clothes: { head: 'hat_straw', body: 'outfit_overalls', face: 'glass_heart', neck: null, hand: 'prop_icecream', shoes: 'shoe_boots' },
+        x: 340, y: 390,
+        title: 'เชฟไอศกรีม'
+      },
+      shop_bookshop: {
+        name: 'Luna (ลูน่า)',
+        species: 'cat',
+        furColor: '#fed1b2',
+        eyeShape: 'wink',
+        blush: 'stripes',
+        clothes: { head: 'hat_beret', body: 'outfit_sweater', face: 'glass_round', neck: null, hand: null, shoes: 'shoe_sneakers' },
+        x: 340, y: 390,
+        title: 'บรรณารักษ์สาว'
+      },
+      shop_fitness: {
+        name: 'Bao Bao (เปาเปา)',
+        species: 'panda',
+        furColor: '#ffffff',
+        eyeShape: 'happy',
+        blush: 'circles',
+        clothes: { head: 'hat_beret', body: 'outfit_sweater', face: 'glass_round', neck: null, hand: null, shoes: null },
+        x: 340, y: 390,
+        title: 'โค้ชฟิตเนส'
+      },
+      shop_spa: {
+        name: 'Mimi (มิมิ)',
+        species: 'bunny',
+        furColor: '#fde2e4',
+        eyeShape: 'classic',
+        blush: 'circles',
+        clothes: { head: 'hat_ribbon', body: 'outfit_dress', face: null, neck: null, hand: 'prop_wand', shoes: 'shoe_bunny' },
+        x: 340, y: 390,
+        title: 'ผู้ดูแลสปา'
+      },
+      shop_bakery: {
+        name: 'Bubbles (น้องอุ๋ง)',
+        species: 'seal',
+        furColor: '#b5e2fa',
+        eyeShape: 'happy',
+        blush: 'hearts',
+        clothes: { head: 'hat_sailor', body: 'outfit_sailor', face: null, neck: 'neck_bell', hand: 'prop_fish', shoes: null },
+        x: 340, y: 390,
+        title: 'กัปตันเชฟเบเกอรี่'
+      },
+      shop_boutique: {
+        name: 'Mayor Barnaby (บาร์นาบี)',
+        species: 'bear',
+        furColor: '#ddb892',
+        eyeShape: 'classic',
+        blush: 'none',
+        clothes: { head: 'hat_crown', body: 'outfit_tuxedo', face: null, neck: 'neck_bowtie', hand: 'prop_wand', shoes: null },
+        x: 340, y: 390,
+        title: 'สไตลิสต์ประจำร้าน'
+      }
+    };
+    return hosts[shopType] || null;
+  }
+
+  interactShopHost(shopType) {
+    audio.playPop(650);
+    const host = this.getShopHostNPC(shopType);
+    if (!host) return;
+    this.spawnHearts(host.x, host.y - 40, 4);
+
+    if (shopType === 'shop_market') {
+      const buyChoice = confirm(`🥕 ${host.name}: "ยินดีต้อนรับสู่ตลาดสดสัตว์เลี้ยงจ้า! อยากซื้อผักผลไม้ออร์แกนิกกลับบ้านมั้ย?\n(กด OK เพื่อซื้อตะกร้าแอปเปิ้ล & แครอทสด ราคา 20 เหรียญทอง)"`);
+      if (buyChoice) {
+        if (this.player.coins >= 20) {
+          this.player.coins -= 20;
+          let carrot = this.inventory.foods.find(f => f.id === 'food_carrot');
+          if (carrot) carrot.count += 2;
+          audio.playCoin();
+          this.updateHUD();
+          this.showSaveToast('🥕 ซื้อแครอทสด 2 หัวจากตลาดสำเร็จ! ✨');
+        } else {
+          alert('เหรียญทองไม่พอจ้า!');
+        }
+      }
+    } else if (shopType === 'shop_icecream') {
+      this.interactShopStation('shop_icecream');
+    } else if (shopType === 'shop_bookshop') {
+      this.interactShopStation('shop_bookshop');
+    } else if (shopType === 'shop_fitness') {
+      this.interactShopStation('shop_fitness');
+    } else if (shopType === 'shop_spa') {
+      this.interactShopStation('shop_spa');
+    } else if (shopType === 'shop_bakery') {
+      this.openShopModal('bakery');
+    } else if (shopType === 'shop_boutique') {
+      this.openShopModal('boutique');
+    }
+  }
+
+  interactShopStation(shopType) {
+    if (shopType === 'shop_market') {
+      audio.playSqueak();
+      this.spawnHearts(620, 310, 6);
+      this.addCoins(25);
+      this.addXP(20);
+      let apple = this.inventory.foods.find(f => f.id === 'food_carrot');
+      if (apple) apple.count += 1;
+      this.updateHUD();
+      this.showSaveToast('🧺 เก็บเกี่ยวแครอทสดและผลไม้ฉ่ำหวานจากกระเช้าฟาร์ม! (+25 Coins, +20 XP) 🥕✨');
+    } else if (shopType === 'shop_icecream') {
+      audio.playPop(720);
+      this.player.stats.happiness = 100;
+      this.player.stats.hunger = Math.min(100, this.player.stats.hunger + 35);
+      this.spawnHearts(this.player.x, this.player.y - 30, 8);
+      this.addXP(25);
+      this.updateHUD();
+      this.showSaveToast('🍨 ชิมไอศกรีมซันเดย์สายรุ้ง 3 รสชาติ หวานเย็นสดชื่น! ความสุข 100%! (+25 XP) ✨');
+    } else if (shopType === 'shop_bookshop') {
+      audio.playPop(580);
+      this.addXP(40);
+      this.addCoins(20);
+      this.player.stats.happiness = Math.min(100, this.player.stats.happiness + 20);
+      this.spawnHearts(this.player.x, this.player.y - 30, 6);
+      this.updateHUD();
+      this.showSaveToast('📖 นั่งอ่านนิทานเวทมนตร์และการผจญภัยในเก้าอี้นุ่ม! (+40 XP, +20 Coins) 📚✨');
+    } else if (shopType === 'shop_fitness') {
+      audio.playFanfare();
+      this.player.customAction = 'dance';
+      setTimeout(() => { this.player.customAction = null; }, 1800);
+      this.addXP(35);
+      this.addCoins(25);
+      this.player.stats.energy = 100;
+      this.player.stats.hunger = Math.max(20, this.player.stats.hunger - 10);
+      this.spawnHearts(this.player.x, this.player.y - 40, 8);
+      this.updateHUD();
+      this.showSaveToast('🏃 วิ่งบนลู่วิ่งสปีดฟิตเนส เผาผลาญไขมันและเพิ่มพลังกายเต็มร้อย! (+35 XP, +25 Coins) 🔥');
+    } else if (shopType === 'shop_spa') {
+      audio.playWaterSplash();
+      this.player.stats.hygiene = 100;
+      this.player.stats.happiness = 100;
+      this.spawnBubbles(this.player.x, this.player.y - 20, 8);
+      this.spawnHearts(this.player.x, this.player.y - 40, 8);
+      this.addXP(30);
+      this.updateHUD();
+      this.showSaveToast('♨️ แช่น้ำแร่ออนเซ็นกลีบกุหลาบอุ่นสบาย ขนนุ่มหอมสะอาดวิ้งค์ๆ! (ความสะอาด & ความสุข 100%) 🪷');
+    } else if (shopType === 'shop_bakery') {
+      this.openShopModal('bakery');
+    } else if (shopType === 'shop_boutique') {
+      this.openShopModal('boutique');
+    }
+  }
+
+  openCharSelectModal() {
+    audio.playPop(620);
+    const modal = document.getElementById('charSelectModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+
+    const container = document.getElementById('charSelectList');
+    if (!container) return;
+    container.innerHTML = '';
+
+    GAME_DATA.characterPresets.forEach(char => {
+      const isCurrent = (this.player.species === char.species && this.player.name.includes(char.name.split(' ')[0]));
+      const card = document.createElement('div');
+      card.className = `character-pick-card ${isCurrent ? 'active' : ''}`;
+      card.innerHTML = `
+        <div class="char-pick-avatar">${char.avatar}</div>
+        <div class="char-pick-name">${char.name}</div>
+        <div class="char-pick-badge">${char.badge}</div>
+        <div class="char-pick-desc">${char.desc}</div>
+        <button class="btn-choose-char" onclick="gameInstance.chooseCharacter('${char.id}')">
+          ${isCurrent ? '✅ กำลังเล่นตัวนี้' : '✨ เลือกเล่นตัวนี้'}
+        </button>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  chooseCharacter(charId) {
+    audio.playFanfare();
+    const preset = GAME_DATA.characterPresets.find(c => c.id === charId);
+    if (!preset) return;
+
+    this.player.name = preset.name;
+    this.player.species = preset.species;
+    this.player.furColor = preset.furColor;
+    this.player.eyeShape = preset.eyeShape;
+    this.player.blush = preset.blush;
+    this.player.clothes = JSON.parse(JSON.stringify(preset.clothes));
+
+    this.spawnHearts(this.player.x, this.player.y - 40, 10);
+    this.showSaveToast(`🎉 คุณแปลงร่างเป็น ${preset.name} สำเร็จแล้ว! ✨`);
+    this.updateHUD();
+    this.saveState(true);
+
+    document.getElementById('charSelectModal')?.classList.add('hidden');
+    document.getElementById('loginModal')?.classList.add('hidden');
   }
 
   // Set Active Care Tool
@@ -1005,6 +1302,8 @@ class NadiaPetGame {
       }
       this.renderer.drawTown(this.cameraX, this.worldWidth, this.canvas.width / zoom, this.canvas.height / zoom);
       ctx.restore();
+    } else if (this.currentScene.startsWith('shop_')) {
+      this.renderer.drawShopInterior(this.currentScene, this.canvas.width, this.canvas.height);
     } else if (this.currentScene === 'partner_home') {
       this.renderer.drawHome(this.partnerRoomTheme, this.cameraX);
     } else {
@@ -1015,6 +1314,7 @@ class NadiaPetGame {
     let objects = this.townObjects;
     if (this.currentScene === 'home') objects = this.homeObjects;
     if (this.currentScene === 'partner_home') objects = (this.partnerHomeObjects.length > 0) ? this.partnerHomeObjects : this.homeObjects;
+    if (this.currentScene.startsWith('shop_')) objects = []; // Shop interior props are drawn directly in drawShopInterior
     // Sort by Y for depth layering
     const sortedObjects = [...objects].sort((a, b) => (a.y + a.height) - (b.y + b.height));
 
@@ -1045,6 +1345,20 @@ class NadiaPetGame {
         ctx.fillStyle = '#ff70a6';
         ctx.textAlign = 'center';
         ctx.fillText(partner.name.split(' ')[0], 640, 420 - 61);
+      }
+    }
+
+    // Draw shop host if in shop_* venue
+    if (this.currentScene.startsWith('shop_')) {
+      const host = this.getShopHostNPC(this.currentScene);
+      if (host) {
+        this.renderer.drawPet(host, host.x, host.y, 0.95, false, false);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+        this.renderer.roundRect(host.x - 65, host.y - 78, 130, 22, 6, true, false);
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillStyle = '#e76f51';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${host.name.split(' ')[0]} (${host.title})`, host.x, host.y - 63);
       }
     }
 
@@ -1403,7 +1717,7 @@ class NadiaPetGame {
     // Active User Profile Badge
     const elActiveUser = document.getElementById('hudActiveUser');
     if (elActiveUser) {
-      elActiveUser.innerText = (this.currentUser === 'mac') ? 'Mac' : 'Nadia';
+      elActiveUser.innerText = (this.player && this.player.name) ? this.player.name.split(' ')[0] : ((this.currentUser === 'mac') ? 'Mac' : 'Nadia');
     }
 
     // Avatar Icon based on species
