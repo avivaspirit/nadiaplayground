@@ -2295,6 +2295,14 @@ class GameRenderer {
       ctx.beginPath();
       ctx.arc(-20, 24, 8, 0, Math.PI * 2);
       ctx.fill();
+    } else if (species.id === 'sock') {
+      // Soft heel knit bump
+      ctx.fillStyle = '#ff70a6';
+      ctx.strokeStyle = stroke;
+      ctx.beginPath();
+      ctx.arc(-18, 24, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
     }
   }
 
@@ -2402,6 +2410,37 @@ class GameRenderer {
       ctx.ellipse(26, -18, 10, 18, -0.3, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
+    } else if (species.id === 'sock') {
+      // Folded ribbed knit cuff beret on top of head
+      const cuffWobble = Math.sin(this.time * 5) * 1.5;
+      ctx.save();
+      ctx.translate(0, -38 + cuffWobble);
+      // Ribbed cuff band
+      ctx.fillStyle = '#ff70a6';
+      ctx.strokeStyle = stroke;
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(-24, -10, 48, 14, 7);
+      } else {
+        ctx.rect(-24, -10, 48, 14);
+      }
+      ctx.fill();
+      ctx.stroke();
+      // Ribbed stitches
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.lineWidth = 1.5;
+      for (let rx = -18; rx <= 18; rx += 6) {
+        ctx.beginPath();
+        ctx.moveTo(rx, -8);
+        ctx.lineTo(rx, 2);
+        ctx.stroke();
+      }
+      // Pompom on top
+      ctx.fillStyle = '#ffd166';
+      ctx.beginPath();
+      ctx.arc(0, -13, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     }
   }
 
@@ -2455,6 +2494,17 @@ class GameRenderer {
       ctx.beginPath();
       ctx.ellipse(0, 22, 16, 17, 0, 0, Math.PI * 2);
       ctx.fill();
+    } else if (species.id === 'sock') {
+      // Pastel Knit stripes across sock body
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(0, 20, 24, 22, 0, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.fillStyle = '#a0e7e5';
+      ctx.fillRect(-25, 12, 50, 7);
+      ctx.fillStyle = '#ffd166';
+      ctx.fillRect(-25, 23, 50, 7);
+      ctx.restore();
     }
   }
 
@@ -2561,6 +2611,25 @@ class GameRenderer {
       ctx.textAlign = 'center';
       ctx.fillText('✦', -14, -10);
       ctx.fillText('✦', 14, -10);
+    } else if (species.id === 'sock') {
+      // CUTE CROSS-STITCH BUTTON EYES for Sockney
+      [-14, 14].forEach(x => {
+        ctx.fillStyle = '#7b2cbf';
+        ctx.strokeStyle = '#5a189a';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(x, -14, 7.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x - 3, -14); ctx.lineTo(x + 3, -14);
+        ctx.moveTo(x, -17); ctx.lineTo(x, -11);
+        ctx.stroke();
+      });
     } else {
       // CLASSIC PET SOCIETY SHINY EYES
       ctx.fillStyle = '#2b2d42';
@@ -2614,7 +2683,7 @@ class GameRenderer {
       ctx.fill();
     } else {
       // Cute nose
-      ctx.fillStyle = (species.id === 'seal' || species.id === 'bunny') ? '#ff758f' : '#2b2d42';
+      ctx.fillStyle = (species.id === 'seal' || species.id === 'bunny' || species.id === 'sock') ? '#ff758f' : '#2b2d42';
       ctx.beginPath();
       ctx.ellipse(0, -8, 3.5, 2.5, 0, 0, Math.PI * 2);
       ctx.fill();

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Sockneystagram — Adopt Sockney the Cutest Sock Pet!</title>
+<meta name="description" content="Sockneystagram — adopt Sockney, the living squishy striped sock pet! Warm cuddles, squishy stretches, yarn play & cozy laundry naps 🧦✨">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M35 15 C45 12, 65 12, 65 24 L65 52 C65 68, 78 72, 85 78 C90 84, 84 94, 72 94 C54 94, 35 82, 35 60 Z' fill='%23ffb4d6'/><circle cx='48' cy='36' r='4' fill='%233a2e39'/><circle cx='58' cy='36' r='4' fill='%233a2e39'/><ellipse cx='42' cy='44' rx='4' ry='2.5' fill='%23ff70a6'/><ellipse cx='64' cy='44' rx='4' ry='2.5' fill='%23ff70a6'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #3c2a3e;
+    --ink-soft: #8d738f;
+    --pink: #ff70a6;
+    --pink-soft: #ffb4d6;
+    --mint: #70d6ff;
+    --lavender: #b5a6ff;
+    --cream: #fffafc;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; user-select:none; }
+  body {
+    font-family:'Inter',sans-serif; color:var(--ink);
+    background: radial-gradient(900px 460px at 85% -10%, #ffe0ec, transparent 60%),
+                radial-gradient(700px 420px at -10% 110%, #e8f4fd, transparent 55%),
+                #fff8fb;
+    min-height:100vh;
+  }
+  .top-bar {
+    position:fixed; top:14px; left:16px; right:16px; z-index:40;
+    display:flex; justify-content:space-between; align-items:center; pointer-events:none;
+  }
+  .back-hub, .snd-btn {
+    pointer-events:auto; background:#fff; border:2px solid #ffd1e4; color:#d6336c;
+    border-radius:999px; padding:7px 15px; font:800 .82rem 'Inter'; text-decoration:none;
+    box-shadow:0 6px 18px rgba(214,51,108,.15); cursor:pointer; transition:transform .12s;
+  }
+  .back-hub:hover, .snd-btn:hover { transform:scale(1.04); }
+  .back-hub:active, .snd-btn:active { transform:scale(0.96); }
+
+  .wrap { max-width:960px; margin:0 auto; padding:20px 14px 60px; }
+  header { text-align:center; padding:44px 0 6px; }
+  h1 { font-family:'Fraunces',serif; font-size:clamp(1.9rem,5vw,2.7rem); }
+  h1 .hl {
+    background: linear-gradient(135deg, #ff70a6 0%, #b5a6ff 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .sub { color:var(--ink-soft); font-weight:600; margin-top:5px; font-size:.95rem; }
+
+  /* tabs */
+  .tabs { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:18px 0 14px; }
+  .tab {
+    border:2px solid #ffd1e4; background:#fff; border-radius:999px;
+    padding:10px 18px; font:800 .88rem 'Inter'; color:var(--ink-soft);
+    cursor:pointer; transition:transform .15s, background .15s;
+  }
+  .tab:hover { transform:translateY(-1px); }
+  .tab.on {
+    background:linear-gradient(135deg,#ff70a6,#b5a6ff); color:#fff;
+    border-color:transparent; box-shadow:0 6px 18px rgba(255,112,166,.35);
+  }
+
+  /* panels */
+  .panel { display:none; }
+  .panel.on { display:block; }
+  .stage {
+    background:#fff; border-radius:24px; padding:18px;
+    box-shadow:0 18px 50px rgba(214,51,108,.12); text-align:center; position:relative;
+  }
+
+  #petBox, #feedBox, #petBox2 {
+    border-radius:20px; overflow:hidden; position:relative; cursor:pointer;
+  }
+  #petBox svg, #feedBox svg, #petBox2 svg { display:block; width:100%; height:auto; }
+
+  .bubble {
+    position:relative; display:inline-block; margin-top:10px;
+    background:#fff; border:2px solid #ffd1e4; border-radius:18px;
+    padding:9px 18px; font:800 .88rem 'Inter'; color:var(--ink);
+    box-shadow:0 6px 16px rgba(214,51,108,.08); min-height:22px;
+  }
+
+  .stats { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:14px; }
+  .stat {
+    background:#fff5f9; border:2px solid #ffd1e4; border-radius:14px;
+    padding:8px 14px; min-width:90px;
+  }
+  .stat b { display:block; font-family:'Fraunces',serif; font-size:1.35rem; color:#d6336c; }
+  .stat span { font:700 .66rem 'Inter'; color:var(--ink-soft); }
+
+  .barow { display:flex; align-items:center; gap:8px; margin-top:10px; }
+  .barow .blab { font:800 .74rem 'Inter'; color:var(--ink-soft); width:58px; text-align:right; }
+  .bar { flex:1; height:14px; border-radius:8px; background:#fcebf2; overflow:hidden; }
+  .bar i { display:block; height:100%; border-radius:8px; transition:width .35s; }
+
+  .acts { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
+  .abtn {
+    border:none; border-radius:16px; padding:12px 20px; font:800 .9rem 'Inter';
+    cursor:pointer; color:#fff; background:linear-gradient(135deg,#ff70a6,#b5a6ff);
+    box-shadow:0 6px 18px rgba(255,112,166,.35); transition:transform .12s;
+  }
+  .abtn:hover { transform:scale(1.03); }
+  .abtn:active { transform:scale(0.96); }
+  .abtn.alt {
+    background:#fff; color:#d6336c; border:2px solid #ffd1e4; box-shadow:none;
+  }
+
+  .logline { font:600 .78rem 'Inter'; color:var(--ink-soft); margin-top:8px; min-height:18px; }
+
+  /* Grids */
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-top:14px; }
+  .it {
+    background:#fff; border:2px solid #ffd1e4; border-radius:16px;
+    padding:10px 6px; text-align:center; cursor:pointer; transition:transform .12s;
+  }
+  .it:hover { transform:translateY(-2px); border-color:var(--pink); }
+  .it.on { border-color:var(--pink); background:#fff0f6; }
+  .it .e { font-size:1.8rem; }
+  .it span { display:block; font:700 .7rem 'Inter'; color:var(--ink-soft); margin-top:3px; }
+  .it small { display:block; font:800 .74rem 'Inter'; color:#d6336c; margin-top:2px; }
+
+  .place-row { display:flex; gap:8px; overflow-x:auto; padding:4px 2px 10px; }
+  .place {
+    flex:0 0 auto; border:2px solid #ffd1e4; background:#fff; border-radius:14px;
+    padding:8px 14px; font:800 .8rem 'Inter'; color:var(--ink-soft); cursor:pointer;
+  }
+  .place.on { border-color:#d6336c; background:#fff0f6; color:#d6336c; }
+
+  /* Playroom Stage */
+  .walkwrap { position:relative; border-radius:20px; overflow:hidden; background:#f4f0ff; }
+  .walkwrap svg { display:block; width:100%; height:auto; }
+  .walkctl { display:flex; gap:10px; justify-content:center; margin-top:12px; flex-wrap:wrap; }
+
+  /* Photos */
+  .phots { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; margin-top:14px; }
+  .ph { background:#fff; border:2px solid #ffd1e4; border-radius:18px; overflow:hidden; text-align:left; box-shadow:0 6px 16px rgba(214,51,108,.06); }
+  .ph svg { width:100%; height:auto; display:block; }
+  .ph .pm { padding:8px 10px; font:700 .7rem 'Inter'; color:var(--ink-soft); display:flex; justify-content:space-between; align-items:center; }
+  .ph-like { border:none; background:#fff0f6; color:#d6336c; border-radius:999px; padding:3px 9px; font:800 .72rem 'Inter'; cursor:pointer; }
+  .ph-del { border:none; background:none; cursor:pointer; font-size:.9rem; }
+
+  .floating-particle {
+    position: absolute; pointer-events: none; z-index: 10; font-size: 24px;
+    animation: floatUp 1.4s ease-out forwards;
+  }
+  @keyframes floatUp {
+    0% { opacity: 0; transform: translateY(0) scale(0.6); }
+    20% { opacity: 1; transform: translateY(-15px) scale(1.2); }
+    100% { opacity: 0; transform: translateY(-65px) scale(0.9); }
+  }
+  @keyframes sockStretch {
+    0%,100% { transform: scale(1,1); }
+    50% { transform: scale(0.92,1.1); }
+  }
+  .sockWiggle { animation: sockStretch 1.8s ease-in-out infinite; transform-origin: center bottom; }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a class="back-hub" href="index.html">⬅ All games</a>
+  <button class="snd-btn" id="sndBtn" title="Toggle Sound">🔊 Sound</button>
+</div>
+
+<div class="wrap">
+  <header>
+    <h1>🧦 <span class="hl">Sockneystagram</span></h1>
+    <p class="sub">Adopt Sockney — the super cute living striped sock! Cuddle, stretch, laundry naps &amp; yarn play ✨</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab on" id="tabHome">🏡 Home</button>
+    <button class="tab" id="tabFeed">🧺 Laundry Cafe</button>
+    <button class="tab" id="tabDress">🎀 Knit Wardrobe</button>
+    <button class="tab" id="tabWalk">🧶 Yarn Playroom</button>
+    <button class="tab" id="tabPhotos">📸 Album</button>
+  </div>
+
+  <!-- HOME TAB -->
+  <section class="panel on" id="pHome">
+    <div class="stage">
+      <div id="petBox" title="Tap Sockney to squish, stretch &amp; cuddle her!"></div>
+      <div class="bubble" id="say">Wiggle wiggle~ I'm Sockney! 🧦✨</div>
+
+      <div class="stats">
+        <div class="stat"><b id="stAge">0</b><span>days together</span></div>
+        <div class="stat"><b id="stLove">0</b><span>love 💕</span></div>
+        <div class="stat"><b id="stButtons">18</b><span>buttons 🔘</span></div>
+      </div>
+
+      <div class="barow"><span class="blab" style="color:#d6336c">🔥 อบอุ่น</span><div class="bar"><i id="bWarmth" style="width:95%;background:linear-gradient(90deg,#ff70a6,#ffb4d6)"></i></div></div>
+      <div class="barow"><span class="blab">นุ่มฟู</span><div class="bar"><i id="bFluff" style="width:85%;background:linear-gradient(90deg,#b5a6ff,#70d6ff)"></i></div></div>
+      <div class="barow"><span class="blab">หอมฟุ้ง</span><div class="bar"><i id="bScent" style="width:90%;background:linear-gradient(90deg,#ffd166,#06d6a0)"></i></div></div>
+      <div class="barow"><span class="blab">ความสุข</span><div class="bar"><i id="bHappy" style="width:92%;background:linear-gradient(90deg,#ff9ebb,#ff70a6)"></i></div></div>
+
+      <div class="acts">
+        <button class="abtn" id="actHug" style="background:linear-gradient(135deg,#ff70a6,#b5a6ff)">🫂 กอดถุงเท้านุ่มอุ่น (Cozy Cuddle)</button>
+        <button class="abtn" id="actSquish" style="background:linear-gradient(135deg,#70d6ff,#b5a6ff);color:#1b2559">✨ บีบยืดดึ๋งดั๋ง (Squish &amp; Stretch)</button>
+        <button class="abtn alt" id="actTickle">🦶 เกาปลายเท้านุ่ม (Tickle Toe)</button>
+        <button class="abtn alt" id="actSteam">💨 พ่นไอน้ำนุ่มฟู (Warm Steam)</button>
+        <button class="abtn alt" id="actPet">👉 จิ้มปุ่มตาน่ารัก</button>
+        <button class="abtn alt" id="actSnap">📸 ถ่ายรูป</button>
+      </div>
+
+      <div class="logline" id="log">Sockney wiggles her striped toe happily~ *squeak!*</div>
+    </div>
+  </section>
+
+  <!-- LAUNDRY CAFE TAB -->
+  <section class="panel" id="pFeed">
+    <div class="stage">
+      <h3 style="font-family:'Fraunces',serif">🧺 Pick Sockney's Warmth Treat</h3>
+      <p class="hint" style="margin:4px 0 8px">Tap a dryer snack below to keep Sockney ultra warm, fragrant &amp; fluffy ✨</p>
+      <div id="feedBox" title="Sockney waiting for dryer heat!" style="max-width:340px;margin:0 auto"></div>
+      <div class="barow" style="max-width:340px;margin:10px auto 4px"><span class="blab">อบอุ่น</span><div class="bar"><i id="bWarmthFeed" style="width:85%;background:linear-gradient(90deg,#ff70a6,#b5a6ff)"></i></div></div>
+      <div class="grid" id="foodGrid"></div>
+      <div class="acts" style="margin-top:16px">
+        <button class="abtn" id="feedBtn">🧺 Cuddle Treat now!</button>
+      </div>
+      <div class="logline" id="feedLog">What cozy treat shall we pamper Sockney with?</div>
+    </div>
+  </section>
+
+  <!-- KNIT WARDROBE TAB -->
+  <section class="panel" id="pDress">
+    <div class="stage">
+      <div id="petBox2"></div>
+      <div class="place-row" id="dressCats" style="margin-top:12px"></div>
+      <div class="grid" id="dressGrid" style="grid-template-columns:repeat(auto-fill,minmax(104px,1fr))"></div>
+      <div class="acts" style="margin-top:14px">
+        <button class="abtn alt" id="dressClear">✨ Classic Pastel Knit</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- YARN PLAYROOM TAB -->
+  <section class="panel" id="pWalk">
+    <div class="stage">
+      <div class="walkwrap" id="walkBox"></div>
+      <div class="place-row" id="placeRow" style="margin-top:12px"></div>
+      <div class="walkctl">
+        <button class="abtn alt" id="wLeft">◀</button>
+        <button class="abtn" id="wPlay" style="background:linear-gradient(135deg,#ff70a6,#70d6ff)">🧶 กลิ้งไหมพรมเล่น (Roll Yarn!)</button>
+        <button class="abtn alt" id="wRight">▶</button>
+      </div>
+      <div class="logline" id="walkLog">Tap anywhere on the floor to make Sockney slide &amp; skate around!</div>
+    </div>
+  </section>
+
+  <!-- PHOTO ALBUM TAB -->
+  <section class="panel" id="pPhotos">
+    <div class="stage">
+      <h3 style="font-family:'Fraunces',serif">📸 Sockney's Cozy Album</h3>
+      <div class="phots" id="album"></div>
+      <p class="hint">Photos taken in the Laundry Basket &amp; Yarn Playroom appear here. Tap ❤️ to like or 💾 to save PNG.</p>
+    </div>
+  </section>
+</div>
+
+<script src="stats.js?v=1"></script>
+<script src="sockney.js?v=1"></script>
+</body>
+</html>

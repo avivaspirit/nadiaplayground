@@ -74,6 +74,16 @@ const GAME_DATA = {
       favFood: 'food_bamboo',
       defaultColor: '#ffffff',
       description: 'แพนด้ากลมปุ๊ก ขอบตาดำสุดน่ารัก รักสงบและชอบขนมหวาน'
+    },
+    sock: {
+      id: 'sock',
+      name: 'Sockney (น้องถุงเท้า)',
+      earType: 'cuff_ears',
+      tailType: 'heel_fluff',
+      isSock: true,
+      favFood: 'food_cupcake',
+      defaultColor: '#ffb4d6',
+      description: 'น้องถุงเท้ามีชีวิตแสนน่ารัก ลายทางพาสเทล ตากระดุมแวววาว นุ่มฟูอบอุ่นใจ'
     }
   },
 
@@ -453,6 +463,32 @@ const GAME_DATA = {
       blush: 'hearts',
       clothes: { head: 'hat_straw', body: 'outfit_overalls', face: null, neck: 'neck_bell', hand: 'prop_wand', shoes: 'shoe_sneakers' },
       desc: 'ลูกสุนัขโกลเด้นหางกระดิกดุ๊กดิ๊ก ชอบวิ่งเล่นในตลาดสดและชวนทุกคนยิ้มอย่างมีความสุข'
+    },
+    {
+      id: 'dogney',
+      name: 'Dogney (ด็อกนี่)',
+      species: 'dog',
+      title: '🐶 The Fluffy Golden Pup',
+      badge: 'น้องหมาด็อกนี่หูตูบแสนซน',
+      avatar: '🐶',
+      furColor: '#fed18c',
+      eyeShape: 'anime',
+      blush: 'hearts',
+      clothes: { head: 'hat_cap', body: 'outfit_overalls', face: null, neck: 'neck_bell', hand: 'prop_wand', shoes: 'shoe_sneakers' },
+      desc: 'น้องหมาด็อกนี่ตัวกลมหูตูบแสนน่ารัก รักการวิ่งคาบบอล เกาพุง และอ้อนขอกอดตลอดเวลา'
+    },
+    {
+      id: 'sockney',
+      name: 'Sockney (ซ็อคนี่)',
+      species: 'sock',
+      title: '🧦 The Living Cozy Sock Pet',
+      badge: 'น้องถุงเท้านุ่มฟูมีชีวิต',
+      avatar: '🧦',
+      furColor: '#ffb4d6',
+      eyeShape: 'anime',
+      blush: 'circles',
+      clothes: { head: 'hat_ribbon', body: 'outfit_sweater', face: 'glass_round', neck: 'neck_bowtie', hand: 'prop_wand', shoes: 'shoe_bunny' },
+      desc: 'น้องถุงเท้านุ่มฟูมีชีวิต ลายทางพาสเทล ตากระดุมแวววาว นุ่มฟูอบอุ่นเหมือนออกจากเครื่องอบผ้า'
     }
   ]
 };

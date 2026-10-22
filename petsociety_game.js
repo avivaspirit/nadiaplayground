@@ -1728,7 +1728,8 @@ class NadiaPetGame {
       dog: '🐶',
       bear: '🐻',
       penguin: '🐧',
-      panda: '🐼'
+      panda: '🐼',
+      sock: '🧦'
     };
     const elAvatar = document.getElementById('hudAvatar');
     if (elAvatar) elAvatar.innerText = speciesIcons[this.player.species] || '🐾';
