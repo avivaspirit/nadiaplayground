@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Pet Grooming Salon 🛁✂️ — Nadia Playground</title>
+<meta name="description" content="พาน้องสัตว์เลี้ยงสุดน่ารัก Dogney, Boba Seal, Sockney, Bunny, Kitty มาอาบน้ำฟองสบู่ ตัดเล็บ แต่งทรงขน ย้อมสีพาสเทล และถ่ายรูปโพลารอยด์สุดคิ้วท์!">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,700&family=Nunito:wght@400;600;700;800;900&family=Prompt:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-cream: #fff8f0;
+    --bg-card: #ffffff;
+    --ink-dark: #2d232e;
+    --ink-soft: #6d5b6e;
+    --pink-main: #ff70a6;
+    --pink-soft: #ffe5ec;
+    --blue-sky: #a2d2ff;
+    --purple-mist: #cdb4db;
+    --yellow-star: #ffd166;
+    --mint-fresh: #b7e4c7;
+    --peach-glow: #fed18c;
+    --shadow-soft: 0 8px 24px rgba(60,30,60,0.08);
+    --shadow-pop: 0 12px 30px rgba(255,112,166,0.22);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: linear-gradient(135deg, #fff5f8 0%, #f0f7ff 50%, #fbf5ff 100%);
+    font-family: 'Nunito', 'Prompt', sans-serif;
+    color: var(--ink-dark);
+    min-height: 100vh;
+    padding-bottom: 50px;
+    user-select: none;
+    -webkit-user-select: none;
+    overflow-x: hidden;
+  }
+
+  /* TOP NAVIGATION */
+  .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 2px solid #ffe3ec;
+    padding: 10px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 960px;
+    margin: 0 auto;
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+  }
+
+  .nav-left { display: flex; align-items: center; gap: 10px; }
+  .back-hub {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    background: #fff;
+    color: var(--ink-soft);
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 2px solid #f0e6ed;
+    transition: all 0.2s;
+  }
+  .back-hub:hover { border-color: var(--pink-main); color: var(--pink-main); transform: translateX(-2px); }
+
+  .salon-badge {
+    background: linear-gradient(135deg, #ff70a6, #a2d2ff);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .nav-right { display: flex; align-items: center; gap: 8px; }
+  .icon-btn {
+    background: #fff;
+    border: 2px solid #f0e6ed;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .icon-btn:hover { border-color: var(--pink-main); color: var(--pink-main); }
+  .coin-pill {
+    background: #fff9e6;
+    border: 2px solid #ffd166;
+    color: #b58300;
+    font-weight: 800;
+    padding: 6px 14px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+  }
+
+  /* WRAPPER */
+  .wrap {
+    max-width: 960px;
+    margin: 14px auto;
+    padding: 0 16px;
+  }
+
+  /* HEADER */
+  header {
+    text-align: center;
+    margin: 12px 0 18px;
+  }
+  h1 {
+    font-family: 'Fraunces', 'Prompt', serif;
+    font-size: 2.1rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ff598f 0%, #9b5de5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sub-tag {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  /* PET ROSTER SELECTOR CAROUSEL */
+  .pet-selector-section {
+    background: var(--bg-card);
+    border: 2px solid #ffe3ec;
+    border-radius: 24px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-soft);
+  }
+  .pet-selector-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 0 4px;
+  }
+  .pet-selector-title {
+    font-weight: 800;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pet-carousel {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 4px 2px 10px;
+    scrollbar-width: thin;
+  }
+  .pet-carousel::-webkit-scrollbar { height: 6px; }
+  .pet-carousel::-webkit-scrollbar-thumb { background: #ffd1dc; border-radius: 999px; }
+
+  .pet-chip {
+    flex: 0 0 auto;
+    min-width: 140px;
+    background: #fff;
+    border: 2.5px solid #f0e2ec;
+    border-radius: 18px;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .pet-chip:hover { transform: translateY(-3px); border-color: #ff9ebb; }
+  .pet-chip.active {
+    background: linear-gradient(135deg, #fff0f5, #f3f0ff);
+    border-color: var(--pink-main);
+    box-shadow: 0 6px 18px rgba(255,112,166,0.25);
+    transform: translateY(-2px);
+  }
+  .pet-chip-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #ffe3ec;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    flex-shrink: 0;
+  }
+  .pet-chip-info { display: flex; flex-direction: column; }
+  .pet-chip-name { font-weight: 800; font-size: 0.95rem; color: var(--ink-dark); }
+  .pet-chip-status { font-size: 0.75rem; font-weight: 700; color: #ff70a6; }
+
+  /* TABS */
+  .station-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+    padding-bottom: 4px;
+  }
+  .station-tab {
+    flex: 1;
+    min-width: 120px;
+    background: #ffffff;
+    border: 2px solid #f0e6ed;
+    color: var(--ink-soft);
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-weight: 800;
+    font-size: 0.88rem;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .station-tab:hover { border-color: var(--pink-main); color: var(--pink-main); }
+  .station-tab.active {
+    background: linear-gradient(135deg, #ff70a6, #e76f51);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: var(--shadow-pop);
+  }
+
+  /* MAIN PLAYGROUND STAGE */
+  .stage-card {
+    background: var(--bg-card);
+    border: 2.5px solid #ffe3ec;
+    border-radius: 28px;
+    padding: 16px;
+    box-shadow: var(--shadow-soft);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* LIVE STATS HUD */
+  .stats-hud {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px;
+    background: rgba(255, 245, 248, 0.8);
+    border: 2px solid #ffccd5;
+    border-radius: 20px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+  }
+  .stat-pill {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .stat-label {
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+  }
+  .stat-bar-track {
+    width: 100%;
+    height: 8px;
+    background: #fff;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid #ffd1dc;
+  }
+  .stat-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.3s ease-out;
+  }
+  .fill-clean { background: linear-gradient(90deg, #48cae4, #0077b6); }
+  .fill-fluff { background: linear-gradient(90deg, #ffafcc, #ff70a6); }
+  .fill-nails { background: linear-gradient(90deg, #cdb4db, #9b5de5); }
+  .fill-hygiene { background: linear-gradient(90deg, #b7e4c7, #52b788); }
+  .fill-happy { background: linear-gradient(90deg, #ffd166, #ff9f1c); }
+
+  /* PET STAGE VIEWPORT */
+  .pet-stage {
+    min-height: 380px;
+    position: relative;
+    border-radius: 24px;
+    background: radial-gradient(circle at center 40%, #ffffff 0%, #fff0f5 70%, #f6e8f4 100%);
+    border: 2px solid #f8e1ee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    touch-action: none;
+    cursor: default;
+  }
+
+  .stage-backdrop {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.8;
+  }
+
+  /* PET SVG CONTAINER */
+  #petViewport {
+    width: 100%;
+    max-width: 440px;
+    height: 360px;
+    position: relative;
+    z-index: 2;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* PARTICLES & FLOATING BUBBLES */
+  .fx-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .bubble-particle {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(162,210,255,0.4) 60%, rgba(255,182,193,0.6) 100%);
+    border: 1.5px solid rgba(255,255,255,0.85);
+    box-shadow: 0 0 8px rgba(162,210,255,0.5);
+    animation: bubbleRise 1.4s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes bubbleRise {
+    0% { transform: translate(0, 0) scale(0.6); opacity: 0.95; }
+    50% { transform: translate(var(--dx), -40px) scale(1.1); opacity: 0.9; }
+    100% { transform: translate(var(--dx), -90px) scale(1.3); opacity: 0; }
+  }
+
+  .sparkle-particle {
+    position: absolute;
+    font-size: 20px;
+    animation: sparkleFloat 1.2s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes sparkleFloat {
+    0% { transform: scale(0.4) rotate(0deg); opacity: 1; }
+    50% { transform: translate(var(--dx), -35px) scale(1.2) rotate(45deg); opacity: 0.9; }
+    100% { transform: translate(var(--dx), -70px) scale(0.8) rotate(90deg); opacity: 0; }
+  }
+
+  .steam-particle {
+    position: absolute;
+    font-size: 24px;
+    opacity: 0.7;
+    animation: steamRise 1.6s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes steamRise {
+    0% { transform: scale(0.8); opacity: 0.8; }
+    100% { transform: translate(var(--dx), -80px) scale(1.6); opacity: 0; }
+  }
+
+  /* WATER SHOWER STREAM */
+  .shower-spray-effect {
+    position: absolute;
+    top: 10px;
+    width: 60px;
+    pointer-events: none;
+    z-index: 12;
+    display: none;
+  }
+
+  /* CURRENT PET MOOD / SPEECH BUBBLE */
+  .pet-speech {
+    position: absolute;
+    top: 18px;
+    background: #ffffff;
+    border: 2px solid #ffd1dc;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: var(--ink-dark);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    animation: popBounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .pet-speech::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 8px 8px 0;
+    border-style: solid;
+    border-color: #ffffff transparent;
+    display: block;
+    width: 0;
+  }
+  @keyframes popBounce {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* TOOL CONTROLS DOCK */
+  .tool-dock {
+    margin-top: 16px;
+    background: #fff;
+    border: 2px solid #ffe3ec;
+    border-radius: 22px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .dock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 800;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+
+  .tool-list {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .tool-btn {
+    flex: 1;
+    min-width: 95px;
+    background: #faf4f8;
+    border: 2.2px solid #f0e2ec;
+    border-radius: 18px;
+    padding: 10px 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 0.82rem;
+    color: var(--ink-dark);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .tool-btn:hover {
+    transform: translateY(-2px);
+    border-color: #ff9ebb;
+    background: #fff;
+  }
+  .tool-btn.active {
+    background: linear-gradient(135deg, #fff0f5, #f0f7ff);
+    border-color: var(--pink-main);
+    box-shadow: 0 4px 14px rgba(255,112,166,0.25);
+    transform: translateY(-2px);
+    color: #e0246a;
+  }
+  .tool-icon { font-size: 1.6rem; }
+
+  /* SUB-OPTIONS (COLORS, STYLES, ACCESSORIES) */
+  .sub-options-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px 0;
+    border-top: 1.5px dashed #ffe3ec;
+    padding-top: 10px;
+  }
+  .sub-chip {
+    flex: 0 0 auto;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1.8px solid #f0e2ec;
+    background: #fff;
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+  }
+  .sub-chip:hover { border-color: var(--pink-main); }
+  .sub-chip.active {
+    background: var(--pink-main);
+    color: #fff;
+    border-color: var(--pink-main);
+  }
+
+  /* MODALS */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 15, 35, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease-out;
+  }
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal-card {
+    background: #ffffff;
+    border: 3px solid #ffccd5;
+    border-radius: 28px;
+    width: 100%;
+    max-width: 500px;
+    padding: 22px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    transform: scale(0.92);
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-overlay.open .modal-card {
+    transform: scale(1);
+  }
+
+  .modal-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #fff0f5;
+    border: 2px solid #ffd1dc;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--ink-soft);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close-btn:hover { background: #ffe3ec; color: var(--pink-main); }
+
+  /* NAIL CLIPPING MINI-GAME SPECIFIC */
+  .nail-game-header { text-align: center; margin-bottom: 12px; }
+  .nail-game-header h3 { font-family: 'Fraunces', serif; font-size: 1.4rem; color: #ff598f; }
+  .nail-paw-box {
+    width: 220px;
+    height: 180px;
+    margin: 0 auto 12px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nail-meter-container {
+    background: #fbf5ff;
+    border: 2px solid #cdb4db;
+    border-radius: 20px;
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  .timing-track {
+    width: 100%;
+    height: 28px;
+    background: #e9ecef;
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #dee2e6;
+  }
+  .timing-zone-safe {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 42%;
+    width: 16%;
+    background: #52b788;
+    border-left: 2px solid #2d6a4f;
+    border-right: 2px solid #2d6a4f;
+  }
+  .timing-zone-good-left {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 28%;
+    width: 14%;
+    background: #ffd166;
+  }
+  .timing-zone-good-right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 58%;
+    width: 14%;
+    background: #ffd166;
+  }
+  .timing-needle {
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    width: 6px;
+    background: #d90429;
+    border-radius: 4px;
+    box-shadow: 0 0 6px rgba(217,4,41,0.8);
+    transform: translateX(-50%);
+  }
+
+  .snip-action-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #ff70a6, #9b5de5);
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 900;
+    font-family: inherit;
+    border: none;
+    border-radius: 20px;
+    padding: 14px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(255,112,166,0.35);
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .snip-action-btn:hover { transform: scale(1.02); }
+  .snip-action-btn:active { transform: scale(0.97); }
+
+  /* POLAROID CERTIFICATE MODAL */
+  .polaroid-frame {
+    background: #ffffff;
+    border: 3px solid #f0e2ec;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.14);
+    border-radius: 8px;
+    padding: 14px 14px 24px;
+    text-align: center;
+    position: relative;
+    max-width: 360px;
+    margin: 0 auto 16px;
+    transform: rotate(-1.5deg);
+  }
+  .polaroid-photo-box {
+    width: 100%;
+    height: 260px;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    border: 1.5px solid #eee;
+    background: #fafafa;
+  }
+  .polaroid-caption {
+    font-family: 'Fraunces', 'Prompt', cursive, serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #2d232e;
+    margin-top: 14px;
+  }
+  .polaroid-sub {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #ff70a6;
+    margin-top: 2px;
+  }
+
+  .cert-stamp {
+    position: absolute;
+    bottom: 24px;
+    right: 20px;
+    border: 3px dashed #ff598f;
+    color: #ff598f;
+    font-weight: 900;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transform: rotate(-12deg);
+    text-transform: uppercase;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+  }
+  .btn-row .primary-btn {
+    flex: 1;
+    background: linear-gradient(135deg, #ff70a6, #ffd166);
+    color: #2d232e;
+    font-weight: 900;
+    border: none;
+    border-radius: 16px;
+    padding: 12px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .btn-row .sec-btn {
+    flex: 1;
+    background: #fff;
+    border: 2px solid #ffd1dc;
+    color: var(--ink-soft);
+    font-weight: 800;
+    border-radius: 16px;
+    padding: 12px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+
+  /* ALBUM GRID */
+  .album-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+    max-height: 340px;
+    overflow-y: auto;
+    padding: 6px;
+  }
+  .album-thumb {
+    background: #fff;
+    border: 2px solid #ffd1dc;
+    border-radius: 12px;
+    padding: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .album-thumb:hover { transform: translateY(-3px); border-color: var(--pink-main); }
+  .album-thumb img, .album-thumb canvas { width: 100%; height: 100px; object-fit: contain; border-radius: 6px; }
+  .album-thumb-name { font-weight: 800; font-size: 0.8rem; margin-top: 4px; }
+
+  /* TOAST NOTIFICATION */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: rgba(45, 35, 46, 0.94);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.92rem;
+    padding: 10px 22px;
+    border-radius: 999px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    z-index: 300;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  /* RESPONSIVE TWEAKS */
+  @media (max-width: 600px) {
+    h1 { font-size: 1.6rem; }
+    .pet-stage { min-height: 320px; }
+    #petViewport { max-width: 320px; height: 300px; }
+    .station-tab { min-width: 100px; padding: 8px 10px; font-size: 0.8rem; }
+    .stats-hud { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div class="top-bar">
+  <div class="nav-left">
+    <a class="back-hub" href="index.html">⬅ All games</a>
+    <span class="salon-badge">✨ Salon &amp; Spa</span>
+  </div>
+  <div class="nav-right">
+    <div class="coin-pill" id="coinDisplay" title="เหรียญที่ได้จากกรูมมิ่ง (ใช้ใน Pet Society ได้ด้วย!)">
+      🪙 <span id="coinAmount">250</span>
+    </div>
+    <button class="icon-btn" id="sndBtn" title="เปิด/ปิดเสียง">🔊 เสียง</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- HEADER -->
+  <header>
+    <h1>🛁 Pet Grooming Salon ✂️</h1>
+    <p class="sub-tag">พาน้องๆ มาอาบน้ำฟองสบู่ ตัดเล็บ แต่งทรงขน ย้อมสีพาสเทล &amp; ถ่ายรูปโพลารอยด์สุดคิ้วท์ 💖</p>
+  </header>
+
+  <!-- PET SELECTOR CAROUSEL -->
+  <section class="pet-selector-section">
+    <div class="pet-selector-header">
+      <span class="pet-selector-title">🐾 เลือกลูกค้าสัตว์เลี้ยงมารับบริการ (Pick a Pet)</span>
+      <span style="font-size:0.78rem;font-weight:700;color:var(--ink-soft);" id="petCareCount">ดูแลครบ 5/5</span>
+    </div>
+    <div class="pet-carousel" id="petCarousel">
+      <!-- Generated via JS: Dogney, Boba, Sockney, Bunny, Kitty -->
+    </div>
+  </section>
+
+  <!-- STATION TABS -->
+  <nav class="station-tabs" id="stationNav">
+    <button class="station-tab active" data-station="bath">🛁 อาบน้ำฟองสบู่</button>
+    <button class="station-tab" data-station="nails">💅 ตัดเล็บอุ้งเท้า</button>
+    <button class="station-tab" data-station="styling">✂️ แต่งขน &amp; ย้อมสี</button>
+    <button class="station-tab" data-station="spa">🩺 สปา &amp; สุขภาพ</button>
+    <button class="station-tab" data-station="photo">🎀 แต่งตัว &amp; ถ่ายรูป</button>
+    <button class="station-tab" data-station="board">📋 บอร์ดดูแล</button>
+  </nav>
+
+  <!-- MAIN PLAY STAGE -->
+  <main class="stage-card" id="mainStage">
+
+    <!-- REAL STATS HUD -->
+    <div class="stats-hud" id="statsHud">
+      <div class="stat-pill">
+        <div class="stat-label"><span>🧼 สะอาด</span><span id="txtClean">100%</span></div>
+        <div class="stat-bar-track"><div class="stat-bar-fill fill-clean" id="barClean" style="width:100%"></div></div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-label"><span>☁️ ขนฟู</span><span id="txtFluff">100%</span></div>
+        <div class="stat-bar-track"><div class="stat-bar-fill fill-fluff" id="barFluff" style="width:100%"></div></div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-label"><span>💅 เล็บสวย</span><span id="txtNails">100%</span></div>
+        <div class="stat-bar-track"><div class="stat-bar-fill fill-nails" id="barNails" style="width:100%"></div></div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-label"><span>🩺 สุขภาพ</span><span id="txtHygiene">100%</span></div>
+        <div class="stat-bar-track"><div class="stat-bar-fill fill-hygiene" id="barHygiene" style="width:100%"></div></div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-label"><span>💖 ความสุข</span><span id="txtHappy">100%</span></div>
+        <div class="stat-bar-track"><div class="stat-bar-fill fill-happy" id="barHappy" style="width:100%"></div></div>
+      </div>
+    </div>
+
+    <!-- PET VIEWPORT INTERACTIVE STAGE -->
+    <div class="pet-stage" id="petStage">
+      <!-- Backdrop decorations -->
+      <div class="stage-backdrop" id="stageBackdrop"></div>
+
+      <!-- Speech bubble -->
+      <div class="pet-speech" id="petSpeech" style="display:none">
+        <span id="petSpeechEmoji">🥰</span> <span id="petSpeechText">สบายตัวจังเลยย~</span>
+      </div>
+
+      <!-- Live Pet SVG -->
+      <div id="petViewport"></div>
+
+      <!-- Particle Layer -->
+      <div class="fx-layer" id="fxLayer"></div>
+    </div>
+
+    <!-- TOOL CONTROLS DOCK -->
+    <div class="tool-dock" id="toolDock">
+      <div class="dock-header">
+        <span id="dockInstruction">🧼 แตะหรือลากสบู่ถูคราบเลอะบนตัวน้องให้สะอาดวิ้ง!</span>
+        <span id="dockActionHint" style="color:var(--pink-main);font-size:0.8rem">1-Tap &amp; Drag</span>
+      </div>
+
+      <!-- Primary Tools for Active Station -->
+      <div class="tool-list" id="toolList">
+        <!-- Rendered by JS per station -->
+      </div>
+
+      <!-- Sub Options (Styles, Dyes, Accessories) -->
+      <div class="sub-options-bar" id="subOptionsBar" style="display:none">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL: NAIL CLIPPING MINI-GAME -->
+<div class="modal-overlay" id="nailModal">
+  <div class="modal-card">
+    <button class="modal-close-btn" id="closeNailModal">&times;</button>
+    <div class="nail-game-header">
+      <span style="font-size:2rem">🐾</span>
+      <h3>มินิเกมตัดเล็บอุ้งเท้า</h3>
+      <p style="font-size:0.82rem;color:var(--ink-soft)">กดปุ่ม <b>"✂️ ตัดเล็บเลย!"</b> ให้เข็มหยุดตรง <b>แถบสีเขียว</b> เพื่อตัดเล็บได้อย่างปลอดภัยและฟินสุดๆ!</p>
+    </div>
+
+    <div class="nail-paw-box" id="nailPawDisplay">
+      <!-- Paw SVG with 4 nails rendered here -->
+    </div>
+
+    <div style="text-align:center;font-weight:800;font-size:0.88rem;color:#ff598f;margin-bottom:8px" id="nailProgressTxt">
+      เล็บที่ 1 / 4 (กำลังโฟกัส...)
+    </div>
+
+    <div class="nail-meter-container">
+      <div class="timing-track" id="timingTrack">
+        <div class="timing-zone-good-left"></div>
+        <div class="timing-zone-safe"></div>
+        <div class="timing-zone-good-right"></div>
+        <div class="timing-needle" id="timingNeedle" style="left:10%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.75rem;font-weight:700;color:var(--ink-soft);margin-top:6px">
+        <span>⚠️ ชิดเนื้อ</span>
+        <span style="color:#2d6a4f;font-weight:800">✨ แถบปลอดภัย (Perfect)</span>
+        <span>⚠️ ชิดเนื้อ</span>
+      </div>
+    </div>
+
+    <button class="snip-action-btn" id="btnSnipNail">✂️ ตัดเล็บเลย! (Snip)</button>
+    <div style="text-align:center;margin-top:10px">
+      <button class="sub-chip" id="btnNailBuffer" style="display:none;margin:0 auto">✨ ตะไบเล็บชิมเมอร์ให้เงาวิ้ง</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: POLAROID CERTIFICATE & PHOTO SNAPSHOT -->
+<div class="modal-overlay" id="photoModal">
+  <div class="modal-card">
+    <button class="modal-close-btn" id="closePhotoModal">&times;</button>
+    <div style="text-align:center;margin-bottom:12px">
+      <span style="font-size:2.2rem">📸</span>
+      <h3 style="font-family:'Fraunces',serif;color:#ff598f;font-size:1.35rem">ใบรับรองความน่ารัก &amp; โพลารอยด์</h3>
+      <p style="font-size:0.82rem;color:var(--ink-soft)">น้องได้รับการกรูมมิ่งระดับ 5 ดาว สะอาด หอมสดชื่น พร้อมอวดเพื่อนๆ!</p>
+    </div>
+
+    <div class="polaroid-frame" id="polaroidCard">
+      <div class="polaroid-photo-box" id="polaroidBox">
+        <canvas id="polaroidCanvas" width="340" height="260" style="width:100%;height:100%;display:block"></canvas>
+      </div>
+      <div class="polaroid-caption" id="certPetName">น้อง Dogney Pup</div>
+      <div class="polaroid-sub">⭐⭐⭐⭐⭐ Fresh &amp; Fluffy Masterpiece</div>
+      <div style="font-size:0.76rem;color:var(--ink-soft);margin-top:4px" id="certDate">วันที่ 22 ตุลาคม 2026 · Nadia Playground</div>
+      <div class="cert-stamp">PASSED 💯</div>
+    </div>
+
+    <div style="background:#fff9e6;border:2px solid #ffd166;border-radius:16px;padding:8px 12px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:0.9rem;color:#b58300;margin-bottom:14px">
+      <span>🎉 ได้รับรางวัล: +50 เหรียญกรูมมิ่ง! (🪙 เข้ากระเป๋า Pet Society แล้ว)</span>
+    </div>
+
+    <div class="btn-row">
+      <button class="primary-btn" id="btnSaveAlbum">💾 บันทึกรูปในอัลบั้ม</button>
+      <button class="sec-btn" id="btnDownloadPNG">📥 ดาวน์โหลดรูป</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toastNotice">
+  <span id="toastIcon">✨</span>
+  <span id="toastMsg">ขัดตัวน้องสะอาดเอี่ยมแล้ว!</span>
+</div>
+
+<!-- AUDIO & GAME SCRIPTS -->
+<script src="grooming.js?v=1"></script>
+</body>
+</html>

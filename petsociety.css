@@ -368,6 +368,7 @@ body {
 .tool-circle-btn.tool-ball    { background: linear-gradient(135deg, #ffedb3, #ffd166); }
 .tool-circle-btn.tool-feed    { background: linear-gradient(135deg, #fbc3bc, #f7a399); }
 .tool-circle-btn.tool-face    { background: linear-gradient(135deg, #ffd1e4, #ff9ebb); }
+.tool-circle-btn.tool-grooming{ background: linear-gradient(135deg, #cbf3f0, #2ec4b6); }
 .tool-circle-btn.tool-wardrobe{ background: linear-gradient(135deg, #e2d4f0, #cdb4db); }
 .tool-circle-btn.tool-stylist { background: linear-gradient(135deg, #ffe5ec, #ffc2d1); }
 
