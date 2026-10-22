@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NadiaPlayground: Pet Society World 🐾</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Game Main Container -->
+  <div id="gameWrapper">
+
+    <!-- Top HUD Bar -->
+    <div class="top-hud">
+      <!-- Pet Identity Card -->
+      <div class="pet-profile-card">
+        <div class="profile-avatar-badge" id="hudAvatar">🐰</div>
+        <div class="profile-info">
+          <div class="profile-name-row">
+            <span class="pet-name-title" id="hudPetName">Nadia</span>
+            <span class="pet-level-badge" id="hudLevel">Lv. 1</span>
+          </div>
+          <div class="xp-bar-bg">
+            <div class="xp-bar-fill" id="hudXpBar"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Currency Counters -->
+      <div class="currency-cluster">
+        <div class="currency-badge coins">
+          <span>🪙</span>
+          <span id="hudCoins">380</span>
+        </div>
+        <div class="currency-badge cash">
+          <span>💎</span>
+          <span id="hudCash">25</span>
+        </div>
+      </div>
+
+      <!-- Navigation & Mode Controls -->
+      <div class="top-nav-cluster">
+        <button class="nav-btn active" id="btnNavTown">🌳 เมืองทาวน์</button>
+        <button class="nav-btn" id="btnNavHome">🏡 บ้านของฉัน</button>
+        <button class="nav-btn build-mode-btn" id="btnToggleBuild">🛠️ แต่งเมือง (Sims Mode)</button>
+        <button class="nav-btn" id="btnToggleMusic">🎵 เสียงเพลง</button>
+      </div>
+    </div>
+
+    <!-- Left Pet Society Status Meters -->
+    <div class="pet-meters-hud">
+      <div class="meter-card" title="ความสุข (Happiness)">
+        <span class="meter-icon">💖</span>
+        <div class="meter-track">
+          <div class="meter-fill happiness" id="bar_happiness" style="width: 90%;"></div>
+        </div>
+        <span class="meter-val" id="val_happiness">90%</span>
+      </div>
+
+      <div class="meter-card" title="ความหิว (Hunger)">
+        <span class="meter-icon">🍎</span>
+        <div class="meter-track">
+          <div class="meter-fill hunger" id="bar_hunger" style="width: 80%;"></div>
+        </div>
+        <span class="meter-val" id="val_hunger">80%</span>
+      </div>
+
+      <div class="meter-card" title="ความสะอาด (Hygiene)">
+        <span class="meter-icon">🧼</span>
+        <div class="meter-track">
+          <div class="meter-fill hygiene" id="bar_hygiene" style="width: 75%;"></div>
+        </div>
+        <span class="meter-val" id="val_hygiene">75%</span>
+      </div>
+
+      <div class="meter-card" title="พลังงาน (Energy)">
+        <span class="meter-icon">⚡</span>
+        <div class="meter-track">
+          <div class="meter-fill energy" id="bar_energy" style="width: 95%;"></div>
+        </div>
+        <span class="meter-val" id="val_energy">95%</span>
+      </div>
+    </div>
+
+    <!-- Main HTML5 Canvas -->
+    <canvas id="gameCanvas" width="960" height="640"></canvas>
+
+    <!-- Food Quick Drawer (Opens when feeding) -->
+    <div id="foodDrawer" class="food-drawer-panel hidden">
+      <div style="font-weight: 800; font-size: 13px; color: #4a4e69; margin-right: 6px;">เลือกขนม:</div>
+      <div id="foodDrawerList" style="display: flex; gap: 8px;"></div>
+    </div>
+
+    <!-- The Sims Build Mode Catalog Drawer -->
+    <div id="buildCatalogDrawer" class="build-catalog-drawer hidden">
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <span>🛠️ โหมดสร้างเมือง & แต่งห้อง (The Sims Mode)</span>
+          <span style="font-size: 12px; font-weight: normal; color: #888;">คลิกเลือกของ แล้วคลิกบนพื้นที่เพื่อวาง หรือลากย้ายของเดิม</span>
+        </div>
+      </div>
+      <div class="catalog-scroll-list" id="buildCatalogList">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- Bottom Action & Care Toolbar -->
+    <div class="bottom-action-bar">
+      <button class="tool-circle-btn tool-soap" id="tool_soap" title="ฟอกสบู่ (Scrub Soap)">
+        🧼
+        <span class="tool-label">ฟอกสบู่</span>
+      </button>
+
+      <button class="tool-circle-btn tool-shower" id="tool_shower" title="ล้างน้ำ (Shower)">
+        🚿
+        <span class="tool-label">ล้างน้ำ</span>
+      </button>
+
+      <button class="tool-circle-btn tool-brush" id="tool_brush" title="แปรงขน (Brush)">
+        🪥
+        <span class="tool-label">แปรงขน</span>
+      </button>
+
+      <button class="tool-circle-btn tool-feed" id="tool_feed" title="ป้อนอาหาร (Feed)">
+        🍎
+        <span class="tool-label">ป้อนขนม</span>
+      </button>
+
+      <button class="tool-circle-btn tool-ball" id="tool_ball" title="โยนลูกบอล (Play Ball)">
+        ⚽
+        <span class="tool-label">เล่นบอล</span>
+      </button>
+
+      <button class="tool-circle-btn tool-wardrobe" id="btnOpenWardrobe" title="แต่งตัว (Wardrobe)">
+        👗
+        <span class="tool-label">แต่งตัว</span>
+      </button>
+
+      <button class="tool-circle-btn tool-stylist" id="btnOpenStylist" title="เปลี่ยนสัตว์เลี้ยง / ซาลอน (Stylist)">
+        ✂️
+        <span class="tool-label">เปลี่ยนตัว</span>
+      </button>
+    </div>
+
+    <!-- ==========================================
+         WARDROBE & DRESSING ROOM MODAL
+         ========================================== -->
+    <div id="wardrobeModal" class="modal-overlay hidden">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <div class="modal-title">🎀 ห้องแต่งตัวแฟชั่น (Pet Society Wardrobe)</div>
+          <button class="btn-close-modal" onclick="document.getElementById('wardrobeModal').classList.add('hidden')">✕</button>
+        </div>
+        <div class="modal-body">
+          <!-- Dressing Mirror Preview -->
+          <div class="wardrobe-mirror-col">
+            <div style="font-weight: 800; font-size: 13px; color: #ff70a6; margin-bottom: 8px;">🪞 กระจกแฟชั่น</div>
+            <canvas id="wardrobePreviewCanvas" width="180" height="220" style="background:#fff; border-radius:14px; border:2px dashed #ffccd5;"></canvas>
+            <div style="margin-top: 10px; font-size: 11px; color: #888; text-align: center;">คลิกไอเทมด้านขวาเพื่อสวมใส่หรือถอด</div>
+          </div>
+
+          <!-- Wardrobe Catalog & Filters -->
+          <div class="wardrobe-items-col">
+            <div class="wardrobe-tabs">
+              <button class="wardrobe-tab-btn active" onclick="gameInstance.renderWardrobeItems('all')">ทั้งหมด</button>
+              <button class="wardrobe-tab-btn" onclick="gameInstance.renderWardrobeItems('head')">หมวก/โบว์ 🎀</button>
+              <button class="wardrobe-tab-btn" onclick="gameInstance.renderWardrobeItems('body')">ชุดเสื้อผ้า 👗</button>
+              <button class="wardrobe-tab-btn" onclick="gameInstance.renderWardrobeItems('face')">แว่นตา 👓</button>
+              <button class="wardrobe-tab-btn" onclick="gameInstance.renderWardrobeItems('neck')">สร้อยคอ 🔔</button>
+              <button class="wardrobe-tab-btn" onclick="gameInstance.renderWardrobeItems('hand')">ของถือ 🪄</button>
+              <button class="wardrobe-tab-btn" onclick="gameInstance.renderWardrobeItems('shoes')">รองเท้า 👟</button>
+            </div>
+            <div class="wardrobe-grid" id="wardrobeItemList">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         PET STYLIST & SPECIES CUSTOMIZER MODAL
+         ========================================== -->
+    <div id="stylistModal" class="modal-overlay hidden">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <div class="modal-title">✂️ ร้านซาลอนแปลงโฉมสัตว์เลี้ยง (Pet Stylist)</div>
+          <button class="btn-close-modal" onclick="document.getElementById('stylistModal').classList.add('hidden')">✕</button>
+        </div>
+        <div class="modal-body">
+          <!-- Live Preview Mirror -->
+          <div class="wardrobe-mirror-col">
+            <div style="font-weight: 800; font-size: 13px; color: #a2d2ff; margin-bottom: 8px;">🪞 สัตว์เลี้ยงของคุณ</div>
+            <canvas id="stylistPreviewCanvas" width="180" height="220" style="background:#fff; border-radius:14px; border:2px dashed #bde0fe;"></canvas>
+            <button class="nav-btn" style="margin-top: 12px; width: 100%; justify-content: center;" onclick="document.getElementById('stylistModal').classList.add('hidden')">✨ เรียบร้อยแล้ว</button>
+          </div>
+
+          <!-- Stylist Options -->
+          <div class="stylist-options-col">
+            <div>
+              <div class="stylist-section-title">🐾 เลือกสายพันธุ์ (Species):</div>
+              <div class="species-button-row" id="speciesChoiceList"></div>
+            </div>
+
+            <div>
+              <div class="stylist-section-title">🎨 สีขนสัตว์เลี้ยง (Fur Color):</div>
+              <div class="color-swatches-grid" id="colorSwatchList"></div>
+            </div>
+
+            <div>
+              <div class="stylist-section-title">👀 รูปแบบดวงตา (Eye Expression):</div>
+              <div id="eyeShapeList"></div>
+            </div>
+
+            <div>
+              <div class="stylist-section-title">🌸 สไตล์บลัชแก้ม (Cheek Blush):</div>
+              <div id="blushStyleList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         NEIGHBOR INTERACTION MODAL (THE SIMS STYLE)
+         ========================================== -->
+    <div id="neighborModal" class="modal-overlay hidden">
+      <div class="neighbor-dialog-box">
+        <button class="btn-close-modal" style="position: absolute; top: 12px; right: 12px;" onclick="document.getElementById('neighborModal').classList.add('hidden')">✕</button>
+        
+        <canvas id="neighborPortraitCanvas" width="140" height="140" style="margin-bottom: 6px;"></canvas>
+        <div style="font-size: 18px; font-weight: 800; color: #3a3b5c;" id="neighborName">Mimi (มิมิ)</div>
+        <div style="font-size: 12px; font-weight: 700; color: #ff70a6; margin-top: 2px;" id="neighborTitle">Town Florist</div>
+        
+        <div class="neighbor-speech-bubble" id="neighborQuote">
+          "สวัสดีจ้า! วันนี้อากาศดีมากเลย เหมาะกับการปลูกดอกไม้สุดๆ 🌸"
+        </div>
+
+        <div class="neighbor-actions-grid">
+          <button class="btn-neighbor-action" onclick="gameInstance.interactNeighbor('chat')">
+            <span>💬</span> พูดคุยทักทาย
+          </button>
+          <button class="btn-neighbor-action" onclick="gameInstance.interactNeighbor('hug')">
+            <span>💖</span> กอดกัน (Hug)
+          </button>
+          <button class="btn-neighbor-action" onclick="gameInstance.interactNeighbor('rps')">
+            <span>✌️</span> เป่ายิ้งฉุบ (ชิงเหรียญ)
+          </button>
+          <button class="btn-neighbor-action" onclick="gameInstance.interactNeighbor('dance')">
+            <span>💃</span> เต้นด้วยกัน
+          </button>
+          <button class="btn-neighbor-action" onclick="gameInstance.interactNeighbor('treat')" style="grid-column: span 2;">
+            <span>🍰</span> แบ่งขนมให้เพื่อน (ให้ของขวัญ)
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="audio.js"></script>
+  <script src="renderer.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
