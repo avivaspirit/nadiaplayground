@@ -24,6 +24,13 @@ assert.ok(html.includes('id="btnOpenDecorModal"'), 'Must have decor studio butto
 assert.ok(html.includes('id="decorModal"'), 'Must have decor modal');
 assert.ok(html.includes('id="roomManageModal"'), 'Must have room management modal');
 assert.ok(html.includes('id="sidewalkWalkers"'), 'Must have sidewalk walkers layer');
+assert.ok(html.includes('id="itemShopModal"'), 'Must have item shop modal');
+assert.ok(html.includes('id="starMilestonesModal"'), 'Must have star milestones modal');
+assert.ok(html.includes('id="btnOpenItemShop"'), 'Must have open item shop button');
+assert.ok(html.includes('id="btnCallTourBus"'), 'Must have call tour bus button');
+assert.ok(html.includes('id="rushHourBanner"'), 'Must have rush hour banner');
+assert.ok(html.includes('id="tourBusCab"'), 'Must have tour bus element');
+assert.ok(html.includes('id="mysteryLuggage"'), 'Must have mystery luggage element');
 console.log('✔ hotel.html structure validated');
 
 // 2. Verify hotel.css
@@ -36,6 +43,12 @@ assert.ok(css.includes('.gate-overlay'), 'Must style password gate overlay');
 assert.ok(css.includes('.decor-card'), 'Must style decor cards');
 assert.ok(css.includes('.guest-thought-bubble'), 'Must style guest thought bubbles');
 assert.ok(css.includes('.sidewalk-walker'), 'Must style sidewalk walkers');
+assert.ok(css.includes('.rush-hour-banner'), 'Must style rush hour banner');
+assert.ok(css.includes('.tour-bus-cab'), 'Must style tour bus');
+assert.ok(css.includes('.mystery-luggage'), 'Must style mystery luggage');
+assert.ok(css.includes('.room-service-bubble'), 'Must style room service bubble');
+assert.ok(css.includes('.item-card'), 'Must style item shop cards');
+assert.ok(css.includes('.milestone-card'), 'Must style star milestone cards');
 console.log('✔ hotel.css styling validated');
 
 // 3. Verify hotel.js logic
@@ -67,6 +80,16 @@ assert.ok(js.includes('spawnSidewalkWalker'), 'Must have sidewalk walker AI');
 assert.ok(js.includes('startAmbientBGM'), 'Must have ambient retro elevator BGM');
 assert.ok(js.includes('demolishCurrentRoom'), 'Must have room demolition logic with refund');
 assert.ok(js.includes('upgradeCurrentRoom'), 'Must have room upgrade logic');
+assert.ok(js.includes('bedroom_ryokan:'), 'Must have Japanese Zen Ryokan');
+assert.ok(js.includes('bedroom_kawaii:'), 'Must have Pastel Kawaii Suite');
+assert.ok(js.includes('cinema:'), 'Must have VIP Cinema');
+assert.ok(js.includes('aquarium:'), 'Must have Underwater Aquarium Suite');
+assert.ok(js.includes('HOTEL_ITEMS ='), 'Must have boutique item catalog');
+assert.ok(js.includes('MILESTONES ='), 'Must have star milestones');
+assert.ok(js.includes('openItemShop'), 'Must have item shop modal logic');
+assert.ok(js.includes('callTourBus'), 'Must have tour bus rush hour logic');
+assert.ok(js.includes('serveRoomService'), 'Must have room service minigame');
+assert.ok(js.includes('openMysteryLuggage'), 'Must have mystery luggage logic');
 console.log('✔ hotel.js engine validated');
 
 // 4. Verify index.html portal

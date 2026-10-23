@@ -19,7 +19,7 @@
     <div class="hotel-title-badge">
       <span class="icon-building">🏨</span>
       <span class="hotel-brand-name" id="hotelBrandName">Nadia Hotel City</span>
-      <span class="hotel-star-badge" id="hotelStarDisplay">⭐⭐⭐</span>
+      <span class="hotel-star-badge" id="hotelStarDisplay" title="แตะเพื่อดูรางวัลระดับดาวโรงแรม" style="cursor:pointer">⭐⭐⭐</span>
     </div>
   </div>
 
@@ -59,6 +59,13 @@
 
 <!-- MAIN GAME CONTAINER -->
 <div class="hotel-game-viewport" id="gameViewport">
+
+  <!-- RUSH HOUR ACTIVE BANNER -->
+  <div class="rush-hour-banner" id="rushHourBanner" style="display:none">
+    <span class="rush-icon">🔥</span>
+    <span class="rush-title">HOTEL RUSH HOUR 2X COINS &amp; XP!</span>
+    <span class="rush-timer" id="rushTimer">45s</span>
+  </div>
 
   <!-- SKY BACKGROUND & CLOUDS -->
   <div class="sky-background" id="skyBg">
@@ -113,10 +120,33 @@
 
         <div class="street-tree tree-right">🌴</div>
         <div class="street-lamp lamp-right"></div>
+        <div class="mystery-luggage" id="mysteryLuggage" style="display:none" title="แตะเพื่อเปิดกระเป๋าลึกลับ!">
+          <span class="luggage-emoji">🧳</span>
+          <span class="luggage-sparkle">✨</span>
+        </div>
         <div class="taxi-cab" id="taxiCab" title="แตะเพื่อเรียกลูกค้าเพิ่มทันที!">🚕</div>
       </div>
-      <div class="street-roadway">
+      <div class="street-roadway" id="streetRoadway">
         <div class="road-markings"></div>
+        <!-- Animated Luxury Tour Bus -->
+        <div class="tour-bus-cab" id="tourBusCab" style="display:none">
+          <div class="bus-body">
+            <div class="bus-roof-luggage">🧳🎒🧳</div>
+            <div class="bus-upper-deck">
+              <span class="bus-window-guest">👧</span>
+              <span class="bus-window-guest">👦</span>
+              <span class="bus-window-guest">🧓</span>
+              <span class="bus-window-guest">👱‍♀️</span>
+            </div>
+            <div class="bus-lower-deck">
+              <span class="bus-driver">👨‍✈️</span>
+              <span class="bus-badge">NADIA EXPRESS</span>
+            </div>
+            <div class="bus-wheel wheel-left"></div>
+            <div class="bus-wheel wheel-right"></div>
+            <div class="bus-headlight"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -131,6 +161,14 @@
     <button class="dock-btn btn-floor" id="btnAddFloor">
       <span class="dock-icon">⬆️</span>
       <span class="dock-label">ต่อชั้นเพิ่ม</span>
+    </button>
+    <button class="dock-btn btn-items" id="btnOpenItemShop">
+      <span class="dock-icon">🛋️</span>
+      <span class="dock-label">ไอเทม &amp; เฟอร์</span>
+    </button>
+    <button class="dock-btn btn-tourbus" id="btnCallTourBus">
+      <span class="dock-icon">🚌</span>
+      <span class="dock-label">รถทัวร์ 2X</span>
     </button>
     <button class="dock-btn btn-staff" id="btnOpenStaffModal">
       <span class="dock-icon">🛎️</span>
@@ -170,6 +208,7 @@
     <!-- CATEGORY TABS -->
     <div class="shop-tabs">
       <button class="shop-tab active" data-cat="bedrooms">🛏️ ห้องนอน (Rooms)</button>
+      <button class="shop-tab" data-cat="luxury">👑 ธีมพิเศษ &amp; สูทหรู</button>
       <button class="shop-tab" data-cat="leisure">🏊 กิจกรรม &amp; สปอร์ต</button>
       <button class="shop-tab" data-cat="dining">🍽️ ร้านอาหาร &amp; บาร์</button>
       <button class="shop-tab" data-cat="entertainment">🎮 บันเทิง &amp; สปา</button>
@@ -279,6 +318,52 @@
     </div>
     <input type="text" class="hotel-input" id="hotelNameInput" maxlength="24" placeholder="ชื่อโรงแรม...">
     <button class="btn-primary" id="btnSaveHotelName" style="width:100%;margin-top:12px">บันทึกชื่อโรงแรม ✨</button>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: ITEM & FURNITURE BOUTIQUE (ร้านไอเทม & เฟอร์นิเจอร์สุดหรู) -->
+<!-- ========================================================================= -->
+<div class="modal-overlay" id="itemShopModal">
+  <div class="modal-card">
+    <button class="modal-close" id="closeItemShop">&times;</button>
+    <div class="modal-header">
+      <span class="modal-icon">🛋️</span>
+      <h2>ร้านไอเทม &amp; เฟอร์นิเจอร์สุดหรู (Item &amp; Decor Boutique)</h2>
+      <p>เลือกซื้อสิ่งอำนวยความสะดวก หมอนขนห่าน มินิบาร์ และของแต่งห้องเพื่อเพิ่มรายได้และดึงดูดแขก VIP!</p>
+    </div>
+
+    <!-- ITEM CATEGORY TABS -->
+    <div class="shop-tabs">
+      <button class="item-tab active" data-cat="all">✨ ทั้งหมด (All)</button>
+      <button class="item-tab" data-cat="bedding">🛏️ เตียง &amp; เครื่องนอน</button>
+      <button class="item-tab" data-cat="minibar">🍾 มินิบาร์ &amp; อาหาร</button>
+      <button class="item-tab" data-cat="tech">📺 เทคโนโลยี &amp; บันเทิง</button>
+      <button class="item-tab" data-cat="wellness">🌸 สปา &amp; พืชพรรณ</button>
+    </div>
+
+    <!-- ITEMS GRID -->
+    <div class="shop-grid" id="itemShopGrid">
+      <!-- Rendered dynamically by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: HOTEL STAR MILESTONES (รางวัลระดับดาวโรงแรม 1-5 ดาว) -->
+<!-- ========================================================================= -->
+<div class="modal-overlay" id="starMilestonesModal">
+  <div class="modal-card" style="max-width:520px">
+    <button class="modal-close" id="closeStarMilestones">&times;</button>
+    <div class="modal-header">
+      <span class="modal-icon">🏆</span>
+      <h2>รางวัลเกียรติยศระดับดาวโรงแรม (Hotel Star Awards)</h2>
+      <p>พัฒนาและขยายโรงแรมของคุณเพื่อปลดล็อกรางวัลเงินสด เหรียญทอง และมงกุฎเพชร!</p>
+    </div>
+
+    <div class="milestones-track" id="milestonesTrack">
+      <!-- Rendered dynamically by JS -->
+    </div>
   </div>
 </div>
 
