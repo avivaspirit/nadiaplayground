@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,700&family=Nunito:wght@400;600;700;800;900&family=Prompt:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="hotel.css?v=1">
+<link rel="stylesheet" href="hotel.css?v=2">
 </head>
 <body>
 
@@ -95,15 +95,25 @@
       <div class="street-sidewalk">
         <div class="street-lamp lamp-left"></div>
         <div class="street-tree tree-left">🌳</div>
+        
+        <!-- Interactive Guests Sidewalk Promenade -->
+        <div class="sidewalk-walkers-layer" id="sidewalkWalkers">
+          <!-- Guests walk dynamically from taxi to entrance doors -->
+        </div>
+
         <div class="hotel-marquee-entrance">
           <div class="marquee-awning">
             <span class="marquee-text">WELCOME TO NADIA HOTEL</span>
           </div>
+          <div class="revolving-doors">
+            <div class="door-blade"></div>
+          </div>
           <div class="red-carpet"></div>
         </div>
+
         <div class="street-tree tree-right">🌴</div>
         <div class="street-lamp lamp-right"></div>
-        <div class="taxi-cab" id="taxiCab">🚕</div>
+        <div class="taxi-cab" id="taxiCab" title="แตะเพื่อเรียกลูกค้าเพิ่มทันที!">🚕</div>
       </div>
       <div class="street-roadway">
         <div class="road-markings"></div>
@@ -173,6 +183,30 @@
 </div>
 
 <!-- ========================================================================= -->
+<!-- MODAL: ROOM MANAGEMENT & UPGRADE (จัดการ, อัปเกรด & รื้อถอน) -->
+<!-- ========================================================================= -->
+<div class="modal-overlay" id="roomManageModal">
+  <div class="modal-card" style="max-width:440px">
+    <button class="modal-close" id="closeRoomManageModal">&times;</button>
+    <div class="modal-header">
+      <span class="modal-icon" id="manageRoomIcon">🛏️</span>
+      <h2 id="manageRoomTitle">จัดการห้องพัก</h2>
+      <p id="manageRoomSubtitle">อัปเกรดระดับห้องพัก เปลี่ยนของตกแต่ง หรือรื้อถอน</p>
+    </div>
+
+    <div class="room-manage-stats" id="manageRoomStats">
+      <!-- Rendered by JS -->
+    </div>
+
+    <div class="btn-stack" style="display:flex;flex-direction:column;gap:10px;margin-top:16px">
+      <button class="btn-primary" id="btnUpgradeRoom">⬆️ อัปเกรดเป็นห้องระดับสูงขึ้น</button>
+      <button class="btn-sec" id="btnDecorateCurrentRoom">🎨 ตกแต่งวอลเปเปอร์ &amp; พื้นห้องนี้</button>
+      <button class="btn-danger" id="btnDemolishRoom">🗑️ รื้อถอนห้องพัก (คืนเงิน 60%)</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
 <!-- MODAL: STAFF MANAGEMENT (จัดการพนักงาน & แม่บ้าน) -->
 <!-- ========================================================================= -->
 <div class="modal-overlay" id="staffModal">
@@ -185,7 +219,7 @@
     </div>
 
     <div class="staff-list" id="staffListContainer">
-      <!-- Rendered via JS: Concierge, Housekeeper Maid, Lifeguard, Chef, Bartender -->
+      <!-- Rendered via JS -->
     </div>
   </div>
 </div>
@@ -199,16 +233,16 @@
     <div class="modal-header">
       <span class="modal-icon">🎨</span>
       <h2>ตกแต่งวอลเปเปอร์ &amp; พื้นห้อง (Decor Studio)</h2>
-      <p>เลือกสไตล์วอลเปเปอร์และลวดลายพรมปูพื้นเพื่อเพิ่มความหรูหราและค่าห้องพัก!</p>
+      <p>เลือกลวดลายวอลเปเปอร์และพรมปูพื้นเพื่อเพิ่มความหรูหราและเพิ่มค่าห้องพัก +20%!</p>
     </div>
 
     <div class="decor-section">
-      <h3>🖼️ วอลเปเปอร์ติดผนัง (Wallpapers)</h3>
+      <h3 style="font-weight:800;font-size:0.95rem;color:var(--ink-dark);margin-bottom:8px">🖼️ วอลเปเปอร์ติดผนัง (Wallpapers)</h3>
       <div class="decor-grid" id="wallpaperGrid"></div>
     </div>
 
     <div class="decor-section" style="margin-top:16px">
-      <h3>🪵 พื้นห้อง &amp; พรมปู (Flooring &amp; Carpets)</h3>
+      <h3 style="font-weight:800;font-size:0.95rem;color:var(--ink-dark);margin-bottom:8px">🪵 พื้นห้อง &amp; พรมปู (Flooring &amp; Carpets)</h3>
       <div class="decor-grid" id="flooringGrid"></div>
     </div>
   </div>
@@ -289,6 +323,6 @@
 </div>
 
 <!-- SCRIPTS -->
-<script src="hotel.js?v=1"></script>
+<script src="hotel.js?v=2"></script>
 </body>
 </html>

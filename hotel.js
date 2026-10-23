@@ -10,11 +10,13 @@
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
   /* ==========================================================================
-     1. SOUND SYNTHESIZER (Native Web Audio API)
+     1. SOUND SYNTHESIZER (Native Web Audio API & Ambient BGM)
      ========================================================================== */
   var Snd = (function () {
     var ctx = null;
     var enabled = lsGet('hotel_city_sound') !== 'off';
+    var bgmTimer = null;
+    var bgmStep = 0;
 
     function getCtx() {
       if (!ctx) {
@@ -29,6 +31,11 @@
     function setEnabled(val) {
       enabled = !!val;
       lsSet('hotel_city_sound', enabled ? 'on' : 'off');
+      if (enabled) {
+        startAmbientBGM();
+      } else {
+        stopAmbientBGM();
+      }
     }
 
     function play(kind) {
@@ -43,8 +50,8 @@
           var o = c.createOscillator(), g = c.createGain();
           o.type = 'sine';
           o.connect(g); g.connect(c.destination);
-          o.frequency.setValueAtTime(1760, now); // A6
-          o.frequency.exponentialRampToValueAtTime(1318.5, now + 0.15); // E6
+          o.frequency.setValueAtTime(1760, now);
+          o.frequency.exponentialRampToValueAtTime(1318.5, now + 0.15);
           g.gain.setValueAtTime(0.2, now);
           g.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
           o.start(now); o.stop(now + 0.72);
@@ -103,11 +110,69 @@
             g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.25);
             o.start(now + i * 0.07); o.stop(now + i * 0.07 + 0.28);
           });
+        } else if (kind === 'horn') {
+          // Taxi horn beep-beep
+          var oH = c.createOscillator(), gH = c.createGain();
+          oH.type = 'triangle';
+          oH.connect(gH); gH.connect(c.destination);
+          oH.frequency.setValueAtTime(440, now);
+          oH.frequency.setValueAtTime(440, now + 0.08);
+          oH.frequency.setValueAtTime(520, now + 0.12);
+          gH.gain.setValueAtTime(0.12, now);
+          gH.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          oH.start(now); oH.stop(now + 0.26);
         }
       } catch (err) {}
     }
 
-    return { play: play, isEnabled: isEnabled, setEnabled: setEnabled };
+    // Cozy Retro Elevator / Lobby Jazz Chords (Cmaj7 - Am7 - Dm7 - G7)
+    var jazzChords = [
+      [261.63, 329.63, 392.00, 493.88], // Cmaj7
+      [220.00, 261.63, 329.63, 392.00], // Am7
+      [146.83, 220.00, 261.63, 349.23], // Dm7
+      [196.00, 246.94, 293.66, 349.23]  // G7
+    ];
+
+    function startAmbientBGM() {
+      if (bgmTimer) return;
+      bgmTimer = setInterval(function () {
+        if (!enabled) return;
+        try {
+          var c = getCtx();
+          if (!c) return;
+          var now = c.currentTime;
+          var chord = jazzChords[bgmStep % jazzChords.length];
+          bgmStep++;
+
+          chord.forEach(function (freq, idx) {
+            var o = c.createOscillator(), g = c.createGain();
+            o.type = 'sine';
+            o.frequency.setValueAtTime(freq, now + idx * 0.04);
+            g.gain.setValueAtTime(0.015, now + idx * 0.04);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.04 + 1.8);
+            o.connect(g);
+            g.connect(c.destination);
+            o.start(now + idx * 0.04);
+            o.stop(now + idx * 0.04 + 1.85);
+          });
+        } catch (e) {}
+      }, 2600);
+    }
+
+    function stopAmbientBGM() {
+      if (bgmTimer) {
+        clearInterval(bgmTimer);
+        bgmTimer = null;
+      }
+    }
+
+    return {
+      play: play,
+      isEnabled: isEnabled,
+      setEnabled: setEnabled,
+      startAmbientBGM: startAmbientBGM,
+      stopAmbientBGM: stopAmbientBGM
+    };
   })();
 
   /* ==========================================================================
@@ -123,7 +188,8 @@
       costCash: 0,
       payout: 50,
       xp: 15,
-      stayDuration: 12000, // 12 seconds
+      upgradeTo: 'bedroom_double',
+      stayDuration: 12000,
       desc: 'เตียงเดี่ยวนุ่มสบาย โต๊ะข้างเตียง และหน้าต่างชมวิวเมือง'
     },
     bedroom_double: {
@@ -135,6 +201,7 @@
       costCash: 0,
       payout: 110,
       xp: 30,
+      upgradeTo: 'bedroom_suite',
       stayDuration: 15000,
       desc: 'เตียงคิงไซส์ ตู้เสื้อผ้า พรมขนนุ่ม และทีวีจอแบน'
     },
@@ -147,6 +214,7 @@
       costCash: 2,
       payout: 240,
       xp: 65,
+      upgradeTo: 'bedroom_penthouse',
       stayDuration: 18000,
       desc: 'เตียงสี่เสาผ้าโปร่ง อ่างจากุซซี่รูปหัวใจ และแชมเปญบาร์'
     },
@@ -159,6 +227,7 @@
       costCash: 5,
       payout: 500,
       xp: 120,
+      upgradeTo: null,
       stayDuration: 22000,
       desc: 'ห้องสูทประธานาธิบดี แชนเดอเลียร์คริสตัล โซฟาหลุยส์ และพรมแดง'
     },
@@ -236,6 +305,22 @@
     }
   };
 
+  /* DECOR CATALOG (WALLPAPERS & FLOORINGS) */
+  var WALLPAPERS = [
+    { id: 'default', name: '🌿 ครีมอบอุ่น (Default)', color: '#fefae0' },
+    { id: 'sakura', name: '🌸 ซากุระพิงค์ (Sakura Pink)', color: '#ffe5ec' },
+    { id: 'damask', name: '👑 ดามัสก์ทองคำ (Royal Gold)', color: '#fdf0d5' },
+    { id: 'starry', name: '🌌 ราตรีดาวระยิบ (Starry Night)', color: '#2b212f' },
+    { id: 'wood', name: '🪵 ไม้สแกนดิเนเวีย (Wood Slats)', color: '#ede0d4' }
+  ];
+
+  var FLOORINGS = [
+    { id: 'default', name: '🪵 ไม้ปาร์เกต์โอ๊ค (Natural Oak)', color: '#d4a373' },
+    { id: 'velvet_red', name: '🍷 พรมกำมะหยี่แดง (Royal Red)', color: '#9d0208' },
+    { id: 'marble', name: '🏛️ หินอ่อนอิตาลี (Checkered Marble)', color: '#e9ecef' },
+    { id: 'ocean_tiles', name: '🌊 กระเบื้องสีฟ้าคราม (Ocean Blue)', color: '#48cae4' }
+  ];
+
   /* ==========================================================================
      3. GAME STATE MANAGEMENT & PERSISTENCE
      ========================================================================== */
@@ -249,7 +334,7 @@
     stars: 3,
     popularity: 96,
     isNight: false,
-    elevatorPos: 1, // floor index
+    elevatorPos: 0, // floor index
     floors: [],
     staff: {
       receptionist: true,
@@ -258,8 +343,8 @@
       chef: false,
       bartender: false
     },
-    activeGuests: [],
-    selectedSlotToBuild: null
+    selectedSlotToBuild: null,
+    selectedRoomToManage: null
   };
 
   function createInitialFloors() {
@@ -276,23 +361,23 @@
         floorNum: 2,
         isGround: false,
         rooms: [
-          { id: 'f2_r1', type: 'bedroom_single', status: 'ready', occupant: null, coinsReady: 0 },
-          { id: 'f2_r2', type: 'bedroom_double', status: 'ready', occupant: null, coinsReady: 0 }
+          { id: 'f2_r1', type: 'bedroom_single', status: 'ready', occupant: null, coinsReady: 0, wallpaper: 'default', flooring: 'default' },
+          { id: 'f2_r2', type: 'bedroom_double', status: 'ready', occupant: null, coinsReady: 0, wallpaper: 'sakura', flooring: 'velvet_red' }
         ]
       },
       {
         floorNum: 3,
         isGround: false,
         rooms: [
-          { id: 'f3_r1', type: 'pool', status: 'ready', occupant: null, coinsReady: 0 },
-          { id: 'f3_r2', type: 'gym', status: 'ready', occupant: null, coinsReady: 0 }
+          { id: 'f3_r1', type: 'pool', status: 'ready', occupant: null, coinsReady: 0, wallpaper: 'default', flooring: 'ocean_tiles' },
+          { id: 'f3_r2', type: 'gym', status: 'ready', occupant: null, coinsReady: 0, wallpaper: 'default', flooring: 'default' }
         ]
       },
       {
         floorNum: 4,
         isGround: false,
         rooms: [
-          { id: 'f4_r1', type: 'restaurant', status: 'ready', occupant: null, coinsReady: 0 },
+          { id: 'f4_r1', type: 'restaurant', status: 'ready', occupant: null, coinsReady: 0, wallpaper: 'default', flooring: 'default' },
           { id: 'f4_r2', type: 'empty', status: 'empty' }
         ]
       }
@@ -327,6 +412,8 @@
     } else {
       STATE.floors = createInitialFloors();
     }
+
+    recalcPopularity();
   }
 
   function saveGameState() {
@@ -378,8 +465,32 @@
       Snd.play('cheer');
       showToast('🎉 ยินดีด้วย! โรงแรมเลเวลอัปเป็น LV ' + STATE.level + ' ได้รับการเลื่อนขั้น ' + getStarsString(STATE.stars) + '!');
     }
+    recalcPopularity();
     updateHUD();
     saveGameState();
+  }
+
+  function recalcPopularity() {
+    var pop = 85;
+    var cleanCount = 0, dirtyCount = 0, amenityCount = 0;
+
+    STATE.floors.forEach(function (fl) {
+      fl.rooms.forEach(function (r) {
+        if (r.type === 'empty') return;
+        if (r.status === 'dirty') dirtyCount++;
+        else cleanCount++;
+        if (['pool', 'gym', 'restaurant', 'disco', 'spa', 'arcade'].includes(r.type)) {
+          amenityCount++;
+        }
+      });
+    });
+
+    pop += cleanCount * 2;
+    pop += amenityCount * 3;
+    pop += STATE.stars * 2;
+    pop -= dirtyCount * 4;
+
+    STATE.popularity = Math.max(50, Math.min(100, pop));
   }
 
   function getStarsString(n) {
@@ -421,17 +532,19 @@
   }
 
   /* ==========================================================================
-     4. DOLLHOUSE BUILDING RENDERER (SVG ROOM INTERIORS)
+     4. DOLLHOUSE BUILDING RENDERER (SVG ROOM INTERIORS & SMOOTH ELEVATOR)
      ========================================================================== */
   function renderHotelFloors() {
     var stack = $('floorsStack');
     if (!stack) return;
 
+    var totalFloors = STATE.floors.length;
     var html = '';
-    // In cross section, top floor renders first, down to ground floor
-    for (var i = STATE.floors.length - 1; i >= 0; i--) {
+
+    // Render floor rows from top floor down to ground floor
+    for (var i = totalFloors - 1; i >= 0; i--) {
       var fl = STATE.floors[i];
-      html += renderFloorRow(fl, i);
+      html += renderFloorRow(fl, i, totalFloors);
     }
     stack.innerHTML = html;
 
@@ -444,10 +557,10 @@
       });
     });
 
-    updateElevatorCabinPosition();
+    updateElevatorCabinSlide();
   }
 
-  function renderFloorRow(floor, floorIdx) {
+  function renderFloorRow(floor, floorIdx, totalFloors) {
     var html = '<div class="floor-row" data-floor-idx="' + floorIdx + '">';
 
     // Floor number badge
@@ -463,27 +576,34 @@
 
     // Glass Elevator Column
     html += '<div class="elevator-shaft" id="shaft_' + floorIdx + '">';
-    // If elevator is on this floor, render cabin
-    if (STATE.elevatorPos === floorIdx) {
-      html += renderElevatorCabin();
-    }
-    html += '</div>';
+    html += '<div class="elevator-cable"></div>';
 
-    html += '</div>';
+    // Top floor holds the sliding cabin element
+    if (floorIdx === totalFloors - 1) {
+      html += '<div class="elevator-cabin" id="slidingCabin">' +
+        '<div class="elevator-roof-light"></div>' +
+        '<div class="elevator-door-glass"></div>' +
+        '<div class="elevator-occupants" id="cabinOccupants">🛎️</div>' +
+        '<div class="elevator-door-glass"></div>' +
+        '</div>';
+    }
+
+    html += '</div>'; // end elevator-shaft
+    html += '</div>'; // end floor-row
     return html;
   }
 
-  function renderElevatorCabin() {
-    return '<div class="elevator-cabin" id="elevatorCabin">' +
-      '<div class="elevator-roof-light"></div>' +
-      '<div class="elevator-door-glass"></div>' +
-      '<div class="elevator-occupants">' + (STATE.elevatorGuestAvatar || '🛎️') + '</div>' +
-      '<div class="elevator-door-glass"></div>' +
-      '</div>';
-  }
+  function updateElevatorCabinSlide() {
+    var cabin = $('slidingCabin');
+    if (!cabin) return;
+    var totalFloors = STATE.floors.length;
+    var floorRowHeight = 144; // px height per floor row
 
-  function updateElevatorCabinPosition() {
-    // Elevator is rendered in current floor shaft
+    // Target index relative to top floor (0 = top floor, totalFloors - 1 = ground floor)
+    var targetFromTop = (totalFloors - 1) - STATE.elevatorPos;
+    var translateY = targetFromTop * floorRowHeight + 18;
+
+    cabin.style.transform = 'translateY(' + translateY + 'px)';
   }
 
   function renderRoomSlot(room, floorIdx) {
@@ -512,6 +632,13 @@
         html += '<div class="room-status-bubble bubble-sleep">' +
           '<span>' + (room.type.includes('bedroom') ? '💤' : '✨') + '</span>' +
           '</div>';
+
+        // Guest Interactive Thought Bubble Mini-Quest
+        if (room.occupant.thought) {
+          html += '<div class="guest-thought-bubble" onclick="window.serveGuestThought(\'' + room.id + '\',event)">' +
+            '<span>' + room.occupant.thought.icon + ' ' + room.occupant.thought.text + '</span>' +
+            '</div>';
+        }
       }
     }
 
@@ -519,36 +646,40 @@
     return html;
   }
 
-  /* DRAW ROOM INTERIOR SVGS */
+  /* DRAW ROOM INTERIOR SVGS WITH WALLPAPER & FLOORING CUSTOMIZATION */
   function drawRoomInterior(room, isNight) {
     var type = room.type;
     var s = '';
 
-    // Room wall background & floor base
-    var wallColor = isNight ? '#2b212f' : '#fefae0';
-    var floorColor = '#d4a373';
+    // Apply custom wallpaper
+    var wpObj = WALLPAPERS.find(function (w) { return w.id === room.wallpaper; });
+    var wallColor = isNight ? '#2b212f' : (wpObj ? wpObj.color : '#fefae0');
+
+    // Apply custom flooring
+    var flObj = FLOORINGS.find(function (f) { return f.id === room.flooring; });
+    var floorColor = flObj ? flObj.color : '#d4a373';
 
     if (type === 'bedroom_single') {
       s += '<rect width="200" height="120" fill="' + wallColor + '"/>';
-      s += '<rect y="120" width="200" height="20" fill="#c2956c"/>'; // wood floor
+      s += '<rect y="120" width="200" height="20" fill="' + floorColor + '"/>';
       // Window with city skyline
       s += '<rect x="130" y="20" width="50" height="50" rx="4" fill="#a2d2ff" stroke="#4a3b32" stroke-width="3"/>';
       s += '<line x1="155" y1="20" x2="155" y2="70" stroke="#4a3b32" stroke-width="2"/>';
       s += '<line x1="130" y1="45" x2="180" y2="45" stroke="#4a3b32" stroke-width="2"/>';
       // Cozy Bed
       s += '<rect x="20" y="70" width="75" height="48" rx="6" fill="#ff70a6" stroke="#4a3b32" stroke-width="2.5"/>';
-      s += '<rect x="22" y="72" width="22" height="44" rx="4" fill="#ffffff"/>'; // pillow
-      s += '<path d="M 44 72 L 93 72 L 93 116 L 44 116 Z" fill="#ffccd5"/>'; // blanket
+      s += '<rect x="22" y="72" width="22" height="44" rx="4" fill="#ffffff"/>';
+      s += '<path d="M 44 72 L 93 72 L 93 116 L 44 116 Z" fill="#ffccd5"/>';
       // Table & Lamp
       s += '<rect x="100" y="85" width="24" height="33" fill="#e9ecef" stroke="#4a3b32" stroke-width="2"/>';
       s += '<path d="M 106 85 L 118 85 L 122 70 L 102 70 Z" fill="#ffd166"/>';
-      // Wall poster
+      // Poster
       s += '<rect x="35" y="25" width="28" height="32" fill="#fff" stroke="#4a3b32" stroke-width="2"/>';
       s += '<circle cx="49" cy="41" r="8" fill="#ffd166"/>';
     } else if (type === 'bedroom_double') {
-      s += '<rect width="200" height="120" fill="' + (isNight ? '#38222f' : '#ffe5ec') + '"/>';
-      s += '<rect y="120" width="200" height="20" fill="#9b5de5"/>'; // velvet carpet
-      // Large Double Bed
+      s += '<rect width="200" height="120" fill="' + (isNight ? '#38222f' : wallColor) + '"/>';
+      s += '<rect y="120" width="200" height="20" fill="' + floorColor + '"/>';
+      // Double Bed
       s += '<rect x="30" y="60" width="90" height="58" rx="8" fill="#d90429" stroke="#4a3b32" stroke-width="2.8"/>';
       s += '<rect x="34" y="64" width="24" height="24" rx="4" fill="#fff"/>';
       s += '<rect x="34" y="90" width="24" height="24" rx="4" fill="#fff"/>';
@@ -559,24 +690,24 @@
       s += '<circle cx="152" cy="74" r="2.5" fill="#ffd166"/>';
       s += '<circle cx="162" cy="74" r="2.5" fill="#ffd166"/>';
     } else if (type === 'bedroom_suite') {
-      s += '<rect width="200" height="120" fill="' + (isNight ? '#2a1824' : '#fff0f3') + '"/>';
-      s += '<rect y="120" width="200" height="20" fill="#ff70a6"/>';
+      s += '<rect width="200" height="120" fill="' + (isNight ? '#2a1824' : wallColor) + '"/>';
+      s += '<rect y="120" width="200" height="20" fill="' + floorColor + '"/>';
       // Four-poster canopy bed
       s += '<rect x="25" y="45" width="80" height="72" fill="#c9184a" stroke="#800f2f" stroke-width="2.5"/>';
       s += '<line x1="25" y1="20" x2="25" y2="117" stroke="#ffd166" stroke-width="4"/>';
       s += '<line x1="105" y1="20" x2="105" y2="117" stroke="#ffd166" stroke-width="4"/>';
       s += '<path d="M 23 20 Q 65 30 107 20" stroke="#ffd166" stroke-width="4" fill="none"/>';
-      // Jacuzzi with bubbles
+      // Jacuzzi
       s += '<ellipse cx="155" cy="88" rx="35" ry="24" fill="#a2d2ff" stroke="#0077b6" stroke-width="3"/>';
       s += '<circle cx="145" cy="85" r="5" fill="#fff" opacity="0.8"/>';
       s += '<circle cx="162" cy="88" r="4" fill="#fff" opacity="0.8"/>';
     } else if (type === 'bedroom_penthouse') {
-      s += '<rect width="200" height="120" fill="' + (isNight ? '#1f132b' : '#f3e8ff') + '"/>';
-      s += '<rect y="120" width="200" height="20" fill="#ffd166"/>'; // gold floor
-      // Crystal chandelier
+      s += '<rect width="200" height="120" fill="' + (isNight ? '#1f132b' : wallColor) + '"/>';
+      s += '<rect y="120" width="200" height="20" fill="' + floorColor + '"/>';
+      // Chandelier
       s += '<path d="M 90 0 L 110 0 L 100 28 Z" fill="#ffd166"/>';
-      s += '<circle cx="100" cy="30" r="14" fill="#ffffff" stroke="#ffd166" stroke-width="2" filter="url(#softGlow)"/>';
-      // Royal King Bed
+      s += '<circle cx="100" cy="30" r="14" fill="#ffffff" stroke="#ffd166" stroke-width="2"/>';
+      // Royal Bed
       s += '<rect x="20" y="55" width="95" height="62" rx="8" fill="#7209b7" stroke="#480ca8" stroke-width="3"/>';
       s += '<rect x="45" y="60" width="66" height="52" rx="4" fill="#b5179e"/>';
       // Champagne Table
@@ -584,105 +715,72 @@
       s += '<path d="M 155 70 L 165 70 L 160 80 Z" fill="#ffd166"/>';
     } else if (type === 'pool') {
       s += '<rect width="200" height="140" fill="#bbf2f6"/>';
-      // Pool basin with water
       s += '<rect x="15" y="45" width="140" height="85" rx="14" fill="#48cae4" stroke="#0077b6" stroke-width="3.5"/>';
       s += '<path d="M 25 70 Q 55 64 85 70 Q 115 76 145 70" stroke="rgba(255,255,255,0.7)" stroke-width="3" fill="none"/>';
-      // Floating flamingo floatie
       s += '<ellipse cx="65" cy="85" rx="14" ry="9" fill="#ff70a6"/>';
       s += '<circle cx="58" cy="78" r="5" fill="#ff70a6"/>';
-      // Sun lounger & umbrella
       s += '<rect x="165" y="70" width="26" height="50" rx="3" fill="#ffffff" stroke="#e07a5f" stroke-width="2"/>';
       s += '<path d="M 160 25 L 195 25 L 178 50 Z" fill="#ffd166"/>';
     } else if (type === 'gym') {
-      s += '<rect width="200" height="120" fill="' + (isNight ? '#262930' : '#e9ecef') + '"/>';
-      s += '<rect y="120" width="200" height="20" fill="#343a40"/>'; // rubber gym floor
-      // Treadmill
+      s += '<rect width="200" height="120" fill="' + (isNight ? '#262930' : wallColor) + '"/>';
+      s += '<rect y="120" width="200" height="20" fill="#343a40"/>';
       s += '<rect x="25" y="92" width="60" height="14" rx="4" fill="#495057" stroke="#212529" stroke-width="2"/>';
       s += '<line x1="75" y1="92" x2="85" y2="60" stroke="#adb5bd" stroke-width="4"/>';
       s += '<rect x="80" y="55" width="14" height="10" rx="2" fill="#212529"/>';
-      // Dumbbells rack
       s += '<rect x="120" y="65" width="65" height="52" rx="4" fill="#6c757d" stroke="#343a40" stroke-width="2"/>';
       s += '<circle cx="135" cy="80" r="7" fill="#212529"/>';
       s += '<circle cx="155" cy="80" r="7" fill="#212529"/>';
-      s += '<circle cx="172" cy="80" r="7" fill="#212529"/>';
     } else if (type === 'restaurant') {
-      s += '<rect width="200" height="120" fill="' + (isNight ? '#301e22' : '#faedcd') + '"/>';
+      s += '<rect width="200" height="120" fill="' + (isNight ? '#301e22' : wallColor) + '"/>';
       s += '<rect y="120" width="200" height="20" fill="#d4a373"/>';
-      // Buffet counter
       s += '<rect x="110" y="55" width="75" height="62" rx="4" fill="#bc6c25" stroke="#4a3b32" stroke-width="2.5"/>';
       s += '<ellipse cx="130" cy="55" rx="12" ry="6" fill="#e9ecef"/>';
       s += '<ellipse cx="160" cy="55" rx="12" ry="6" fill="#e9ecef"/>';
-      // Dining table with chairs
       s += '<rect x="30" y="75" width="50" height="42" rx="4" fill="#ffffff" stroke="#4a3b32" stroke-width="2"/>';
-      s += '<ellipse cx="55" cy="75" rx="8" ry="4" fill="#e63946"/>'; // cake
+      s += '<ellipse cx="55" cy="75" rx="8" ry="4" fill="#e63946"/>';
     } else if (type === 'disco') {
       s += '<rect width="200" height="120" fill="#140d21"/>';
-      // Neon dance floor grid
       s += '<rect y="115" width="200" height="25" fill="#240046"/>';
       s += '<line x1="40" y1="115" x2="40" y2="140" stroke="#ff007f" stroke-width="2"/>';
       s += '<line x1="80" y1="115" x2="80" y2="140" stroke="#00f5d4" stroke-width="2"/>';
       s += '<line x1="120" y1="115" x2="120" y2="140" stroke="#fee440" stroke-width="2"/>';
       s += '<line x1="160" y1="115" x2="160" y2="140" stroke="#7209b7" stroke-width="2"/>';
-      // Disco ball
-      s += '<line x1="100" y1="0" x2="100" y2="25" stroke="#ccc" stroke-width="2"/>';
       s += '<circle cx="100" cy="35" r="15" fill="#f8f9fa" stroke="#e9ecef" stroke-width="2"/>';
-      // DJ Booth
       s += '<rect x="140" y="65" width="50" height="48" rx="4" fill="#7209b7" stroke="#ff007f" stroke-width="2"/>';
       s += '<circle cx="155" cy="65" r="6" fill="#000"/>';
       s += '<circle cx="175" cy="65" r="6" fill="#000"/>';
     } else if (type === 'spa') {
-      s += '<rect width="200" height="120" fill="' + (isNight ? '#222823' : '#e8f5e9') + '"/>';
-      s += '<rect y="120" width="200" height="20" fill="#606c38"/>'; // tatami
-      // Hot spring tub
+      s += '<rect width="200" height="120" fill="' + (isNight ? '#222823' : wallColor) + '"/>';
+      s += '<rect y="120" width="200" height="20" fill="#606c38"/>';
       s += '<ellipse cx="65" cy="85" rx="42" ry="26" fill="#84a59d" stroke="#52796f" stroke-width="3"/>';
       s += '<ellipse cx="65" cy="87" rx="34" ry="18" fill="#cad2c5"/>';
-      // Bamboo screen
       s += '<rect x="135" y="30" width="50" height="88" fill="#dda15e" stroke="#bc6c25" stroke-width="2"/>';
-      s += '<line x1="150" y1="30" x2="150" y2="118" stroke="#bc6c25" stroke-width="1.5"/>';
-      s += '<line x1="165" y1="30" x2="165" y2="118" stroke="#bc6c25" stroke-width="1.5"/>';
     } else if (type === 'arcade') {
       s += '<rect width="200" height="120" fill="#1b1b2f"/>';
       s += '<rect y="120" width="200" height="20" fill="#e43f5a"/>';
-      // Arcade Cabinet 1
       s += '<rect x="30" y="35" width="40" height="82" rx="4" fill="#1f4068" stroke="#e43f5a" stroke-width="2.5"/>';
       s += '<rect x="36" y="46" width="28" height="24" rx="2" fill="#ffd166"/>';
-      // Arcade Cabinet 2
       s += '<rect x="85" y="35" width="40" height="82" rx="4" fill="#162447" stroke="#00f5d4" stroke-width="2.5"/>';
       s += '<rect x="91" y="46" width="28" height="24" rx="2" fill="#ff70a6"/>';
-      // Claw Machine
       s += '<rect x="140" y="30" width="45" height="88" rx="4" fill="#f72585" stroke="#7209b7" stroke-width="2.5"/>';
-      s += '<rect x="146" y="38" width="33" height="40" fill="rgba(255,255,255,0.7)"/>';
     } else if (type === 'lobby') {
-      // Grand Front Desk Lobby
       s += '<rect width="200" height="120" fill="' + (isNight ? '#352128' : '#fff5f8') + '"/>';
-      s += '<rect y="120" width="200" height="20" fill="#d90429"/>'; // royal red carpet
-      // Grand Reception Counter
+      s += '<rect y="120" width="200" height="20" fill="#d90429"/>';
       s += '<rect x="40" y="62" width="120" height="55" rx="8" fill="#6a040f" stroke="#ffd166" stroke-width="3"/>';
       s += '<rect x="44" y="65" width="112" height="14" rx="3" fill="#ffd166"/>';
-      // Bellhop Desk Bell
       s += '<circle cx="100" cy="62" r="5" fill="#ffd166" stroke="#b58300" stroke-width="1.5"/>';
-      // Wall Keycard Grid
       s += '<rect x="65" y="20" width="70" height="32" rx="4" fill="#9d0208" stroke="#ffd166" stroke-width="2"/>';
-      for (var kx = 72; kx <= 125; kx += 12) {
-        s += '<rect x="' + kx + '" y="25" width="7" height="10" rx="2" fill="#ffd166"/>';
-      }
-      // Receptionist Chibi Bellhop
-      s += '<circle cx="100" cy="50" r="10" fill="#ffccd5"/>'; // face
-      s += '<rect x="92" y="36" width="16" height="7" rx="3" fill="#d90429" stroke="#ffd166" stroke-width="1.5"/>'; // pillbox hat
+      s += '<circle cx="100" cy="50" r="10" fill="#ffccd5"/>';
+      s += '<rect x="92" y="36" width="16" height="7" rx="3" fill="#d90429" stroke="#ffd166" stroke-width="1.5"/>';
     } else if (type === 'boutique') {
-      // Gift Boutique
       s += '<rect width="200" height="120" fill="' + (isNight ? '#261b2f' : '#f0f3f8') + '"/>';
       s += '<rect y="120" width="200" height="20" fill="#adb5bd"/>';
-      // Shelves with gifts
       s += '<rect x="25" y="30" width="150" height="88" rx="6" fill="#ffffff" stroke="#4a3b32" stroke-width="2"/>';
       s += '<line x1="25" y1="60" x2="175" y2="60" stroke="#4a3b32" stroke-width="2"/>';
       s += '<line x1="25" y1="90" x2="175" y2="90" stroke="#4a3b32" stroke-width="2"/>';
       s += '<text x="45" y="52" font-size="16">🧸</text>';
       s += '<text x="90" y="52" font-size="16">🕶️</text>';
       s += '<text x="135" y="52" font-size="16">🛍️</text>';
-      s += '<text x="45" y="82" font-size="16">🎁</text>';
-      s += '<text x="90" y="82" font-size="16">🧴</text>';
-      s += '<text x="135" y="82" font-size="16">👑</text>';
     }
 
     // Render Occupant Chibi in Room
@@ -693,23 +791,18 @@
 
       s += '<g transform="translate(' + cx + ',' + cy + ')">';
       if (type.includes('bedroom')) {
-        // Sleeping Chibi with blanket
         s += '<text x="-12" y="-12" font-size="22">' + occ.avatar + '</text>';
         s += '<text x="8" y="-28" font-size="16" fill="#9b5de5">💤</text>';
       } else if (type === 'pool') {
-        // Swimming Chibi
         s += '<text x="-12" y="-14" font-size="22">' + occ.avatar + '</text>';
         s += '<text x="-16" y="2" font-size="14">💦</text>';
       } else if (type === 'gym') {
-        // Working out Chibi
         s += '<text x="-12" y="-12" font-size="22">' + occ.avatar + '</text>';
         s += '<text x="8" y="-24" font-size="14">💪</text>';
       } else if (type === 'restaurant') {
-        // Dining Chibi
         s += '<text x="-12" y="-12" font-size="22">' + occ.avatar + '</text>';
         s += '<text x="8" y="-24" font-size="14">🍰</text>';
       } else if (type === 'disco') {
-        // Dancing Chibi
         s += '<text x="-12" y="-14" font-size="22">' + occ.avatar + '</text>';
         s += '<text x="10" y="-24" font-size="14">🎵</text>';
       } else {
@@ -722,7 +815,7 @@
   }
 
   /* ==========================================================================
-     5. INTERACTIVE ROOM CLICKS (BUILD, CLEAN, COLLECT)
+     5. INTERACTIVE ROOM CLICKS & ROOM MANAGEMENT
      ========================================================================== */
   function handleRoomClick(floorIdx, roomId, e) {
     var floor = STATE.floors[floorIdx];
@@ -731,7 +824,6 @@
     if (!room) return;
 
     if (room.type === 'empty') {
-      // Open Shop to build in this slot
       STATE.selectedSlotToBuild = { floorIdx: floorIdx, roomId: roomId };
       openBuildShop();
     } else if (room.status === 'checkout' && room.coinsReady > 0) {
@@ -751,14 +843,13 @@
       room.status = 'ready';
       Snd.play('clean');
       addXP(10);
+      recalcPopularity();
       showToast('🧹 ทำความสะอาดห้องเรียบร้อย สะอาดเอี่ยม 100%!');
       renderHotelFloors();
-    } else if (room.occupant) {
-      // Pet or guest interaction
-      Snd.play('ding');
-      showToast('💖 แขก ' + room.occupant.name + ' กำลังพักผ่อนอย่างมีความสุข!');
+    } else if (room.type !== 'lobby' && room.type !== 'boutique') {
+      // Open Room Management Modal!
+      openRoomManageModal(floorIdx, room);
     } else {
-      // Room info
       var def = ROOM_TYPES[room.type];
       if (def) {
         showToast('ℹ️ ' + def.name + ' (พร้อมต้อนรับแขกคนถัดไป)');
@@ -766,8 +857,120 @@
     }
   }
 
+  /* ROOM MANAGEMENT MODAL LOGIC */
+  function openRoomManageModal(floorIdx, room) {
+    STATE.selectedRoomToManage = { floorIdx: floorIdx, room: room };
+    var modal = $('roomManageModal');
+    if (!modal) return;
+
+    var def = ROOM_TYPES[room.type] || { name: 'ห้องพัก', icon: '🛏️', payout: 50 };
+    var iconEl = $('manageRoomIcon');
+    if (iconEl) iconEl.textContent = def.icon;
+
+    var titleEl = $('manageRoomTitle');
+    if (titleEl) titleEl.textContent = def.name;
+
+    var statsEl = $('manageRoomStats');
+    if (statsEl) {
+      var occText = room.occupant ? ('👤 กำลังเข้าพัก: ' + room.occupant.name) : '✨ สถานะ: ว่างพร้อมต้อนรับ';
+      statsEl.innerHTML = '<div>' + occText + '</div>' +
+        '<div>🪙 รายได้พื้นฐาน: +' + def.payout + ' เหรียญ / ครั้ง</div>' +
+        '<div>🖼️ วอลเปเปอร์ปัจจุบัน: ' + (room.wallpaper || 'ดีฟอลต์') + '</div>' +
+        '<div>🪵 ลวดลายพื้นห้อง: ' + (room.flooring || 'ดีฟอลต์') + '</div>';
+    }
+
+    var btnUpgrade = $('btnUpgradeRoom');
+    if (btnUpgrade) {
+      if (def.upgradeTo && ROOM_TYPES[def.upgradeTo]) {
+        var upDef = ROOM_TYPES[def.upgradeTo];
+        btnUpgrade.style.display = 'block';
+        btnUpgrade.textContent = '⬆️ อัปเกรดเป็น ' + upDef.name + ' (🪙 ' + upDef.costCoins + ')';
+      } else {
+        btnUpgrade.style.display = 'none';
+      }
+    }
+
+    modal.classList.add('open');
+  }
+
+  function closeRoomManageModal() {
+    var modal = $('roomManageModal');
+    if (modal) modal.classList.remove('open');
+    STATE.selectedRoomToManage = null;
+  }
+
+  function upgradeCurrentRoom() {
+    if (!STATE.selectedRoomToManage) return;
+    var room = STATE.selectedRoomToManage.room;
+    var def = ROOM_TYPES[room.type];
+    if (!def || !def.upgradeTo) return;
+
+    var upDef = ROOM_TYPES[def.upgradeTo];
+    if (!upDef) return;
+
+    if (STATE.coins < upDef.costCoins) {
+      showToast('❌ เหรียญไม่เพียงพอสำหรับการอัปเกรดห้องพัก!');
+      return;
+    }
+
+    STATE.coins -= upDef.costCoins;
+    room.type = def.upgradeTo;
+    addXP(upDef.xp);
+    Snd.play('fanfare');
+    showToast('🎉 อัปเกรดห้องเป็น ' + upDef.name + ' เรียบร้อยแล้ว!');
+    closeRoomManageModal();
+    renderHotelFloors();
+    saveGameState();
+  }
+
+  function demolishCurrentRoom() {
+    if (!STATE.selectedRoomToManage) return;
+    var room = STATE.selectedRoomToManage.room;
+    var def = ROOM_TYPES[room.type] || { costCoins: 300 };
+    var refund = Math.floor(def.costCoins * 0.6);
+
+    room.type = 'empty';
+    room.status = 'empty';
+    room.occupant = null;
+    room.coinsReady = 0;
+
+    addCoins(refund);
+    Snd.play('clean');
+    showToast('🗑️ รื้อถอนห้องเรียบร้อย คืนเงิน 🪙 +' + refund + ' เหรียญ!');
+    closeRoomManageModal();
+    renderHotelFloors();
+    saveGameState();
+  }
+
   /* ==========================================================================
-     6. GUEST ARRIVAL & LIFE CYCLE ENGINE
+     6. GUEST INTERACTIVE THOUGHT BUBBLE MINI-QUESTS
+     ========================================================================== */
+  var THOUGHTS_CATALOG = [
+    { icon: '☕', text: 'ขอกาแฟแก้วนึง!', reward: 35, toast: '☕ เสิร์ฟกาแฟร้อนให้แขกเรียบร้อย (+35 เหรียญ!)' },
+    { icon: '📸', text: 'ถ่ายรูปสวยๆ หน่อย!', reward: 50, toast: '📸 แชะรูปโพลารอยด์ที่ระลึก (+50 เหรียญ!)' },
+    { icon: '🌟', text: 'เตียงนุ่มสบายจัง!', reward: 40, toast: '💖 แขกประทับใจความนุ่มของเตียง ทิปพิเศษ (+40 เหรียญ!)' },
+    { icon: '🍰', text: 'ขนมบุฟเฟต์อร่อย!', reward: 30, toast: '🍰 เสิร์ฟเค้กและขนมหวาน (+30 เหรียญ!)' }
+  ];
+
+  window.serveGuestThought = function (roomId, e) {
+    if (e) e.stopPropagation();
+    for (var f = 0; f < STATE.floors.length; f++) {
+      var room = STATE.floors[f].rooms.find(function (r) { return r.id === roomId; });
+      if (room && room.occupant && room.occupant.thought) {
+        var t = room.occupant.thought;
+        addCoins(t.reward);
+        addXP(15);
+        Snd.play('coin');
+        showToast(t.toast);
+        room.occupant.thought = null;
+        renderHotelFloors();
+        return;
+      }
+    }
+  };
+
+  /* ==========================================================================
+     7. GUEST ARRIVAL & LIFE CYCLE ENGINE WITH SIDEWALK WALKERS
      ========================================================================== */
   var GUEST_NAMES = [
     'Emily (นักท่องเที่ยว)', 'Leo (นักธุรกิจ)', 'Aria (อินฟลูเอนเซอร์)',
@@ -777,7 +980,6 @@
   var GUEST_AVATARS = ['👩‍🦰', '👨‍💼', '👩‍🎤', '🧑‍🌾', '👱‍♀️', '👨‍🍳', '👩‍🎨', '🤵', '🌸', '🦭'];
 
   function spawnGuestArrival() {
-    // Check if there is any available ready room
     var availableRooms = [];
     STATE.floors.forEach(function (fl, flIdx) {
       fl.rooms.forEach(function (r) {
@@ -787,7 +989,7 @@
       });
     });
 
-    if (availableRooms.length === 0) return; // Hotel full
+    if (availableRooms.length === 0) return;
 
     var target = availableRooms[Math.floor(Math.random() * availableRooms.length)];
     var randIdx = Math.floor(Math.random() * GUEST_NAMES.length);
@@ -798,30 +1000,60 @@
       avatar: GUEST_AVATARS[randIdx],
       assignedRoom: target.room,
       assignedFloorIdx: target.floorIdx,
-      posX: 60 + Math.random() * 40
+      posX: 60 + Math.random() * 40,
+      thought: (Math.random() > 0.4) ? THOUGHTS_CATALOG[Math.floor(Math.random() * THOUGHTS_CATALOG.length)] : null
     };
 
-    // Elevator picks up guest
-    animateElevatorAndCheckIn(guest, target.floorIdx, target.room);
+    // 1. Spawn Walking Chibi on the sidewalk
+    spawnSidewalkWalker(guest, function () {
+      // 2. Guest steps inside revolving door -> takes elevator
+      animateElevatorAndCheckIn(guest, target.floorIdx, target.room);
+    });
+  }
+
+  function spawnSidewalkWalker(guest, onReachedEntrance) {
+    var layer = $('sidewalkWalkers');
+    if (!layer) {
+      if (onReachedEntrance) onReachedEntrance();
+      return;
+    }
+
+    var chibi = document.createElement('div');
+    chibi.className = 'sidewalk-chibi';
+    chibi.innerHTML = '<span>' + guest.avatar + '</span><span class="sidewalk-luggage">🧳</span>';
+    chibi.style.left = '750px';
+    layer.appendChild(chibi);
+
+    // Animate walking towards entrance (center: ~390px)
+    setTimeout(function () {
+      chibi.style.left = '390px';
+    }, 50);
+
+    setTimeout(function () {
+      chibi.remove();
+      if (onReachedEntrance) onReachedEntrance();
+    }, 4100);
   }
 
   function animateElevatorAndCheckIn(guest, floorIdx, room) {
     // Elevator arrives at Ground (0)
     STATE.elevatorPos = 0;
-    STATE.elevatorGuestAvatar = guest.avatar;
+    var occEl = $('cabinOccupants');
+    if (occEl) occEl.textContent = guest.avatar;
     Snd.play('bell');
+    updateElevatorCabinSlide();
 
     setTimeout(function () {
-      // Elevator ascends to target floor
+      // Elevator ascends smoothly to target floor
       STATE.elevatorPos = floorIdx;
-      renderHotelFloors();
+      updateElevatorCabinSlide();
       Snd.play('ding');
 
       setTimeout(function () {
-        // Guest checks into room
+        // Guest enters room
         room.occupant = guest;
         room.status = 'occupied';
-        STATE.elevatorGuestAvatar = null;
+        if (occEl) occEl.textContent = '🛎️';
         renderHotelFloors();
 
         // Guest stays for duration
@@ -831,15 +1063,16 @@
           room.occupant = null;
           room.status = 'checkout';
           room.coinsReady = def.payout;
+          recalcPopularity();
           renderHotelFloors();
         }, def.stayDuration);
 
-      }, 800);
+      }, 850);
     }, 600);
   }
 
   /* ==========================================================================
-     7. BUILD SHOP & ROOM EXPANSION
+     8. BUILD SHOP & EXPANSION
      ========================================================================== */
   function openBuildShop() {
     var modal = $('buildShopModal');
@@ -894,10 +1127,8 @@
       return;
     }
 
-    // Find slot to build
     var targetSlot = STATE.selectedSlotToBuild;
     if (!targetSlot) {
-      // Find first empty slot
       for (var f = 0; f < STATE.floors.length; f++) {
         var fl = STATE.floors[f];
         for (var r = 0; r < fl.rooms.length; r++) {
@@ -916,7 +1147,6 @@
       return;
     }
 
-    // Deduct coins & cash
     STATE.coins -= def.costCoins;
     STATE.cash -= def.costCash;
 
@@ -927,9 +1157,12 @@
       room.status = 'ready';
       room.occupant = null;
       room.coinsReady = 0;
+      room.wallpaper = 'default';
+      room.flooring = 'default';
     }
 
     addXP(def.xp);
+    recalcPopularity();
     Snd.play('fanfare');
     showToast('🎉 สร้าง ' + def.name + ' เสร็จสมบูรณ์แล้ว!');
     closeBuildShop();
@@ -958,6 +1191,7 @@
 
     STATE.floors.push(newFloor);
     addXP(100);
+    recalcPopularity();
     Snd.play('fanfare');
     showToast('🏗️ สร้างชั้น ' + newFloorNum + ' เพิ่มขึ้นสำเร็จ! ขยายโรงแรมอลังการขึ้นแล้ว!');
     renderHotelFloors();
@@ -979,6 +1213,7 @@
     if (cleanedCount > 0) {
       Snd.play('clean');
       addXP(cleanedCount * 12);
+      recalcPopularity();
       showToast('✨ แม่บ้านทำความสะอาดครบ ' + cleanedCount + ' ห้องเรียบร้อยแล้ว!');
       renderHotelFloors();
       saveGameState();
@@ -988,7 +1223,83 @@
   }
 
   /* ==========================================================================
-     8. VIP GUESTS (SPECIAL GUESTS FROM NADIA PLAYGROUND)
+     9. DECOR STUDIO (WALLPAPERS & FLOORING)
+     ========================================================================== */
+  function openDecorModal() {
+    var modal = $('decorModal');
+    if (!modal) return;
+    modal.classList.add('open');
+
+    renderDecorOptions();
+  }
+
+  function renderDecorOptions() {
+    var wpGrid = $('wallpaperGrid');
+    var flGrid = $('flooringGrid');
+    if (!wpGrid || !flGrid) return;
+
+    var curRoom = STATE.selectedRoomToManage ? STATE.selectedRoomToManage.room : null;
+
+    // 1. Wallpapers
+    var wpHtml = '';
+    WALLPAPERS.forEach(function (wp) {
+      var isAct = curRoom && (curRoom.wallpaper === wp.id);
+      wpHtml += '<div class="decor-card ' + (isAct ? 'active' : '') + '" onclick="window.applyWallpaper(\'' + wp.id + '\')">';
+      wpHtml += '<div class="decor-swatch" style="background:' + wp.color + '"></div>';
+      wpHtml += '<span style="font-size:0.8rem;font-weight:800">' + wp.name + '</span>';
+      wpHtml += '</div>';
+    });
+    wpGrid.innerHTML = wpHtml;
+
+    // 2. Floorings
+    var flHtml = '';
+    FLOORINGS.forEach(function (fl) {
+      var isAct = curRoom && (curRoom.flooring === fl.id);
+      flHtml += '<div class="decor-card ' + (isAct ? 'active' : '') + '" onclick="window.applyFlooring(\'' + fl.id + '\')">';
+      flHtml += '<div class="decor-swatch" style="background:' + fl.color + '"></div>';
+      flHtml += '<span style="font-size:0.8rem;font-weight:800">' + fl.name + '</span>';
+      flHtml += '</div>';
+    });
+    flGrid.innerHTML = flHtml;
+  }
+
+  window.applyWallpaper = function (wpId) {
+    if (STATE.selectedRoomToManage) {
+      STATE.selectedRoomToManage.room.wallpaper = wpId;
+    } else {
+      // Apply to all bedrooms
+      STATE.floors.forEach(function (fl) {
+        fl.rooms.forEach(function (r) {
+          if (r.type && r.type.includes('bedroom')) r.wallpaper = wpId;
+        });
+      });
+    }
+    Snd.play('sparkle');
+    showToast('🖼️ เปลี่ยนลวดลายวอลเปเปอร์ห้องพักเรียบร้อย!');
+    renderHotelFloors();
+    saveGameState();
+    renderDecorOptions();
+  };
+
+  window.applyFlooring = function (flId) {
+    if (STATE.selectedRoomToManage) {
+      STATE.selectedRoomToManage.room.flooring = flId;
+    } else {
+      STATE.floors.forEach(function (fl) {
+        fl.rooms.forEach(function (r) {
+          if (r.type && r.type.includes('bedroom')) r.flooring = flId;
+        });
+      });
+    }
+    Snd.play('sparkle');
+    showToast('🪵 ปูพื้นห้องพักลายใหม่เรียบร้อย!');
+    renderHotelFloors();
+    saveGameState();
+    renderDecorOptions();
+  };
+
+  /* ==========================================================================
+     10. VIP GUESTS (SPECIAL GUESTS FROM NADIA PLAYGROUND)
      ========================================================================== */
   var VIP_ROSTER = [
     { id: 'vip_nadia', name: 'Nadia (VIP Guest of Honor)', avatar: '🌸', tip: 800, desc: 'แขกคนพิเศษระดับโกลด์การ์ด ทิปหนัก 800 เหรียญ!' },
@@ -1022,7 +1333,6 @@
     var vip = VIP_ROSTER.find(function (v) { return v.id === vipId; });
     if (!vip) return;
 
-    // Find best suite or room
     var bestRoom = null;
     var bestFloorIdx = 0;
     for (var f = STATE.floors.length - 1; f >= 0; f--) {
@@ -1053,23 +1363,24 @@
       isVip: true
     };
 
-    animateElevatorAndCheckIn(vipGuest, bestFloorIdx, bestRoom);
-    showToast('👑 ' + vip.name + ' นั่งรถลีมูซีนมาถึงโรงแรมแล้ว! (+ทิปพิเศษ ' + vip.tip + ' เหรียญ)');
+    spawnSidewalkWalker(vipGuest, function () {
+      animateElevatorAndCheckIn(vipGuest, bestFloorIdx, bestRoom);
+      showToast('👑 ' + vip.name + ' นั่งรถลีมูซีนมาถึงโรงแรมแล้ว! (+ทิปพิเศษ ' + vip.tip + ' เหรียญ)');
 
-    // Award bonus VIP tip
-    setTimeout(function () {
-      addCoins(vip.tip);
-      addXP(150);
-      Snd.play('coin');
-    }, 4000);
+      setTimeout(function () {
+        addCoins(vip.tip);
+        addXP(150);
+        Snd.play('coin');
+      }, 3500);
+    });
   };
 
   /* ==========================================================================
-     9. STAFF MANAGEMENT & HIRES
+     11. STAFF MANAGEMENT & HIRES
      ========================================================================== */
   var STAFF_CATALOG = [
     { key: 'receptionist', name: 'คุณโรเบิร์ต (Front Desk Bellhop)', avatar: '🛎️', desc: 'ต้อนรับแขกและแจกคีย์การ์ดรวดเร็วขึ้น 2 เท่า', cost: 0, hired: true },
-    { key: 'maid', name: 'แม่บ้านคลีโอ (Housekeeper Maid)', avatar: '🧹', desc: 'ทำความสะอาดห้องที่สกปรกให้อัตโนมัติทุกๆ 10 วินาที', cost: 800, hired: false },
+    { key: 'maid', name: 'แม่บ้านคลีโอ (Housekeeper Maid)', avatar: '🧹', desc: 'ทำความสะอาดห้องที่สกปรกให้อัตโนมัติทุกๆ 9 วินาที', cost: 800, hired: false },
     { key: 'lifeguard', name: 'ครูสอนว่ายน้ำฟินน์ (Pool Lifeguard)', avatar: '🏊', desc: 'ดูแลสระว่ายน้ำ เพิ่มรายได้สระว่ายน้ำขึ้น +30%', cost: 1000, hired: false },
     { key: 'chef', name: 'เชฟปิแอร์ (Executive Chef)', avatar: '👨‍🍳', desc: 'เสิร์ฟอาหารจานหรู เพิ่มรายได้ห้องอาหารขึ้น +40%', cost: 1500, hired: false }
   ];
@@ -1127,11 +1438,12 @@
         });
       });
       if (foundDirty) {
+        recalcPopularity();
         renderHotelFloors();
         saveGameState();
       }
     }
-  }, 9000);
+  }, 8500);
 
   /* GUEST ARRIVAL AUTO-SPAWN LOOP */
   setInterval(function () {
@@ -1139,7 +1451,7 @@
   }, 7500);
 
   /* ==========================================================================
-     10. HOTEL RENAMING
+     12. HOTEL RENAMING
      ========================================================================== */
   function openRenameModal() {
     var modal = $('renameModal');
@@ -1165,7 +1477,7 @@
   }
 
   /* ==========================================================================
-     11. TOAST NOTIFICATIONS & FX
+     13. TOAST NOTIFICATIONS & FX
      ========================================================================== */
   function showToast(msg) {
     var t = $('hotelToast');
@@ -1192,7 +1504,7 @@
   }
 
   /* ==========================================================================
-     12. PASSWORD GATE & AUTHENTICATION (PASSWORD: "larny")
+     14. PASSWORD GATE & AUTHENTICATION (PASSWORD: "larny")
      ========================================================================== */
   function isHotelAuthed() {
     try {
@@ -1222,7 +1534,6 @@
 
     function tryUnlock() {
       var val = (input.value || '').trim().toLowerCase();
-      // Capital-insensitive check: "larny", "Larny", "LARNY"
       if (val === 'larny') {
         try {
           localStorage.setItem('hotel_city_auth', 'larny');
@@ -1273,7 +1584,7 @@
   }
 
   /* ==========================================================================
-     13. INITIALIZATION & EVENT LISTENERS
+     15. INITIALIZATION & EVENT LISTENERS
      ========================================================================== */
   function setupEventListeners() {
     // Sound Toggle
@@ -1299,6 +1610,24 @@
         Snd.play('bell');
         renderHotelFloors();
         saveGameState();
+      });
+    }
+
+    // Click Sun / Moon in sky
+    var sunMoon = $('sunMoon');
+    if (sunMoon) {
+      sunMoon.addEventListener('click', function () {
+        $('btnDayNightToggle')?.click();
+      });
+    }
+
+    // Click Taxi to Summon Guest!
+    var taxi = $('taxiCab');
+    if (taxi) {
+      taxi.addEventListener('click', function () {
+        Snd.play('horn');
+        spawnGuestArrival();
+        showToast('🚕 เรียกลูกค้าคนใหม่เข้าพักทันที!');
       });
     }
 
@@ -1343,6 +1672,31 @@
       $('vipModal').classList.remove('open');
     });
 
+    // Decor Modal
+    var btnDecor = $('btnOpenDecorModal');
+    if (btnDecor) btnDecor.addEventListener('click', openDecorModal);
+
+    var closeDecor = $('closeDecorModal');
+    if (closeDecor) closeDecor.addEventListener('click', function () {
+      $('decorModal').classList.remove('open');
+    });
+
+    // Room Management Modal Buttons
+    var closeRoomManage = $('closeRoomManageModal');
+    if (closeRoomManage) closeRoomManage.addEventListener('click', closeRoomManageModal);
+
+    var btnUpRoom = $('btnUpgradeRoom');
+    if (btnUpRoom) btnUpRoom.addEventListener('click', upgradeCurrentRoom);
+
+    var btnDecorRoom = $('btnDecorateCurrentRoom');
+    if (btnDecorRoom) btnDecorRoom.addEventListener('click', function () {
+      closeRoomManageModal();
+      openDecorModal();
+    });
+
+    var btnDemoRoom = $('btnDemolishRoom');
+    if (btnDemoRoom) btnDemoRoom.addEventListener('click', demolishCurrentRoom);
+
     // Shop Category Tabs
     var shopTabs = document.querySelectorAll('.shop-tab');
     shopTabs.forEach(function (tab) {
@@ -1362,7 +1716,10 @@
     updateHUD();
     setupEventListeners();
 
-    // Initial guest arrivals after warm-up
+    if (Snd.isEnabled()) {
+      Snd.startAmbientBGM();
+    }
+
     setTimeout(function () {
       spawnGuestArrival();
     }, 2000);

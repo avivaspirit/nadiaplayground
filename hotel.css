@@ -207,6 +207,8 @@ body {
   background: radial-gradient(circle, #fff3b0 20%, #ffd166 100%);
   box-shadow: 0 0 40px rgba(255, 209, 102, 0.7);
   transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  pointer-events: auto;
 }
 .sky-background.night .sky-sun-moon {
   background: radial-gradient(circle, #ffffff 40%, #e0e1dd 100%);
@@ -272,7 +274,7 @@ body {
 }
 
 .neon-sign-container {
-  background: rgba(30, 15, 35, 0.88);
+  background: rgba(30, 15, 35, 0.92);
   border: 3.5px solid #ffd166;
   border-radius: 20px;
   padding: 8px 24px;
@@ -326,6 +328,7 @@ body {
   border-radius: 12px 12px 0 0;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
   overflow: hidden;
+  position: relative;
 }
 
 .floor-row {
@@ -353,56 +356,65 @@ body {
   pointer-events: none;
 }
 
-/* GLASS ELEVATOR COLUMN */
+/* CONTINUOUS VERTICAL GLASS ELEVATOR COLUMN */
 .elevator-shaft {
-  width: 64px;
-  flex: 0 0 64px;
-  background: linear-gradient(90deg, rgba(60,40,60,0.85) 0%, rgba(162,210,255,0.3) 50%, rgba(60,40,60,0.85) 100%);
-  border-left: 2.5px solid #4a3b32;
-  border-right: 2.5px solid #4a3b32;
+  width: 68px;
+  flex: 0 0 68px;
+  background: linear-gradient(90deg, rgba(40,30,40,0.9) 0%, rgba(162,210,255,0.25) 50%, rgba(40,30,40,0.9) 100%);
+  border-left: 3px solid #4a3b32;
+  border-right: 3px solid #4a3b32;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible;
+}
+
+.elevator-cable {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #adb5bd;
+  z-index: 6;
 }
 
 .elevator-cabin {
-  width: 52px;
-  height: 95px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(162,210,255,0.7));
-  border: 2px solid #ffd166;
-  box-shadow: 0 0 12px rgba(255,209,102,0.8);
+  width: 56px;
+  height: 100px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(162,210,255,0.75));
+  border: 2.5px solid #ffd166;
+  box-shadow: 0 0 16px rgba(255,209,102,0.85);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   padding: 4px;
   position: absolute;
-  transition: top 0.7s cubic-bezier(0.45, 0.05, 0.55, 0.95);
-  z-index: 8;
+  transition: transform 0.8s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  z-index: 12;
 }
 .elevator-roof-light {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: #ff598f;
   box-shadow: 0 0 8px #ff598f;
   animation: pulse 1s infinite;
 }
 .elevator-occupants {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   display: flex;
   gap: 2px;
 }
 .elevator-door-glass {
   width: 100%;
-  height: 20px;
+  height: 22px;
   border-top: 1.5px solid #a2d2ff;
   border-bottom: 1.5px solid #a2d2ff;
-  background: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.4);
 }
 
 /* ROOM SLOTS */
@@ -425,7 +437,7 @@ body {
   transition: filter 0.2s;
 }
 .room-slot:last-child { border-right: none; }
-.room-slot:hover { filter: brightness(1.04); }
+.room-slot:hover { filter: brightness(1.05); }
 
 /* EMPTY PLOT TO BUILD */
 .room-slot.empty-plot {
@@ -453,7 +465,7 @@ body {
 }
 .btn-build-slot:hover { transform: scale(1.08); background: #fff0f5; }
 
-/* ROOM INTERIOR GRAPHICS (BEDROOM, POOL, GYM, RESTAURANT, DISCO, SPA, LOBBY) */
+/* ROOM INTERIOR GRAPHICS */
 .room-interior-svg {
   width: 100%;
   height: 100%;
@@ -500,12 +512,40 @@ body {
   color: #7209b7;
 }
 
-/* CUTE CHIBI GUESTS IN ROOMS */
-.room-guest-chibi {
+/* INTERACTIVE GUEST THOUGHT BUBBLE (TAPPABLE MINI-QUEST) */
+.guest-thought-bubble {
   position: absolute;
-  bottom: 8px;
-  z-index: 12;
-  transition: left 0.4s ease-out;
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  border: 2px solid #a2d2ff;
+  border-radius: 16px;
+  padding: 3px 8px;
+  font-weight: 800;
+  font-size: 0.75rem;
+  color: #0077b6;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  z-index: 20;
+  animation: popBounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), bubbleBob 1.8s ease-in-out infinite alternate;
+}
+.guest-thought-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0;
+  border-style: solid;
+  border-color: #ffffff transparent;
+}
+@keyframes popBounce {
+  0% { transform: translateX(-50%) scale(0.4); opacity: 0; }
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
 }
 
 /* ==========================================================================
@@ -524,7 +564,7 @@ body {
 }
 
 .street-sidewalk {
-  height: 60px;
+  height: 64px;
   background: #e9ecef;
   border-bottom: 4px solid #ced4da;
   display: flex;
@@ -534,11 +574,32 @@ body {
   position: relative;
 }
 
+.sidewalk-walkers-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.sidewalk-chibi {
+  position: absolute;
+  bottom: 8px;
+  font-size: 1.8rem;
+  transition: left 4s linear;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.sidewalk-luggage {
+  font-size: 1rem;
+}
+
 .hotel-marquee-entrance {
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
+  z-index: 6;
 }
 .marquee-awning {
   background: repeating-linear-gradient(90deg, #d90429, #d90429 18px, #ffffff 18px, #ffffff 36px);
@@ -557,9 +618,31 @@ body {
   border-radius: 4px;
   letter-spacing: 1px;
 }
+.revolving-doors {
+  width: 52px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1.5px solid #ffd166;
+  border-top: none;
+  border-bottom: none;
+  position: relative;
+  overflow: hidden;
+}
+.door-blade {
+  width: 2px;
+  height: 100%;
+  background: #ffd166;
+  margin: 0 auto;
+  animation: spinBlade 2s linear infinite;
+}
+@keyframes spinBlade {
+  0% { transform: scaleX(1); }
+  50% { transform: scaleX(0.1); }
+  100% { transform: scaleX(1); }
+}
 .red-carpet {
-  width: 50px;
-  height: 24px;
+  width: 52px;
+  height: 14px;
   background: #d90429;
   border: 1.5px solid #ffd166;
   border-top: none;
@@ -582,13 +665,15 @@ body {
   position: absolute;
   bottom: 6px;
   left: 20px;
-  font-size: 2rem;
-  animation: taxiDrive 14s linear infinite;
+  font-size: 2.2rem;
+  cursor: pointer;
+  z-index: 10;
+  animation: taxiDrive 15s linear infinite;
 }
 @keyframes taxiDrive {
-  0% { transform: translateX(-150px); }
-  45% { transform: translateX(260px); }
-  55% { transform: translateX(260px); }
+  0% { transform: translateX(-160px); }
+  45% { transform: translateX(250px); }
+  58% { transform: translateX(250px); }
   100% { transform: translateX(950px); }
 }
 
@@ -809,6 +894,78 @@ body {
   margin-top: 4px;
 }
 
+/* ROOM MANAGEMENT SHEET */
+.room-manage-stats {
+  background: #faf4f8;
+  border: 2px solid #f0e2ec;
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+.btn-sec {
+  background: #ffffff;
+  border: 2px solid #a2d2ff;
+  border-radius: 16px;
+  color: #0077b6;
+  font-weight: 900;
+  padding: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-sec:hover { background: #f0f8ff; border-color: #0077b6; }
+
+.btn-danger {
+  background: #fff0f3;
+  border: 2px solid #ff4d6d;
+  border-radius: 16px;
+  color: #d90429;
+  font-weight: 900;
+  padding: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-danger:hover { background: #ffccd5; }
+
+/* DECOR STUDIO GRID */
+.decor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+.decor-card {
+  background: #fff;
+  border: 2px solid #f0e2ec;
+  border-radius: 14px;
+  padding: 10px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.decor-card:hover {
+  transform: translateY(-2px);
+  border-color: #ff70a6;
+}
+.decor-card.active {
+  border-color: #ff70a6;
+  background: #fff5f8;
+}
+.decor-swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 2px solid #e9ecef;
+}
+
 /* STAFF LIST */
 .staff-list {
   display: flex;
@@ -1012,9 +1169,9 @@ body {
   .hotel-brand-name { font-size: 0.85rem; }
   .hud-pill { font-size: 0.78rem; padding: 4px 8px; }
   .xp-bar-track { width: 35px; }
-  .floor-row { height: 120px; }
-  .elevator-shaft { width: 50px; flex: 0 0 50px; }
-  .elevator-cabin { width: 42px; height: 80px; }
+  .floor-row { height: 125px; }
+  .elevator-shaft { width: 54px; flex: 0 0 54px; }
+  .elevator-cabin { width: 44px; height: 85px; }
   .dock-btn { padding: 6px 8px; font-size: 0.74rem; }
   .dock-icon { font-size: 1.2rem; }
 }
