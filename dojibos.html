@@ -107,12 +107,13 @@
     <!-- Couple 1-Click Fast Bar (เล่นกับแฟนง่ายๆ ไม่ต้องพิมพ์รหัส) -->
     <div class="couple-quick-bar" id="coupleQuickBar" style="display:none">
       <div class="couple-bar-desc">
-        <span>❤️</span> <strong>แมค & นาเดีย ดวล 1v1:</strong>
+        <span>❤️</span> <strong id="instantMatchStatus">กดปุ่มเดียวเล่นด้วยกันเลย:</strong>
       </div>
       <div class="couple-bar-btns">
-        <button class="btn-fast-mac" id="btnBarMacInvite" type="button">👑 แมคเปิดห้อง (ส่ง LINE)</button>
-        <button class="btn-fast-nadia" id="btnBarNadiaJoin" type="button">💖 นาเดียเข้าห้องแมค</button>
-        <button class="btn-fast-gear" id="btnOpenAdvancedLobby" type="button" title="ตั้งรหัสห้องเอง หรือดู QR Code">⚙️ รายละเอียด</button>
+        <button class="btn-fast-mac" id="btnBarMacInvite" type="button">👑 ฉันคือแมค</button>
+        <button class="btn-fast-nadia" id="btnBarNadiaJoin" type="button">💖 ฉันคือนาเดีย</button>
+        <button class="btn-fast-mac" id="btnBarAutoJoin" type="button" style="background:linear-gradient(135deg,#059669,#047857);">⚡ จอยอัตโนมัติ 1 คลิก</button>
+        <button class="btn-fast-gear" id="btnOpenAdvancedLobby" type="button" title="ดู QR Code หรือตั้งรหัสห้องเอง">⚙️ เพิ่มเติม</button>
       </div>
     </div>
 
@@ -341,6 +342,7 @@
     <input type="password" id="gatePass" class="gate-input" placeholder="รหัสผ่าน..." autocomplete="off">
     <button id="gateBtn" class="gate-btn">⚽ เข้าสู่สนามฟุตบอล ✨</button>
     <div class="gate-err" id="gateErr">❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</div>
+    <button id="btnFastGatePass" type="button" class="btn-fast-gate" style="margin-top:10px;background:#f0fdf4;border:1.5px solid #86efac;color:#166534;border-radius:10px;padding:8px 12px;font-size:0.84rem;font-weight:800;cursor:pointer;width:100%;">💚 เข้าเล่นทันที (แฟนแมค/นาเดีย ไม่ต้องพิมพ์รหัส)</button>
   </div>
 </div>
 

@@ -1811,18 +1811,21 @@
     // Game Mode Switcher
     $('tabModeSolo')?.addEventListener('click', function () {
       if (ONLINE.isOnline) leaveOnlineMode();
+      cleanupPairingMgr();
       setOnlineModeUI(false);
     });
     $('tabModeOnline')?.addEventListener('click', function () {
+      var barSolo = $('tabModeSolo');
+      var barOnline = $('tabModeOnline');
+      var diffSelector = $('quickDiffSelector');
+      var coupleBar = $('coupleQuickBar');
+      barSolo?.classList.remove('active');
+      barOnline?.classList.add('active');
+      if (diffSelector) diffSelector.style.display = 'none';
+      if (coupleBar) coupleBar.style.display = 'flex';
+
       if (!ONLINE.isOnline) {
-        var barSolo = $('tabModeSolo');
-        var barOnline = $('tabModeOnline');
-        var diffSelector = $('quickDiffSelector');
-        var coupleBar = $('coupleQuickBar');
-        barSolo?.classList.remove('active');
-        barOnline?.classList.add('active');
-        if (diffSelector) diffSelector.style.display = 'none';
-        if (coupleBar) coupleBar.style.display = 'flex';
+        startInstantOnline('auto');
       } else {
         openOnlineModal();
       }
@@ -1831,10 +1834,21 @@
     $('closeOnlineModal')?.addEventListener('click', closeOnlineModal);
 
     // Couple 1-Click Fast Buttons
-    $('btnBarMacInvite')?.addEventListener('click', quickHostForMac);
-    $('btnModalFastMac')?.addEventListener('click', quickHostForMac);
-    $('btnBarNadiaJoin')?.addEventListener('click', quickJoinForNadia);
-    $('btnModalFastNadia')?.addEventListener('click', quickJoinForNadia);
+    $('btnBarAutoJoin')?.addEventListener('click', function () {
+      startInstantOnline('auto');
+    });
+    $('btnBarMacInvite')?.addEventListener('click', function () {
+      startInstantOnline('mac');
+    });
+    $('btnModalFastMac')?.addEventListener('click', function () {
+      startInstantOnline('mac');
+    });
+    $('btnBarNadiaJoin')?.addEventListener('click', function () {
+      startInstantOnline('nadia');
+    });
+    $('btnModalFastNadia')?.addEventListener('click', function () {
+      startInstantOnline('nadia');
+    });
     $('btnOpenAdvancedLobby')?.addEventListener('click', openOnlineModal);
 
     // Online Lobby Buttons
@@ -1858,7 +1872,7 @@
   }
 
   /* ==========================================================================
-     9. ONLINE 2-PLAYER ENGINE (WEBRTC PEERJS + OPENRELAY TURN)
+     9. ONLINE 2-PLAYER ENGINE (WEBRTC PEERJS + OPENRELAY TURN + INSTANT DISCOVERY)
      ========================================================================== */
   var ICE_CONFIG = {
     iceServers: [
@@ -1879,6 +1893,34 @@
     iceCandidatePoolSize: 10
   };
 
+  // Real-time zero-friction matchmaking relay for Mac & Nadia
+  var PAIR_TOPIC = 'nadia-mac-dojibos-pair-2026';
+  var PAIR_SSE_URL = 'https://ntfy.sh/' + PAIR_TOPIC + '/sse';
+  var PAIR_POST_URL = 'https://ntfy.sh/' + PAIR_TOPIC;
+  var PAIR_POLL_URL = 'https://ntfy.sh/' + PAIR_TOPIC + '/json?poll=1&since=30s';
+
+  var PAIRING_MGR = {
+    eventSource: null,
+    heartbeatInterval: null,
+    myPeerId: null,
+    preferredRole: 'auto', // 'mac' | 'nadia' | 'auto'
+    hasDialed: false,
+    active: false
+  };
+
+  function cleanupPairingMgr() {
+    PAIRING_MGR.active = false;
+    PAIRING_MGR.hasDialed = false;
+    if (PAIRING_MGR.heartbeatInterval) {
+      clearInterval(PAIRING_MGR.heartbeatInterval);
+      PAIRING_MGR.heartbeatInterval = null;
+    }
+    if (PAIRING_MGR.eventSource) {
+      try { PAIRING_MGR.eventSource.close(); } catch (e) {}
+      PAIRING_MGR.eventSource = null;
+    }
+  }
+
   function getInviteUrl(code) {
     var room = code || ONLINE.roomCode || 'mac-nadia';
     return window.location.origin + window.location.pathname + '?room=' + encodeURIComponent(room) + '&auth=larny';
@@ -1890,19 +1932,6 @@
       img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=' + encodeURIComponent(url);
       img.style.display = 'block';
     }
-  }
-
-  function quickHostForMac() {
-    startHost('mac-nadia');
-    openOnlineModal();
-    setTimeout(function () {
-      shareRoomLink(ONLINE.roomCode || 'mac-nadia');
-    }, 450);
-  }
-
-  function quickJoinForNadia() {
-    openOnlineModal();
-    startJoin('mac-nadia', 0, 0);
   }
 
   function ensurePeerJS(callback) {
@@ -1955,6 +1984,267 @@
     }
   }
 
+  function attachConnectionEvents(conn, isHost) {
+    if (ONLINE.conn && ONLINE.conn.open) return;
+    ONLINE.conn = conn;
+
+    conn.on('open', function () {
+      cleanupPairingMgr();
+      ONLINE.isOnline = true;
+      ONLINE.isHost = isHost;
+      closeOnlineModal();
+
+      if (isHost) {
+        setOnlineModeUI(true, '🟢 แข่งขัน Real-Time: คุณ (แมค) vs นาเดีย');
+        conn.send({
+          type: 'init',
+          p1Char: STATE.selectedCharId,
+          p1Name: PAIRING_MGR.preferredRole === 'nadia' ? 'นาเดีย (P1)' : 'แมค (P1)'
+        });
+        $('p1NameDisplay').textContent = PAIRING_MGR.preferredRole === 'nadia' ? 'นาเดีย (คุณ)' : 'แมค (คุณ)';
+        $('p2NameDisplay').textContent = PAIRING_MGR.preferredRole === 'nadia' ? 'แมค (P2)' : 'นาเดีย (P2)';
+        Snd.play('whistle');
+        showGoalBanner('แมค & นาเดีย เชื่อมต่อสำเร็จ! ⚽✨', 'เริ่มดวล 1v1 สุดมันส์');
+        setTimeout(hideGoalBanner, 1800);
+        startMatch();
+      } else {
+        if (matchInterval) {
+          clearInterval(matchInterval);
+          matchInterval = null;
+        }
+        STATE.isMatchRunning = true;
+        STATE.isGoalPaused = false;
+        setOnlineModeUI(true, '🟢 เชื่อมต่อสำเร็จ: คุณ (นาเดีย) vs แมค');
+
+        conn.send({
+          type: 'ready',
+          p2Char: STATE.selectedCharId,
+          p2Name: PAIRING_MGR.preferredRole === 'mac' ? 'แมค (P2)' : 'นาเดีย (P2)'
+        });
+
+        $('p1NameDisplay').textContent = PAIRING_MGR.preferredRole === 'mac' ? 'นาเดีย (P1)' : 'แมค (P1)';
+        $('p2NameDisplay').textContent = PAIRING_MGR.preferredRole === 'mac' ? 'แมค (คุณ)' : 'นาเดีย (คุณ)';
+        var p2Char = getP2CharDef();
+        $('p2AvatarDisplay').textContent = p2Char.avatar;
+
+        Snd.play('whistle');
+        showGoalBanner('เชื่อมต่อสำเร็จ! ⚽✨', 'พร้อมดวล 1v1 แมค vs นาเดีย!');
+        setTimeout(hideGoalBanner, 1800);
+      }
+    });
+
+    conn.on('data', function (data) {
+      if (!data) return;
+      if (isHost) {
+        if (data.type === 'ready') {
+          ONLINE.guestCharId = data.p2Char || 'nadia_star';
+          ONLINE.guestName = data.p2Name || 'นาเดีย (P2)';
+          ONLINE.remotePlayerCharId = ONLINE.guestCharId;
+          $('p2NameDisplay').textContent = ONLINE.guestName;
+          $('p2AvatarDisplay').textContent = getP2CharDef().avatar;
+        } else if (data.type === 'input') {
+          if (data.keys) ONLINE.guestKeys = data.keys;
+        } else if (data.type === 'rematch') {
+          $('resultModal').classList.remove('open');
+          if (ONLINE.conn && ONLINE.conn.open) {
+            ONLINE.conn.send({ type: 'start_match' });
+          }
+          startMatch();
+        }
+      } else {
+        if (data.type === 'init') {
+          ONLINE.hostCharId = data.p1Char || 'doji_dog';
+          $('p1AvatarDisplay').textContent = getP1CharDef().avatar;
+        } else if (data.type === 'state') {
+          p1.x = data.p1.x; p1.y = data.p1.y; p1.vx = data.p1.vx; p1.vy = data.p1.vy; p1.facing = data.p1.facing; p1.isKicking = data.p1.isKicking;
+          p1.scaleX = data.p1.scaleX || 1; p1.scaleY = data.p1.scaleY || 1; p1.tilt = data.p1.tilt || 0; p1.bob = data.p1.bob || 0;
+          p2.x = data.p2.x; p2.y = data.p2.y; p2.vx = data.p2.vx; p2.vy = data.p2.vy; p2.facing = data.p2.facing; p2.isKicking = data.p2.isKicking;
+          p2.scaleX = data.p2.scaleX || 1; p2.scaleY = data.p2.scaleY || 1; p2.tilt = data.p2.tilt || 0; p2.bob = data.p2.bob || 0;
+          ball.x = data.ball.x; ball.y = data.ball.y; ball.vx = data.ball.vx; ball.vy = data.ball.vy;
+          ball.rotation = data.ball.rotation; ball.isSuper = data.ball.isSuper; ball.superColor = data.ball.superColor;
+
+          STATE.isMatchRunning = true;
+          STATE.p1Score = data.score1; STATE.p2Score = data.score2;
+          $('p1Score').textContent = data.score1; $('p2Score').textContent = data.score2;
+          STATE.timer = data.timer; $('matchTimer').textContent = data.timer;
+          STATE.p1SuperEnergy = data.p1Super; STATE.p2SuperEnergy = data.p2Super;
+          updateSuperBars();
+        } else if (data.type === 'goal') {
+          STATE.p1Score = data.s1; STATE.p2Score = data.s2;
+          STATE.isGoalPaused = true;
+          $('p1Score').textContent = data.s1; $('p2Score').textContent = data.s2;
+          var who = data.scorer === 2 ? 'นาเดีย (คุณ)' : 'แมค';
+          showGoalBanner(data.scorer === 2 ? 'GOOOOOAL! ⚽🔥' : 'GOAL! ⚽💥', who + ' ยิงประตูได้แล้ว!');
+          Snd.play('goal');
+          setTimeout(function () {
+            hideGoalBanner();
+            STATE.isGoalPaused = false;
+          }, 2200);
+        } else if (data.type === 'start_match') {
+          $('resultModal').classList.remove('open');
+          STATE.p1Score = 0; STATE.p2Score = 0; STATE.timer = 60;
+          $('p1Score').textContent = '0'; $('p2Score').textContent = '0'; $('matchTimer').textContent = '60';
+          STATE.isMatchRunning = true;
+          STATE.isGoalPaused = false;
+          Snd.play('whistle');
+          showGoalBanner('แมตช์ใหม่เริ่มต้น! ⚽⚡', 'ลุยกันต่อเลย!');
+          setTimeout(hideGoalBanner, 1500);
+        } else if (data.type === 'end') {
+          STATE.p1Score = data.s1; STATE.p2Score = data.s2;
+          endMatch();
+        }
+      }
+    });
+
+    conn.on('close', function () {
+      showGoalBanner('⚠️ ขาดการเชื่อมต่อ', 'ผู้เล่นออกจากเกมแล้ว');
+      setTimeout(function () {
+        leaveOnlineMode();
+      }, 2000);
+    });
+
+    conn.on('error', function (err) {
+      console.warn('WebRTC conn error:', err);
+    });
+  }
+
+  // 1-Click Instant Matchmaking for Mac & Nadia
+  function startInstantOnline(preferredRole) {
+    try {
+      localStorage.setItem('nadiaplayground_auth', 'larny');
+      var overlay = $('gateOverlay');
+      if (overlay) overlay.style.display = 'none';
+      document.body.style.overflow = '';
+    } catch (e) {}
+
+    ensurePeerJS(function () {
+      cleanupPairingMgr();
+      PAIRING_MGR.active = true;
+      PAIRING_MGR.preferredRole = preferredRole || 'auto';
+
+      var roleLabel = PAIRING_MGR.preferredRole === 'mac' ? '👑 แมค' : (PAIRING_MGR.preferredRole === 'nadia' ? '💖 นาเดีย' : '⚡ 1-Click');
+      var statusEl = $('instantMatchStatus');
+      if (statusEl) {
+        statusEl.textContent = '⚡ กำลังจับคู่ ' + roleLabel + ' อัตโนมัติ...';
+      }
+
+      var coupleBar = $('coupleQuickBar');
+      if (coupleBar) coupleBar.style.display = 'flex';
+      $('quickDiffSelector') && ($('quickDiffSelector').style.display = 'none');
+      $('tabModeSolo')?.classList.remove('active');
+      $('tabModeOnline')?.classList.add('active');
+
+      var myId = 'doji-' + (PAIRING_MGR.preferredRole === 'mac' ? 'm' : (PAIRING_MGR.preferredRole === 'nadia' ? 'n' : 'x')) + '-' + Math.random().toString(36).substring(2, 9);
+      PAIRING_MGR.myPeerId = myId;
+      ONLINE.roomCode = 'instant-' + PAIRING_MGR.preferredRole;
+
+      if (ONLINE.peer) {
+        try { ONLINE.peer.destroy(); } catch (e) {}
+        ONLINE.peer = null;
+      }
+
+      try {
+        ONLINE.peer = new Peer(myId, {
+          config: ICE_CONFIG,
+          debug: 1
+        });
+      } catch (e) {
+        alert('ไม่สามารถเริ่มระบบจับคู่ออนไลน์ได้: ' + (e.message || e));
+        return;
+      }
+
+      ONLINE.peer.on('connection', function (conn) {
+        attachConnectionEvents(conn, true);
+      });
+
+      ONLINE.peer.on('open', function (id) {
+        if (!PAIRING_MGR.active) return;
+        setOnlineModeUI(true, '⏳ รอเชื่อมต่อ: ' + roleLabel + ' พร้อมแล้ว...');
+
+        function broadcastPresence() {
+          if (!PAIRING_MGR.active || (ONLINE.conn && ONLINE.conn.open)) return;
+          var payload = {
+            senderId: id,
+            role: PAIRING_MGR.preferredRole,
+            charId: STATE.selectedCharId,
+            ts: Date.now()
+          };
+          fetch(PAIR_POST_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }).catch(function () {});
+        }
+
+        function handlePresenceMessage(raw) {
+          if (!PAIRING_MGR.active || (ONLINE.conn && ONLINE.conn.open)) return;
+          var payload = null;
+          try {
+            var outer = typeof raw === 'string' ? JSON.parse(raw) : raw;
+            var inner = outer.message ? JSON.parse(outer.message) : outer;
+            payload = inner;
+          } catch (e) {
+            return;
+          }
+          if (!payload || !payload.senderId || payload.senderId === id) return;
+          if (payload.ts && (Date.now() - payload.ts > 45000)) return;
+
+          var shouldIDial = false;
+          if (PAIRING_MGR.preferredRole === 'nadia' && payload.role === 'mac') {
+            shouldIDial = true;
+          } else if (PAIRING_MGR.preferredRole === 'mac' && payload.role === 'nadia') {
+            shouldIDial = false;
+          } else {
+            shouldIDial = id > payload.senderId;
+          }
+
+          if (shouldIDial && !PAIRING_MGR.hasDialed) {
+            PAIRING_MGR.hasDialed = true;
+            if (statusEl) statusEl.textContent = '💖 กำลังเชื่อมต่อไปยังอีกฝั่ง...';
+            var conn = ONLINE.peer.connect(payload.senderId, { reliable: true });
+            attachConnectionEvents(conn, false);
+          }
+        }
+
+        broadcastPresence();
+        PAIRING_MGR.heartbeatInterval = setInterval(broadcastPresence, 2500);
+
+        fetch(PAIR_POLL_URL)
+          .then(function (res) { return res.text(); })
+          .then(function (text) {
+            if (!text) return;
+            var lines = text.trim().split('\n');
+            lines.forEach(function (line) {
+              if (line) handlePresenceMessage(line);
+            });
+          })
+          .catch(function () {});
+
+        try {
+          if (typeof EventSource !== 'undefined') {
+            var es = new EventSource(PAIR_SSE_URL);
+            PAIRING_MGR.eventSource = es;
+            es.onmessage = function (ev) {
+              handlePresenceMessage(ev.data);
+            };
+          }
+        } catch (e) {}
+      });
+
+      ONLINE.peer.on('error', function (err) {
+        console.warn('Peer error in instant pairing:', err);
+      });
+    });
+  }
+
+  function quickHostForMac() {
+    startInstantOnline('mac');
+  }
+
+  function quickJoinForNadia() {
+    startInstantOnline('nadia');
+  }
+
   function startHost(roomCode) {
     ensurePeerJS(function () {
       var cleanCode = (roomCode || 'mac-nadia').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'mac-nadia';
@@ -1988,7 +2278,6 @@
         $('hostWaitingText').innerHTML = '⏳ กำลังเปิดห้อง <strong>"' + cleanCode + '"</strong>...';
       }
 
-      // Sync window URL
       if (window.history && window.history.replaceState) {
         window.history.replaceState({}, '', fullInviteUrl);
       }
@@ -2001,56 +2290,7 @@
       });
 
       ONLINE.peer.on('connection', function (conn) {
-        ONLINE.conn = conn;
-
-        conn.on('open', function () {
-          ONLINE.isOnline = true;
-          ONLINE.isHost = true;
-          closeOnlineModal();
-          setOnlineModeUI(true, '🟢 แข่งขัน Real-Time: แมค vs นาเดีย');
-
-          // Send welcome with Mac's character
-          conn.send({
-            type: 'init',
-            p1Char: STATE.selectedCharId,
-            p1Name: 'แมค (P1)'
-          });
-
-          Snd.play('whistle');
-          showGoalBanner('นาเดียเข้าห้องแล้ว! ⚽✨', 'เริ่มดวล 1v1 สุดมันส์');
-          setTimeout(hideGoalBanner, 1800);
-          startMatch();
-        });
-
-        conn.on('data', function (data) {
-          if (!data) return;
-          if (data.type === 'ready') {
-            ONLINE.guestCharId = data.p2Char || 'nadia_star';
-            ONLINE.guestName = data.p2Name || 'นาเดีย (P2)';
-            var p2Char = getP2CharDef();
-            $('p2NameDisplay').textContent = ONLINE.guestName;
-            $('p2AvatarDisplay').textContent = p2Char.avatar;
-          } else if (data.type === 'input') {
-            if (data.keys) ONLINE.guestKeys = data.keys;
-          } else if (data.type === 'rematch') {
-            $('resultModal').classList.remove('open');
-            if (ONLINE.conn && ONLINE.conn.open) {
-              ONLINE.conn.send({ type: 'start_match' });
-            }
-            startMatch();
-          }
-        });
-
-        conn.on('close', function () {
-          showGoalBanner('⚠️ นาเดียออกจากเกมแล้ว', 'สลับกลับสู่โหมดเล่นคนเดียว');
-          setTimeout(function () {
-            leaveOnlineMode();
-          }, 2200);
-        });
-
-        conn.on('error', function (err) {
-          console.warn('Host conn error:', err);
-        });
+        attachConnectionEvents(conn, true);
       });
 
       ONLINE.peer.on('error', function (err) {
@@ -2118,96 +2358,7 @@
         var conn = ONLINE.peer.connect(targetId, {
           reliable: true
         });
-        ONLINE.conn = conn;
-
-        conn.on('open', function () {
-          ONLINE.isOnline = true;
-          ONLINE.isHost = false;
-
-          // Clear local solo timer on guest
-          if (matchInterval) {
-            clearInterval(matchInterval);
-            matchInterval = null;
-          }
-          STATE.isMatchRunning = true;
-          STATE.isGoalPaused = false;
-
-          closeOnlineModal();
-          setOnlineModeUI(true, '🟢 เชื่อมต่อสำเร็จ: คุณคือ นาเดีย (P2) ดวลกับแมค');
-
-          // Send ready handshake with Nadia's character
-          conn.send({
-            type: 'ready',
-            p2Char: STATE.selectedCharId,
-            p2Name: 'นาเดีย (P2)'
-          });
-
-          $('p1NameDisplay').textContent = 'แมค (P1)';
-          $('p2NameDisplay').textContent = 'นาเดีย (คุณ)';
-          var p2Char = getP2CharDef();
-          $('p2AvatarDisplay').textContent = p2Char.avatar;
-
-          Snd.play('whistle');
-          showGoalBanner('ยินดีต้อนรับนาเดีย! ⚽✨', 'เชื่อมต่อห้องของแมคสำเร็จ พร้อมลุย 1v1!');
-          setTimeout(hideGoalBanner, 2000);
-        });
-
-        conn.on('data', function (data) {
-          if (!data) return;
-          if (data.type === 'init') {
-            ONLINE.hostCharId = data.p1Char || 'doji_dog';
-            var p1Char = getP1CharDef();
-            $('p1AvatarDisplay').textContent = p1Char.avatar;
-          } else if (data.type === 'state') {
-            p1.x = data.p1.x; p1.y = data.p1.y; p1.vx = data.p1.vx; p1.vy = data.p1.vy; p1.facing = data.p1.facing; p1.isKicking = data.p1.isKicking;
-            p1.scaleX = data.p1.scaleX || 1; p1.scaleY = data.p1.scaleY || 1; p1.tilt = data.p1.tilt || 0; p1.bob = data.p1.bob || 0;
-            p2.x = data.p2.x; p2.y = data.p2.y; p2.vx = data.p2.vx; p2.vy = data.p2.vy; p2.facing = data.p2.facing; p2.isKicking = data.p2.isKicking;
-            p2.scaleX = data.p2.scaleX || 1; p2.scaleY = data.p2.scaleY || 1; p2.tilt = data.p2.tilt || 0; p2.bob = data.p2.bob || 0;
-            ball.x = data.ball.x; ball.y = data.ball.y; ball.vx = data.ball.vx; ball.vy = data.ball.vy;
-            ball.rotation = data.ball.rotation; ball.isSuper = data.ball.isSuper; ball.superColor = data.ball.superColor;
-
-            STATE.isMatchRunning = true;
-            STATE.p1Score = data.score1; STATE.p2Score = data.score2;
-            $('p1Score').textContent = data.score1; $('p2Score').textContent = data.score2;
-            STATE.timer = data.timer; $('matchTimer').textContent = data.timer;
-            STATE.p1SuperEnergy = data.p1Super; STATE.p2SuperEnergy = data.p2Super;
-            updateSuperBars();
-          } else if (data.type === 'goal') {
-            STATE.p1Score = data.s1; STATE.p2Score = data.s2;
-            STATE.isGoalPaused = true;
-            $('p1Score').textContent = data.s1; $('p2Score').textContent = data.s2;
-            var who = data.scorer === 2 ? 'นาเดีย (คุณ)' : 'แมค';
-            showGoalBanner(data.scorer === 2 ? 'GOOOOOAL! ⚽🔥' : 'GOAL! ⚽💥', who + ' ยิงประตูได้แล้ว!');
-            Snd.play('goal');
-            setTimeout(function () {
-              hideGoalBanner();
-              STATE.isGoalPaused = false;
-            }, 2200);
-          } else if (data.type === 'start_match') {
-            $('resultModal').classList.remove('open');
-            STATE.p1Score = 0; STATE.p2Score = 0; STATE.timer = 60;
-            $('p1Score').textContent = '0'; $('p2Score').textContent = '0'; $('matchTimer').textContent = '60';
-            STATE.isMatchRunning = true;
-            STATE.isGoalPaused = false;
-            Snd.play('whistle');
-            showGoalBanner('แมตช์ใหม่เริ่มต้น! ⚽⚡', 'ลุยกันต่อเลย!');
-            setTimeout(hideGoalBanner, 1500);
-          } else if (data.type === 'end') {
-            STATE.p1Score = data.s1; STATE.p2Score = data.s2;
-            endMatch();
-          }
-        });
-
-        conn.on('close', function () {
-          showGoalBanner('⚠️ ขาดการเชื่อมต่อ', 'แมคออกจากห้องแล้ว');
-          setTimeout(function () {
-            leaveOnlineMode();
-          }, 2200);
-        });
-
-        conn.on('error', function (err) {
-          console.warn('Guest conn error:', err);
-        });
+        attachConnectionEvents(conn, false);
       });
 
       ONLINE.peer.on('error', function (err) {
@@ -2248,6 +2399,7 @@
   }
 
   function leaveOnlineMode() {
+    cleanupPairingMgr();
     ONLINE.isOnline = false;
     ONLINE.isHost = false;
     if (ONLINE.conn) {
@@ -2378,6 +2530,28 @@
     btn.addEventListener('click', tryUnlock);
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') tryUnlock();
+    });
+
+    $('btnFastGatePass')?.addEventListener('click', function () {
+      try {
+        localStorage.setItem('nadiaplayground_auth', 'larny');
+      } catch (e) {}
+      overlay.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+      overlay.style.opacity = '0';
+      overlay.style.transform = 'scale(1.04)';
+      document.body.style.overflow = '';
+      setTimeout(function () {
+        overlay.style.display = 'none';
+      }, 250);
+      Snd.play('whistle');
+
+      if (PENDING_ROOM_JOIN) {
+        var targetRoom = PENDING_ROOM_JOIN;
+        PENDING_ROOM_JOIN = null;
+        setTimeout(function () {
+          startJoin(targetRoom, 0);
+        }, 350);
+      }
     });
 
     $('btnRelock')?.addEventListener('click', function () {
