@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Hotel City 🏨✨ — Nadia Playground</title>
+<meta name="description" content="สร้างและบริหารโรงแรมสุดหรูในฝันสไตล์ Hotel City by Playfish! สร้างห้องนอน สระว่ายน้ำ ร้านอาหาร ยิม คลับดิสโก้ ลิฟต์แก้ว แขกน่ารัก และพนักงานทำความสะอาด">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,700&family=Nunito:wght@400;600;700;800;900&family=Prompt:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="hotel.css?v=1">
+</head>
+<body>
+
+<!-- TOP NAVIGATION BAR -->
+<header class="hotel-nav">
+  <div class="nav-brand">
+    <a href="index.html" class="btn-back-hub" title="กลับหน้าหลัก Nadia Playground">⬅ สนามเด็กเล่น</a>
+    <div class="hotel-title-badge">
+      <span class="icon-building">🏨</span>
+      <span class="hotel-brand-name" id="hotelBrandName">Nadia Hotel City</span>
+      <span class="hotel-star-badge" id="hotelStarDisplay">⭐⭐⭐</span>
+    </div>
+  </div>
+
+  <div class="nav-hud">
+    <!-- Star Rating & Popularity -->
+    <div class="hud-pill hud-pop" title="ความนิยมของโรงแรม (Guest Popularity)">
+      <span class="hud-icon">💖</span>
+      <span id="popPercent">96%</span>
+    </div>
+
+    <!-- Hotel Coins -->
+    <div class="hud-pill hud-coins" title="เหรียญโรงแรม (Hotel Coins)">
+      <span class="hud-icon">🪙</span>
+      <span id="hudCoins">1,250</span>
+    </div>
+
+    <!-- Hotel Stars / Cash -->
+    <div class="hud-pill hud-cash" title="ดาวเงินโบนัส (Hotel Stars)">
+      <span class="hud-icon">⭐</span>
+      <span id="hudCash">25</span>
+    </div>
+
+    <!-- Hotel Level & XP -->
+    <div class="hud-level-box" title="เลเวลโรงแรม (Hotel Level)">
+      <div class="level-badge">LV <span id="hudLevel">3</span></div>
+      <div class="xp-bar-track">
+        <div class="xp-bar-fill" id="xpBarFill" style="width: 45%;"></div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <button class="nav-btn" id="btnAudioToggle" title="เปิด/ปิดเสียง">🔊</button>
+    <button class="nav-btn" id="btnDayNightToggle" title="สลับกลางวัน/กลางคืน">🌙</button>
+    <button class="nav-btn btn-lock" id="btnRelockHotel" title="ออกจากระบบ / ล็อกรหัสผ่าน">🔒 ล็อก</button>
+  </div>
+</header>
+
+<!-- MAIN GAME CONTAINER -->
+<div class="hotel-game-viewport" id="gameViewport">
+
+  <!-- SKY BACKGROUND & CLOUDS -->
+  <div class="sky-background" id="skyBg">
+    <div class="sky-sun-moon" id="sunMoon"></div>
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+    <div class="cloud cloud-3"></div>
+  </div>
+
+  <!-- HOTEL BUILDING CONTAINER (SCROLLABLE DOLLHOUSE VIEW) -->
+  <div class="hotel-stage-wrapper">
+    
+    <!-- ROOFTOP & NEON SIGN -->
+    <div class="hotel-rooftop" id="hotelRooftop">
+      <div class="neon-sign-container" id="neonSignBtn" title="แตะเพื่อเปลี่ยนชื่อโรงแรม!">
+        <div class="neon-stars" id="neonStars">⭐⭐⭐⭐⭐</div>
+        <div class="neon-text" id="neonText">NADIA HOTEL CITY</div>
+        <div class="neon-sub">★ LUXURY RESORT &amp; SUITES ★</div>
+      </div>
+      <div class="rooftop-decorations">
+        <div class="flag-pole"></div>
+        <div class="roof-satellite"></div>
+        <div class="roof-lounge-umbrella">⛱️</div>
+      </div>
+    </div>
+
+    <!-- BUILDING FLOORS (RENDERED DYNAMICALLY VIA JS) -->
+    <div class="hotel-floors-stack" id="floorsStack">
+      <!-- Floors rendered from top floor down to ground floor -->
+    </div>
+
+    <!-- GROUND STREET & SIDEWALK LEVEL -->
+    <div class="hotel-street-level" id="streetLevel">
+      <div class="street-sidewalk">
+        <div class="street-lamp lamp-left"></div>
+        <div class="street-tree tree-left">🌳</div>
+        <div class="hotel-marquee-entrance">
+          <div class="marquee-awning">
+            <span class="marquee-text">WELCOME TO NADIA HOTEL</span>
+          </div>
+          <div class="red-carpet"></div>
+        </div>
+        <div class="street-tree tree-right">🌴</div>
+        <div class="street-lamp lamp-right"></div>
+        <div class="taxi-cab" id="taxiCab">🚕</div>
+      </div>
+      <div class="street-roadway">
+        <div class="road-markings"></div>
+      </div>
+    </div>
+
+  </div> <!-- End hotel-stage-wrapper -->
+
+  <!-- FLOATING ACTION CONTROLS / TOOLBAR DOCK -->
+  <div class="hotel-action-dock">
+    <button class="dock-btn btn-build" id="btnOpenBuildShop">
+      <span class="dock-icon">🏗️</span>
+      <span class="dock-label">สร้างห้อง</span>
+    </button>
+    <button class="dock-btn btn-floor" id="btnAddFloor">
+      <span class="dock-icon">⬆️</span>
+      <span class="dock-label">ต่อชั้นเพิ่ม</span>
+    </button>
+    <button class="dock-btn btn-staff" id="btnOpenStaffModal">
+      <span class="dock-icon">🛎️</span>
+      <span class="dock-label">พนักงาน</span>
+    </button>
+    <button class="dock-btn btn-decorate" id="btnOpenDecorModal">
+      <span class="dock-icon">🎨</span>
+      <span class="dock-label">ตกแต่ง</span>
+    </button>
+    <button class="dock-btn btn-clean" id="btnQuickCleanAll">
+      <span class="dock-icon">🧹</span>
+      <span class="dock-label">ทำความสะอาด</span>
+    </button>
+    <button class="dock-btn btn-vip" id="btnInviteVIP">
+      <span class="dock-icon">👑</span>
+      <span class="dock-label">เชิญ VIP</span>
+    </button>
+  </div>
+
+  <!-- FLOATING PARTICLES & CASH TOKENS LAYER -->
+  <div class="fx-canvas-layer" id="fxLayer"></div>
+
+</div> <!-- End hotel-game-viewport -->
+
+<!-- ========================================================================= -->
+<!-- MODAL: BUILD & ROOM SHOP (ร้านค้าห้องพักและสิ่งอำนวยความสะดวก) -->
+<!-- ========================================================================= -->
+<div class="modal-overlay" id="buildShopModal">
+  <div class="modal-card">
+    <button class="modal-close" id="closeBuildShop">&times;</button>
+    <div class="modal-header">
+      <span class="modal-icon">🏗️</span>
+      <h2>ร้านค้าห้องพัก &amp; บริการ (Room Catalog)</h2>
+      <p>เลือกห้องที่ต้องการสร้างเพื่อขยายโรงแรมของคุณให้ใหญ่โตและหรูหราขึ้น!</p>
+    </div>
+
+    <!-- CATEGORY TABS -->
+    <div class="shop-tabs">
+      <button class="shop-tab active" data-cat="bedrooms">🛏️ ห้องนอน (Rooms)</button>
+      <button class="shop-tab" data-cat="leisure">🏊 กิจกรรม &amp; สปอร์ต</button>
+      <button class="shop-tab" data-cat="dining">🍽️ ร้านอาหาร &amp; บาร์</button>
+      <button class="shop-tab" data-cat="entertainment">🎮 บันเทิง &amp; สปา</button>
+    </div>
+
+    <!-- ROOM ITEMS GRID -->
+    <div class="shop-grid" id="shopItemsGrid">
+      <!-- Generated via JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: STAFF MANAGEMENT (จัดการพนักงาน & แม่บ้าน) -->
+<!-- ========================================================================= -->
+<div class="modal-overlay" id="staffModal">
+  <div class="modal-card">
+    <button class="modal-close" id="closeStaffModal">&times;</button>
+    <div class="modal-header">
+      <span class="modal-icon">🛎️</span>
+      <h2>จัดการทีมงานโรงแรม (Hotel Staff)</h2>
+      <p>จ้างพนักงานต้อนรับ แม่บ้านทำความสะอาด และบาร์เทนเดอร์เพื่อบริการแขกแบบ 5 ดาว!</p>
+    </div>
+
+    <div class="staff-list" id="staffListContainer">
+      <!-- Rendered via JS: Concierge, Housekeeper Maid, Lifeguard, Chef, Bartender -->
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: ROOM DECORATOR (วอลเปเปอร์ & ปูพื้นห้อง) -->
+<!-- ========================================================================= -->
+<div class="modal-overlay" id="decorModal">
+  <div class="modal-card">
+    <button class="modal-close" id="closeDecorModal">&times;</button>
+    <div class="modal-header">
+      <span class="modal-icon">🎨</span>
+      <h2>ตกแต่งวอลเปเปอร์ &amp; พื้นห้อง (Decor Studio)</h2>
+      <p>เลือกสไตล์วอลเปเปอร์และลวดลายพรมปูพื้นเพื่อเพิ่มความหรูหราและค่าห้องพัก!</p>
+    </div>
+
+    <div class="decor-section">
+      <h3>🖼️ วอลเปเปอร์ติดผนัง (Wallpapers)</h3>
+      <div class="decor-grid" id="wallpaperGrid"></div>
+    </div>
+
+    <div class="decor-section" style="margin-top:16px">
+      <h3>🪵 พื้นห้อง &amp; พรมปู (Flooring &amp; Carpets)</h3>
+      <div class="decor-grid" id="flooringGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: VIP GUEST VISIT (เชิญเพื่อนและแขก VIP สุดพิเศษ) -->
+<!-- ========================================================================= -->
+<div class="modal-overlay" id="vipModal">
+  <div class="modal-card">
+    <button class="modal-close" id="closeVipModal">&times;</button>
+    <div class="modal-header">
+      <span class="modal-icon">👑</span>
+      <h2>เชิญแขก VIP สุดพิเศษ (Invite VIP Guests)</h2>
+      <p>พาน้องๆ สัตว์เลี้ยงตัวโปรดและ Nadia มาเช็คอินพักผ่อนที่โรงแรม! ทิปหนักพิเศษ 5 เท่า!</p>
+    </div>
+
+    <div class="vip-grid" id="vipGrid">
+      <!-- Generated via JS: Nadia, Boba Seal, Dogney, Sockney, Puffy Cat -->
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: RENAME HOTEL -->
+<!-- ========================================================================= -->
+<div class="modal-overlay" id="renameModal">
+  <div class="modal-card" style="max-width:400px">
+    <button class="modal-close" id="closeRenameModal">&times;</button>
+    <div class="modal-header">
+      <span class="modal-icon">✏️</span>
+      <h2>ตั้งชื่อโรงแรมของคุณ</h2>
+      <p>ตั้งชื่อป้ายไฟนีออนบนดาดฟ้าให้โดดเด่นสะดุดตานักท่องเที่ยวทั่วโลก!</p>
+    </div>
+    <input type="text" class="hotel-input" id="hotelNameInput" maxlength="24" placeholder="ชื่อโรงแรม...">
+    <button class="btn-primary" id="btnSaveHotelName" style="width:100%;margin-top:12px">บันทึกชื่อโรงแรม ✨</button>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- TOAST NOTIFICATION -->
+<!-- ========================================================================= -->
+<div class="hotel-toast" id="hotelToast">
+  <span class="toast-icon" id="toastIcon">✨</span>
+  <span class="toast-msg" id="toastMsg">ยินดีต้อนรับสู่ Hotel City!</span>
+</div>
+
+<!-- ========================================================================= -->
+<!-- PASSWORD GATE: VIP CHECK-IN (PASSWORD: "larny") -->
+<!-- ========================================================================= -->
+<div class="gate-overlay" id="gateOverlay" style="display:none">
+  <div class="gate-box" id="gateBox">
+    <div class="gate-keycard-icon">
+      <svg viewBox="0 0 80 100" style="width:80px;height:100px;filter:drop-shadow(0 8px 16px rgba(0,0,0,0.18))">
+        <defs>
+          <linearGradient id="goldKeyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fff8db"/>
+            <stop offset="50%" stop-color="#ffd166"/>
+            <stop offset="100%" stop-color="#b58300"/>
+          </linearGradient>
+        </defs>
+        <!-- Gold Luxury Keycard -->
+        <rect x="6" y="8" width="68" height="84" rx="10" fill="url(#goldKeyGrad)" stroke="#8c6200" stroke-width="2.5"/>
+        <rect x="14" y="20" width="52" height="12" rx="4" fill="#2d232e"/>
+        <circle cx="24" cy="50" r="8" fill="#ffffff" opacity="0.8"/>
+        <path d="M 40 46 L 60 46 M 40 54 L 54 54" stroke="#2d232e" stroke-width="3" stroke-linecap="round"/>
+        <text x="40" y="82" font-size="9" font-family="'Nunito',sans-serif" font-weight="900" fill="#2d232e" text-anchor="middle">VIP SUITE KEY</text>
+      </svg>
+    </div>
+    
+    <h2 class="gate-title">Hotel City Check-In</h2>
+    <p class="gate-sub">กรุณากรอกรหัสผ่านคีย์การ์ดเพื่อเข้าสู่โรงแรมของคุณ</p>
+    
+    <input type="password" id="gatePass" class="gate-input" placeholder="รหัสผ่าน..." autocomplete="off">
+    <button id="gateBtn" class="gate-btn">🔑 แตะคีย์การ์ดเข้าโรงแรม ✨</button>
+    <div class="gate-err" id="gateErr">❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="hotel.js?v=1"></script>
+</body>
+</html>

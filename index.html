@@ -274,6 +274,67 @@
   <!-- GRID -->
   <main class="grid" id="grid">
 
+    <a class="card" href="hotel.html" data-cat="cute" data-name="Hotel City">
+      <div class="thumb">
+        <svg viewBox="0 0 480 220">
+          <defs>
+            <linearGradient id="hotelSky" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#48cae4"/>
+              <stop offset="60%" stop-color="#90e0ef"/>
+              <stop offset="100%" stop-color="#e2ece9"/>
+            </linearGradient>
+          </defs>
+          <rect width="480" height="220" fill="url(#hotelSky)"/>
+          <!-- Street sidewalk -->
+          <rect y="170" width="480" height="50" fill="#ced4da"/>
+          <rect y="186" width="480" height="34" fill="#495057"/>
+          <!-- Hotel Building Dollhouse Cross-Section -->
+          <rect x="70" y="24" width="340" height="150" rx="8" fill="#fdf6ec" stroke="#4a3b32" stroke-width="4"/>
+          <!-- Rooftop Sign -->
+          <rect x="150" y="8" width="180" height="20" rx="6" fill="#1c2541" stroke="#ffd166" stroke-width="2"/>
+          <text x="240" y="22" font-family="'Fraunces',serif" font-weight="900" font-size="11" fill="#ffd166" text-anchor="middle" letter-spacing="1">HOTEL CITY ★★★★★</text>
+          <!-- Floors Grid Lines -->
+          <line x1="70" y1="74" x2="410" y2="74" stroke="#4a3b32" stroke-width="3"/>
+          <line x1="70" y1="124" x2="410" y2="124" stroke="#4a3b32" stroke-width="3"/>
+          <!-- Elevator Column -->
+          <rect x="220" y="24" width="40" height="150" fill="rgba(162,210,255,0.4)" stroke="#4a3b32" stroke-width="2.5"/>
+          <rect x="224" y="60" width="32" height="48" rx="4" fill="#fff" stroke="#ffd166" stroke-width="2"/>
+          <circle cx="240" cy="74" r="6" fill="#ffccd5"/>
+          <!-- Floor 1 (Lobby): Front Desk & Bellhop -->
+          <rect x="80" y="140" width="60" height="30" rx="4" fill="#6a040f" stroke="#ffd166" stroke-width="1.8"/>
+          <text x="140" y="155" font-size="18">🛎️</text>
+          <!-- Floor 2 (Bedrooms): Beds -->
+          <rect x="85" y="95" width="45" height="26" rx="4" fill="#ff70a6"/>
+          <text x="110" y="112" font-size="14">💤</text>
+          <rect x="340" y="95" width="45" height="26" rx="4" fill="#7209b7"/>
+          <!-- Floor 3 (Rooftop Pool & Disco) -->
+          <rect x="85" y="42" width="65" height="28" rx="6" fill="#48cae4"/>
+          <text x="115" y="58" font-size="14">🏊</text>
+          <text x="350" y="58" font-size="16">🪩</text>
+          <text x="375" y="62" font-size="14">🍸</text>
+          <!-- Guests Walking on Street -->
+          <text x="30" y="180" font-size="20">🚕</text>
+          <text x="175" y="180" font-size="18">🧳</text>
+          <text x="195" y="182" font-size="18">🤵</text>
+          <text x="280" y="182" font-size="18">🌸</text>
+          <text x="305" y="182" font-size="18">🦭</text>
+        </svg>
+        <span class="badge new" style="background:linear-gradient(135deg,#e63946,#ffd166);color:#2d232e">🔥 Playfish Classic</span>
+        <span class="stars"><s>★</s> 5.0</span>
+      </div>
+      <div class="cbody">
+        <div class="crow"><h3>Hotel City 🏨✨</h3></div>
+        <p>The iconic <b>Hotel City</b> by Playfish! สร้างโรงแรมหลายชั้น ลิฟต์แก้ว สระว่ายน้ำ รูฟท็อปบาร์ จ้างแม่บ้านทำความสะอาด &amp; ต้อนรับแขก VIP</p>
+        <div class="meta">
+          <span class="chip">hotel city</span>
+          <span class="chip">playfish classic</span>
+          <span class="chip">tycoon</span>
+          <span class="chip">build &amp; decorate</span>
+        </div>
+        <span class="playbtn" style="background:linear-gradient(135deg,#d90429,#ffd166);color:#2d232e">🏨 Check In!</span>
+      </div>
+    </a>
+
     <a class="card" href="petsociety.html" data-cat="cute" data-name="Pet Society World">
       <div class="thumb">
         <svg viewBox="0 0 480 220">
@@ -879,6 +940,8 @@
   /* render My Records from GameStats */
   (function () {
     var META = {
+      hotel:    { e: '🏨', name: 'Hotel City',    link: 'hotel.html' },
+      petsociety:{ e: '🐾', name: 'Pet Society', link: 'petsociety.html' },
       grooming: { e: '🛁', name: 'Pet Grooming', link: 'grooming.html' },
       seal:   { e: '🦭', name: 'Sealstagram',  link: 'seal.html' },
       dogney: { e: '🐶', name: 'Dogney Pup',   link: 'dogney.html' },
