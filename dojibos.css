@@ -1,0 +1,570 @@
+/* ==========================================================================
+   THE DOJIBOS — 1v1 MINI FOOTBALL STYLESHEET (dojibos.css)
+   ========================================================================== */
+
+:root {
+  --pitch-green: #2b9348;
+  --pitch-light: #55a630;
+  --pitch-border: #ffffff;
+  --gold-accent: #ffd166;
+  --ink-dark: #2d232e;
+  --ink-soft: #6d5b6e;
+  --fire-orange: #ff5400;
+  --super-cyan: #00f5d4;
+  --team-blue: #0077b6;
+  --team-red: #d90429;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Nunito', 'Prompt', sans-serif;
+  color: var(--ink-dark);
+  min-height: 100vh;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow-x: hidden;
+  background: #111a14;
+}
+
+/* ==========================================================================
+   TOP NAVIGATION
+   ========================================================================== */
+.doji-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 2.5px solid #d8f3dc;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.nav-left, .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-back-hub {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+  background: #ffffff;
+  color: var(--ink-soft);
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 2px solid #e9ecef;
+  transition: all 0.2s;
+}
+.btn-back-hub:hover {
+  border-color: #2b9348;
+  color: #2b9348;
+  transform: translateX(-2px);
+}
+
+.doji-title-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+  border: 2px solid #a7d7c5;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.pill-icon { font-size: 1.15rem; }
+.pill-text {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: 1rem;
+  color: #2b9348;
+}
+.pill-sub {
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: #2b9348;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 6px;
+  letter-spacing: 0.4px;
+}
+
+.hud-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-weight: 900;
+  font-size: 0.85rem;
+}
+.hud-coins { border-color: #ffe082; background: #fffdf5; color: #b58300; }
+.hud-trophies { border-color: #ffcc80; background: #fff8f0; color: #e65100; }
+
+.nav-btn {
+  background: #ffffff;
+  border: 2px solid #e9ecef;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: var(--ink-dark);
+  transition: all 0.18s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.nav-btn:hover {
+  border-color: #2b9348;
+  color: #2b9348;
+  transform: translateY(-1px);
+}
+.btn-lock { color: #d90429; border-color: #ffccd5; }
+
+/* ==========================================================================
+   GAME VIEWPORT & JUMBOTRON SCOREBOARD
+   ========================================================================== */
+.doji-viewport {
+  margin-top: 58px;
+  padding: 12px 14px 20px;
+  max-width: 1040px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jumbotron-scoreboard {
+  background: linear-gradient(180deg, #1f2421 0%, #111a14 100%);
+  border: 3px solid #344e41;
+  border-radius: 18px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  color: #ffffff;
+}
+
+.team-side {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+.team-side.team-p2 {
+  justify-content: flex-end;
+}
+.team-avatar {
+  font-size: 32px;
+  width: 48px;
+  height: 48px;
+  background: #2b302c;
+  border: 2.5px solid #ffd166;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.team-p2 .team-avatar { border-color: #00f5d4; }
+
+.team-name {
+  font-weight: 900;
+  font-size: 0.94rem;
+  color: #ffffff;
+  display: block;
+}
+
+.super-bar-track {
+  width: 80px;
+  height: 8px;
+  background: #222;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid #555;
+  margin-top: 4px;
+}
+.super-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ffaa00, #ff0055, #00f5d4);
+  background-size: 200% 100%;
+  animation: superPulse 1.2s linear infinite;
+  transition: width 0.2s ease;
+}
+@keyframes superPulse {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.score-num {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: 2.4rem;
+  color: #ffd166;
+  padding: 0 10px;
+  min-width: 44px;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(255, 209, 102, 0.4);
+}
+.team-p2 .score-num { color: #00f5d4; text-shadow: 0 2px 8px rgba(0, 245, 212, 0.4); }
+
+.match-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #000;
+  border: 2px solid #555;
+  border-radius: 12px;
+  padding: 4px 16px;
+  min-width: 90px;
+}
+.match-timer {
+  font-family: monospace;
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: #ff3366;
+  letter-spacing: 2px;
+}
+.match-period {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #aaa;
+  letter-spacing: 0.8px;
+}
+
+/* ==========================================================================
+   PITCH CANVAS CONTAINER & OVERLAYS
+   ========================================================================== */
+.pitch-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 540px;
+  background: #1e3f20;
+  border: 4px solid #386641;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,0,0,0.3);
+}
+
+#pitchCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* GOAL CELEBRATION BANNER */
+.goal-banner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  background: rgba(17, 26, 20, 0.94);
+  border: 3px solid #ffd166;
+  border-radius: 24px;
+  padding: 16px 36px;
+  text-align: center;
+  z-index: 50;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 25px rgba(255, 209, 102, 0.5);
+  animation: goalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes goalPop {
+  to { transform: translate(-50%, -50%) scale(1); }
+}
+.goal-text {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: 2.2rem;
+  color: #ffd166;
+  letter-spacing: 1px;
+}
+.goal-sub {
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+/* KICKOFF COUNTDOWN */
+.kickoff-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+  background: rgba(0,0,0,0.35);
+  pointer-events: none;
+}
+.kickoff-num {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: 5rem;
+  color: #ffd166;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+  animation: countPing 0.8s ease-out;
+}
+@keyframes countPing {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.9; }
+}
+
+/* ==========================================================================
+   RESPONSIVE ON-SCREEN TOUCH CONTROLS
+   ========================================================================== */
+.touch-controls-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  margin-top: 4px;
+}
+
+.touch-dpad, .touch-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.touch-btn {
+  background: #ffffff;
+  border: 2.5px solid #d8f3dc;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-weight: 900;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: var(--ink-dark);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: transform 0.1s, background 0.1s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.touch-btn:active, .touch-btn.pressed {
+  transform: scale(0.92);
+  background: #e8f5e9;
+}
+.btn-jump { background: #e3f2fd; border-color: #90caf9; color: #0d47a1; font-size: 0.9rem; }
+.btn-kick { background: #fff8e1; border-color: #ffe082; color: #e65100; font-size: 0.9rem; }
+.btn-super {
+  background: linear-gradient(135deg, #ff0055, #ffaa00);
+  color: #fff;
+  border-color: #ffdd00;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 15px rgba(255, 0, 85, 0.4);
+}
+
+/* ==========================================================================
+   MODALS (ROSTER & RESULTS)
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 26, 20, 0.7);
+  backdrop-filter: blur(6px);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+
+.modal-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px;
+  width: 100%;
+  max-width: 620px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: #f1f3f5;
+  border: none;
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-header {
+  text-align: center;
+  margin-bottom: 18px;
+}
+.modal-icon { font-size: 32px; display: block; margin-bottom: 6px; }
+.modal-header h2 { font-family: 'Fraunces', serif; font-size: 1.45rem; color: var(--ink-dark); }
+.modal-header p { font-size: 0.85rem; color: var(--ink-soft); margin-top: 4px; }
+
+/* ROSTER GRID */
+.roster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+.roster-card {
+  background: #f8f9fa;
+  border: 2.5px solid #e9ecef;
+  border-radius: 16px;
+  padding: 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.roster-card:hover {
+  transform: translateY(-3px);
+  border-color: #2b9348;
+  box-shadow: 0 6px 16px rgba(43, 147, 72, 0.2);
+}
+.roster-card.active {
+  border-color: #2b9348;
+  background: #e8f5e9;
+}
+.roster-avatar { font-size: 40px; margin-bottom: 6px; }
+.roster-name { font-weight: 900; font-size: 0.95rem; color: var(--ink-dark); }
+.roster-trait { font-size: 0.76rem; font-weight: 700; color: #2b9348; margin-top: 2px; }
+.roster-super { font-size: 0.72rem; color: var(--ink-soft); margin-top: 4px; }
+
+/* RESULT MODAL */
+.result-badge { font-size: 54px; margin-bottom: 4px; }
+.result-score-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 16px 0;
+}
+.res-num {
+  font-family: 'Fraunces', serif;
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: #2b9348;
+}
+.res-vs { font-size: 1.6rem; color: #adb5bd; font-weight: 900; }
+.result-rewards {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.reward-chip {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-weight: 900;
+  font-size: 0.88rem;
+}
+.result-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #2b9348, #1e7033);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 20px;
+  font-weight: 900;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(43, 147, 72, 0.35);
+  transition: transform 0.18s;
+}
+.btn-primary:hover { transform: scale(1.02); }
+.btn-sec {
+  background: #f1f3f5;
+  color: var(--ink-dark);
+  border: none;
+  border-radius: 14px;
+  padding: 10px 20px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   PASSWORD GATE OVERLAY
+   ========================================================================== */
+.gate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: radial-gradient(circle at center, rgba(30, 63, 32, 0.95) 0%, rgba(10, 20, 12, 0.98) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.gate-box {
+  background: #ffffff;
+  border: 3px solid #ffd166;
+  border-radius: 28px;
+  padding: 36px 32px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.gate-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #2b9348;
+  margin: 12px 0 4px;
+}
+.gate-sub { color: #6d5b6e; font-size: 0.88rem; font-weight: 600; margin-bottom: 20px; }
+.gate-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e0d0da;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 2px;
+  outline: none;
+  background: #fbf5f8;
+  color: var(--ink-dark);
+}
+.gate-input:focus { border-color: #2b9348; background: #fff; }
+.gate-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px;
+  background: linear-gradient(135deg, #2b9348, #1e7033);
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  font-weight: 900;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(43, 147, 72, 0.35);
+}
+.gate-err { color: #d90429; font-size: 0.82rem; font-weight: 800; margin-top: 10px; display: none; }

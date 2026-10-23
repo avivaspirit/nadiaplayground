@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>The Dojibos ⚽🐾 — 1v1 Mini Football</title>
+<meta name="description" content="The Dojibos — เกมฟุตบอลดวลแข้ง 1 ต่อ 1 สุดมันส์ น่ารัก เล่นง่าย ยิงไซด์โค้ง ท่าไม้ตายลูกไฟ และแข่งชิงถ้วยแชมป์!">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Nunito:wght@400;600;700;800;900&family=Prompt:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="dojibos.css?v=1">
+</head>
+<body>
+
+<!-- TOP NAVIGATION BAR -->
+<header class="doji-nav">
+  <div class="nav-left">
+    <a href="index.html" class="btn-back-hub" title="กลับหน้าหลัก Nadia Playground">⬅ สนามเด็กเล่น</a>
+    <div class="doji-title-pill">
+      <span class="pill-icon">⚽</span>
+      <span class="pill-text">The Dojibos</span>
+      <span class="pill-sub">1v1 Mini Football</span>
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <div class="hud-pill hud-coins" title="เหรียญรางวัล (Coins)">
+      <span class="hud-icon">🪙</span>
+      <span id="hudCoins">500</span>
+    </div>
+    <div class="hud-pill hud-trophies" title="ถ้วยรางวัลแชมป์ (Trophies)">
+      <span class="hud-icon">🏆</span>
+      <span id="hudTrophies">0</span>
+    </div>
+    <button class="nav-btn" id="btnAudioToggle" title="เปิด/ปิดเสียง">🔊</button>
+    <button class="nav-btn" id="btnRosterModal" title="เลือกตัวละคร">🐾 เปลี่ยนตัว</button>
+    <button class="nav-btn btn-lock" id="btnRelock" title="ออกจากระบบ / ล็อกรหัสผ่าน">🔒 ล็อก</button>
+  </div>
+</header>
+
+<!-- MAIN GAME VIEWPORT -->
+<div class="doji-viewport" id="dojiViewport">
+
+  <!-- JUMBOTRON SCOREBOARD -->
+  <div class="jumbotron-scoreboard">
+    <div class="team-side team-p1">
+      <div class="team-avatar" id="p1AvatarDisplay">🐶</div>
+      <div class="team-meta">
+        <span class="team-name" id="p1NameDisplay">Doji Dog</span>
+        <div class="super-bar-track" title="พลังท่าไม้ตาย Super Kick">
+          <div class="super-bar-fill" id="p1SuperBar" style="width: 0%;"></div>
+        </div>
+      </div>
+      <span class="score-num" id="p1Score">0</span>
+    </div>
+
+    <div class="match-center">
+      <div class="match-timer" id="matchTimer">60</div>
+      <div class="match-period" id="matchPeriod">1ST HALF</div>
+    </div>
+
+    <div class="team-side team-p2">
+      <span class="score-num" id="p2Score">0</span>
+      <div class="team-meta" style="text-align:right">
+        <span class="team-name" id="p2NameDisplay">Robo-Bibo</span>
+        <div class="super-bar-track" style="margin-left:auto" title="พลังท่าไม้ตาย AI">
+          <div class="super-bar-fill" id="p2SuperBar" style="width: 0%;"></div>
+        </div>
+      </div>
+      <div class="team-avatar" id="p2AvatarDisplay">🤖</div>
+    </div>
+  </div>
+
+  <!-- SOCCER PITCH CANVAS CONTAINER -->
+  <div class="pitch-container" id="pitchContainer">
+    <canvas id="pitchCanvas" width="960" height="540"></canvas>
+
+    <!-- FLOATING CELEBRATION BANNER (GOAL / FULL TIME) -->
+    <div class="goal-banner" id="goalBanner" style="display:none">
+      <div class="goal-text" id="goalBannerText">GOOOOOAL! ⚽🔥</div>
+      <div class="goal-sub" id="goalBannerSub">Doji Dog scores an absolute screamer!</div>
+    </div>
+
+    <!-- COUNTDOWN OVERLAY (3, 2, 1, KICK OFF!) -->
+    <div class="kickoff-overlay" id="kickoffOverlay" style="display:none">
+      <span class="kickoff-num" id="kickoffNum">3</span>
+    </div>
+  </div>
+
+  <!-- ON-SCREEN TOUCH CONTROLS (OPTIMIZED FOR PHONE & TABLET) -->
+  <div class="touch-controls-bar" id="touchControlsBar">
+    <div class="touch-dpad">
+      <button class="touch-btn btn-left" id="touchLeft" aria-label="วิ่งซ้าย">◀</button>
+      <button class="touch-btn btn-right" id="touchRight" aria-label="วิ่งขวา">▶</button>
+    </div>
+    <div class="touch-actions">
+      <button class="touch-btn btn-jump" id="touchJump" aria-label="กระโดด">⬆️ กระโดด</button>
+      <button class="touch-btn btn-kick" id="touchKick" aria-label="เตะบอล">⚽ เตะ</button>
+      <button class="touch-btn btn-super" id="touchSuper" aria-label="ท่าไม้ตาย">⚡ ไม้ตาย!</button>
+    </div>
+  </div>
+
+</div> <!-- End doji-viewport -->
+
+<!-- ========================================================================= -->
+<!-- MODAL: CHARACTER ROSTER (เลือกตัวละครนักเตะ The Dojibos) -->
+<!-- ========================================================================= -->
+<div class="modal-overlay" id="rosterModal">
+  <div class="modal-card">
+    <button class="modal-close" id="closeRosterModal">&times;</button>
+    <div class="modal-header">
+      <span class="modal-icon">🐾</span>
+      <h2>เลือกนักเตะ The Dojibos ของคุณ</h2>
+      <p>เลือกคาแรคเตอร์ตัวโปรดที่มีสไตล์การเล่นและท่าไม้ตายสุดเฉพาะตัว!</p>
+    </div>
+
+    <div class="roster-grid" id="rosterGrid">
+      <!-- Rendered dynamically by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: MATCH RESULT (ผลการแข่งขัน & รับรางวัล) -->
+<!-- ========================================================================= -->
+<div class="modal-overlay" id="resultModal">
+  <div class="modal-card" style="max-width:440px;text-align:center">
+    <div class="result-badge" id="resultBadge">🏆</div>
+    <h2 id="resultTitle" style="font-family:'Fraunces',serif;font-size:1.8rem;margin:8px 0 4px">ชัยชนะอันยอดเยี่ยม!</h2>
+    <p id="resultSub" style="color:var(--ink-soft);font-size:0.9rem">คุณเอาชนะแมตช์นี้ได้อย่างสมศักดิ์ศรี!</p>
+
+    <div class="result-score-box">
+      <span class="res-num" id="resP1Score">3</span>
+      <span class="res-vs">-</span>
+      <span class="res-num" id="resP2Score">1</span>
+    </div>
+
+    <div class="result-rewards">
+      <div class="reward-chip">🪙 <span id="rewardCoins">+150</span> เหรียญ</div>
+      <div class="reward-chip">🏆 <span id="rewardTrophies">+1</span> ถ้วยแชมป์</div>
+    </div>
+
+    <div class="result-buttons">
+      <button class="btn-primary" id="btnPlayAgain">⚽ แข่งอีกแมตช์ (Rematch)</button>
+      <button class="btn-sec" id="btnNextOpponent">🥊 คู่แข่งคนต่อไป</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- PASSWORD GATE: VIP CHECK-IN (PASSWORD: "larny") -->
+<!-- ========================================================================= -->
+<div class="gate-overlay" id="gateOverlay" style="display:none">
+  <div class="gate-box" id="gateBox">
+    <div class="gate-ball-icon">
+      <svg viewBox="0 0 100 100" style="width:80px;height:80px;filter:drop-shadow(0 8px 16px rgba(0,0,0,0.18))">
+        <circle cx="50" cy="50" r="44" fill="#ffffff" stroke="#2d232e" stroke-width="4"/>
+        <polygon points="50,22 68,36 61,58 39,58 32,36" fill="#2d232e"/>
+        <line x1="50" y1="22" x2="50" y2="6" stroke="#2d232e" stroke-width="3"/>
+        <line x1="68" y1="36" x2="88" y2="28" stroke="#2d232e" stroke-width="3"/>
+        <line x1="61" y1="58" x2="80" y2="76" stroke="#2d232e" stroke-width="3"/>
+        <line x1="39" y1="58" x2="20" y2="76" stroke="#2d232e" stroke-width="3"/>
+        <line x1="32" y1="36" x2="12" y2="28" stroke="#2d232e" stroke-width="3"/>
+      </svg>
+    </div>
+    
+    <h2 class="gate-title">The Dojibos Stadium</h2>
+    <p class="gate-sub">กรุณากรอกรหัสผ่านเพื่อลงสู่สนามการแข่งขันฟุตบอล</p>
+    
+    <input type="password" id="gatePass" class="gate-input" placeholder="รหัสผ่าน..." autocomplete="off">
+    <button id="gateBtn" class="gate-btn">⚽ เข้าสู่สนามฟุตบอล ✨</button>
+    <div class="gate-err" id="gateErr">❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="dojibos.js?v=1"></script>
+</body>
+</html>
