@@ -239,6 +239,15 @@
      ========================================================================== */
   var keys = { left: false, right: false, up: false, down: false, action: false, superAction: false };
 
+  // ==========================================================================
+  // JUICY SCREEN SHAKE & FX SYSTEM
+  // ==========================================================================
+  var shakeTimer = 0, shakePower = 0;
+  function triggerScreenShake(power, frames) {
+    shakePower = power || 6;
+    shakeTimer = frames || 8;
+  }
+
   function setupInputs() {
     window.addEventListener('keydown', function (e) {
       var k = e.key;
@@ -409,52 +418,67 @@
     else handleActionPress();
   }
 
-  /* ==========================================================================
-     5. SPORT 1: 🎾 DOGNEY TENNIS (SATISFYING 1V1 RALLIES, LOBS & SMASHES)
+      /* ==========================================================================
+     5. SPORT 1: 🎾 DOGNEY TENNIS (VOLLEYS, 2D MOVEMENT, OUT-OF-BOUNDS & SMASHES)
      ========================================================================== */
   var Tennis = (function () {
     var p1Score = 0, p2Score = 0;
     var rallyCount = 0;
     var state = 'serve'; // 'serve' | 'rally' | 'scored'
+    var server = 'p1'; // 'p1' | 'p2'
     var serveTiming = 50, serveDir = 1;
+    var aiServeTimer = 0;
 
-    // Ball with z-lob height and court bounce
     var ball = {
       x: 480, y: 390, z: 25,
       vx: 0, vy: 0, vz: 0,
       r: 11,
       isSmash: false,
       isSmashChance: false,
+      lastHitter: 'p1',
       trail: []
     };
 
-    var p1 = { x: 480, y: 440, vx: 0, swingTimer: 0 };
-    var p2 = { x: 480, y: 155, vx: 0, swingTimer: 0 };
+    var p1 = { x: 480, y: 430, vx: 0, vy: 0, swingTimer: 0 };
+    var p2 = { x: 480, y: 155, vx: 0, vy: 0, swingTimer: 0 };
 
     function initSport() {
-      p1Score = 0; p2Score = 0; rallyCount = 0;
+      p1Score = 0; p2Score = 0; rallyCount = 0; server = 'p1';
       updateScores();
       $('btnActionLeft').textContent = '◀ ซ้าย';
       $('btnActionRight').textContent = 'ขวา ▶';
+      $('btnActionUp').textContent = '▲ วิ่งหน้า (Volley)';
+      $('btnActionDown').textContent = '▼ ถอยหลัง';
       $('btnActionLeft').style.display = 'inline-flex';
       $('btnActionRight').style.display = 'inline-flex';
-      $('btnActionUp').style.display = 'none';
-      $('btnActionDown').style.display = 'none';
-      $('btnMainAction').textContent = '🎾 เสิร์ฟ / หวดลูก (Space)';
+      $('btnActionUp').style.display = 'inline-flex';
+      $('btnActionDown').style.display = 'inline-flex';
+      $('btnMainAction').textContent = '🎾 หวดลูก / เสิร์ฟ (Space)';
       $('btnSubAction').textContent = '⚡ กระโดดสแมช (W)';
-      $('hintText').textContent = '💡 เทคนิค: รอจังหวะลูกตกลงถึงเป้าบนพื้นคอร์ด [ 🎯 ] แล้วกด Spacebar เพื่อหวดลูกโต้กลับ!';
+      $('hintText').textContent = '💡 เทคนิค: ขยับหน้า-หลังเพื่อดักตีวอลเลย์หน้าเน็ต หรือถอยตั้งรับที่เส้นเบสไลน์!';
       resetServe();
     }
 
     function resetServe() {
       state = 'serve';
-      ball.x = p1.x; ball.y = 405; ball.z = 25;
+      rallyCount = 0;
       ball.vx = 0; ball.vy = 0; ball.vz = 0;
       ball.isSmash = false;
       ball.isSmashChance = false;
       ball.trail = [];
-      $('hudSubStatus').textContent = '🎾 กด Spacebar ในจังหวะหลอดพลังสีเขียวเพื่อเสิร์ฟ!';
-      $('powerMeterBox').style.display = 'block';
+
+      if (server === 'p1') {
+        ball.x = p1.x; ball.y = p1.y - 30; ball.z = 25;
+        ball.lastHitter = 'p1';
+        $('hudSubStatus').textContent = '🎾 ตาคุณเสิร์ฟ! กด Spacebar ในจังหวะหลอดสีเขียว!';
+        $('powerMeterBox').style.display = 'block';
+      } else {
+        ball.x = p2.x; ball.y = p2.y + 30; ball.z = 25;
+        ball.lastHitter = 'p2';
+        $('hudSubStatus').textContent = '🎾 Robo-Bot กำลังจะเสิร์ฟ! เตรียมตัวรับลูก!';
+        $('powerMeterBox').style.display = 'none';
+        aiServeTimer = 55; // AI serves after 0.9s
+      }
     }
 
     function updateScores() {
@@ -466,7 +490,7 @@
     }
 
     function onAction() {
-      if (state === 'serve') {
+      if (state === 'serve' && server === 'p1') {
         state = 'rally';
         $('powerMeterBox').style.display = 'none';
         var char = getSelectedChar();
@@ -475,56 +499,63 @@
         updateScores();
 
         if (perfect) {
-          showBanner('NICE SERVE! ⚡', 'เสิร์ฟสายฟ้าความเร็วสูง!');
+          showBanner('NICE SERVE! ⚡', 'เสิร์ฟสายฟ้าพุ่งลงมุม!');
           Snd.play('tennis_smash');
+          triggerScreenShake(5, 8);
           ball.isSmash = true;
-          ball.vx = (keys.left ? -3.2 : (keys.right ? 3.2 : (Math.random() - 0.5) * 1.8));
-          ball.vy = -5.8;
-          ball.vz = 6.2;
+          ball.vx = (keys.left ? -3.4 : (keys.right ? 3.4 : (Math.random() - 0.5) * 1.8));
+          ball.vy = -6.0;
+          ball.vz = 6.4;
         } else {
           Snd.play('tennis_hit');
           ball.isSmash = false;
           ball.vx = (keys.left ? -2.2 : (keys.right ? 2.2 : (Math.random() - 0.5) * 1.2));
           ball.vy = -5.0;
-          ball.vz = 5.5;
+          ball.vz = 5.6;
         }
+        ball.lastHitter = 'p1';
         p1.swingTimer = 14;
       } else if (state === 'rally') {
         p1.swingTimer = 14;
 
-        // Comfortable, readable hit window
-        var inYRange = (ball.y >= 340 && ball.y <= 475);
-        var inXRange = Math.abs(ball.x - p1.x) < 130;
+        // 2D Volley & Baseline interception
+        var isNearNet = p1.y < 370; // Volley position!
+        var inYRange = (ball.y >= (p1.y - 70) && ball.y <= (p1.y + 50));
+        var inXRange = Math.abs(ball.x - p1.x) < 135;
 
         if (inYRange && inXRange && ball.vy > 0) {
           rallyCount++;
           updateScores();
           var char = getSelectedChar();
-          var timingDiff = Math.abs(ball.y - 425);
-          var isPerfect = timingDiff < 22;
+          var timingDiff = Math.abs(ball.y - (p1.y - 15));
+          var isPerfect = timingDiff < 25;
 
-          p1.x += (ball.x - p1.x) * 0.42;
-          var aimX = keys.left ? -3.6 : (keys.right ? 3.6 : ((ball.x - p1.x) * 0.08));
+          p1.x += (ball.x - p1.x) * 0.4;
+          var aimX = keys.left ? -3.8 : (keys.right ? 3.8 : ((ball.x - p1.x) * 0.08));
 
-          if (ball.isSmashChance) {
+          ball.lastHitter = 'p1';
+
+          if (ball.isSmashChance || (isNearNet && ball.z > 15)) {
+            // SMASH / VOLLEY SPIKE!
             ball.isSmash = true;
             ball.isSmashChance = false;
             ball.vx = aimX * 1.35;
-            ball.vy = -6.8 * char.power;
-            ball.vz = 3.8;
+            ball.vy = -7.2 * char.power;
+            ball.vz = 3.6;
             Snd.play('tennis_smash');
-            showBanner('SMASH! 🔥', char.name + ' กระโดดสแมชเต็มแรง!');
+            triggerScreenShake(7, 10);
+            showBanner(isNearNet ? 'NET VOLLEY! ⚡' : 'SMASH! 🔥', char.name + ' อัดลูกหน้าเน็ตเต็มแรง!');
           } else if (isPerfect) {
             ball.isSmash = false;
             ball.vx = aimX * 1.15;
-            ball.vy = -5.6 * char.power;
+            ball.vy = -5.8 * char.power;
             ball.vz = 5.8;
             Snd.play('tennis_hit');
-            showBanner('GREAT RETURN! 🎾✨', 'หวดลูกโค้งลงมุมคอร์ด!');
+            showBanner('GREAT SHOT! 🎾✨', 'ลูกพุ่งไซด์โค้งลงมุมคอร์ด!');
           } else {
             ball.isSmash = false;
             ball.vx = aimX;
-            ball.vy = -4.9;
+            ball.vy = -5.0;
             ball.vz = 6.0;
             Snd.play('tennis_hit');
           }
@@ -533,14 +564,15 @@
     }
 
     function onSuper() {
-      if (state === 'rally' && ball.vy > 0 && ball.y >= 320 && ball.y <= 460) {
+      if (state === 'rally' && ball.vy > 0 && ball.y >= 300 && ball.y <= 470) {
         ball.isSmashChance = true;
       }
       onAction();
     }
 
     function update() {
-      if (state === 'serve') {
+      // P1 Serve Meter
+      if (state === 'serve' && server === 'p1') {
         serveTiming += serveDir * 2.2;
         if (serveTiming > 100) { serveTiming = 100; serveDir = -1; }
         if (serveTiming < 0) { serveTiming = 0; serveDir = 1; }
@@ -548,12 +580,33 @@
         if (mBar) mBar.style.width = serveTiming + '%';
       }
 
+      // AI Serve Countdown
+      if (state === 'serve' && server === 'p2') {
+        aiServeTimer--;
+        if (aiServeTimer <= 0) {
+          state = 'rally';
+          rallyCount = 1;
+          updateScores();
+          p2.swingTimer = 14;
+          ball.lastHitter = 'p2';
+          ball.vx = (Math.random() > 0.5 ? 2.4 : -2.4);
+          ball.vy = 5.2;
+          ball.vz = 6.0;
+          Snd.play('tennis_hit');
+          showBanner('AI SERVE! 🎾', 'Robo-Bot เสิร์ฟลูกข้ามเน็ตมาแล้ว!');
+        }
+      }
+
+      // P1 2D Court Movement (Left/Right + Forward Net Rush / Back Baseline)
       var curChar = getSelectedChar();
       var speed = 7.0 * curChar.speed;
       if (keys.left) p1.x -= speed;
       if (keys.right) p1.x += speed;
-      if (p1.x < 150) p1.x = 150;
-      if (p1.x > 810) p1.x = 810;
+      if (keys.up) p1.y -= speed * 0.75;
+      if (keys.down) p1.y += speed * 0.75;
+
+      p1.x = Math.max(160, Math.min(800, p1.x));
+      p1.y = Math.max(320, Math.min(460, p1.y)); // Can rush forward to net!
 
       if (p1.swingTimer > 0) p1.swingTimer--;
       if (p2.swingTimer > 0) p2.swingTimer--;
@@ -565,33 +618,50 @@
         ball.z += ball.vz;
         ball.vz -= 0.22;
 
+        // Bounce on court
         if (ball.z <= 0) {
           ball.z = 0;
           ball.vz = -ball.vz * 0.72;
           if (Math.abs(ball.vz) < 0.6) ball.vz = 0;
           Snd.play('tennis_hit');
-        }
 
-        if (ball.x < 130) { ball.x = 130; ball.vx = Math.abs(ball.vx) * 0.9; }
-        if (ball.x > 830) { ball.x = 830; ball.vx = -Math.abs(ball.vx) * 0.9; }
+          // True Out-of-Bounds Detection! Singles sidelines are at 210 and 750
+          if (ball.x < 195 || ball.x > 765) {
+            state = 'scored';
+            Snd.play('whistle');
+            if (ball.lastHitter === 'p1') {
+              p2Score++;
+              showBanner('OUT! 🎾💥', 'ลูกออกข้าง! Robo-Bot ได้แต้ม!');
+            } else {
+              p1Score++;
+              showBanner('OUT! 🎾✨', 'คู่แข่งตีออกข้าง! คุณได้แต้ม!');
+            }
+            updateScores();
+            checkWin();
+            return;
+          }
+        }
 
         ball.trail.push({ x: ball.x, y: ball.y - ball.z, r: ball.r * (1 + ball.z * 0.012), isSmash: ball.isSmash });
         if (ball.trail.length > 8) ball.trail.shift();
 
-        var p2TargetX = ball.x + (Math.sin(Date.now() * 0.005) * 20);
+        // AI (P2 - Robo-Bot) movement
+        var p2TargetX = ball.x + (Math.sin(Date.now() * 0.005) * 15);
         if (p2.x < p2TargetX - 8) p2.x += 5.2;
         else if (p2.x > p2TargetX + 8) p2.x -= 5.2;
 
-        if (ball.y < 195 && ball.vy < 0) {
+        // P2 return
+        if (ball.y < 200 && ball.vy < 0) {
           var distP2 = Math.hypot(ball.x - p2.x, ball.y - p2.y);
           if (distP2 < 95) {
             p2.swingTimer = 12;
             rallyCount++;
             updateScores();
+            ball.lastHitter = 'p2';
 
             var p2AimX = (p2.x > 480 ? -2.4 : 2.4) + (Math.random() - 0.5) * 1.6;
             ball.vx = p2AimX;
-            ball.vy = 4.8 + Math.random() * 0.8;
+            ball.vy = 4.9 + Math.random() * 0.7;
             ball.vz = 5.8;
             ball.isSmash = false;
             Snd.play('tennis_hit');
@@ -604,7 +674,8 @@
           }
         }
 
-        if (ball.y < 70) {
+        // Baseline Out / Point Check
+        if (ball.y < 65) {
           state = 'scored';
           p1Score++;
           updateScores();
@@ -616,20 +687,25 @@
           p2Score++;
           updateScores();
           Snd.play('whistle');
-          showBanner('OUT! 🎾💥', 'Robo-Bot ได้แต้ม!');
+          showBanner('POINT! 🎾💥', 'Robo-Bot ได้แต้ม!');
           checkWin();
         }
       }
     }
 
     function checkWin() {
+      // Alternate server each point
+      server = (server === 'p1') ? 'p2' : 'p1';
+
       if (p1Score >= 3 || p2Score >= 3) {
         var won = p1Score > p2Score;
         setTimeout(function () {
           endSportMatch(won, p1Score + ' - ' + p2Score + ' (Rallies: ' + rallyCount + ')', 'Grand Slam Tennis 🎾');
         }, 2200);
       } else {
-        setTimeout(resetServe, 1800);
+        setTimeout(function () {
+          resetServe();
+        }, 1800);
       }
     }
 
@@ -637,27 +713,33 @@
       c.fillStyle = '#0f172a';
       c.fillRect(0, 0, 960, 540);
 
+      // Outer Court Grass
       c.fillStyle = '#065f46';
       c.fillRect(70, 40, 820, 470);
 
+      // Inner Tennis Court (US Open Royal Blue)
       c.fillStyle = '#1e40af';
       c.fillRect(150, 70, 660, 410);
 
+      // White Tennis Lines
       c.strokeStyle = '#ffffff';
       c.lineWidth = 3.5;
       c.strokeRect(150, 70, 660, 410);
 
+      // Singles Sidelines (210 & 750)
       c.beginPath();
       c.moveTo(210, 70); c.lineTo(210, 480);
       c.moveTo(750, 70); c.lineTo(750, 480);
       c.stroke();
 
+      // Service Boxes
       c.beginPath();
       c.moveTo(210, 175); c.lineTo(750, 175);
       c.moveTo(210, 375); c.lineTo(750, 375);
       c.moveTo(480, 175); c.lineTo(480, 375);
       c.stroke();
 
+      // Net
       c.strokeStyle = 'rgba(255, 255, 255, 0.45)';
       c.lineWidth = 1.5;
       for (var ny = 265; ny <= 285; ny += 6) {
@@ -674,7 +756,7 @@
       c.fillRect(124, 255, 8, 32);
       c.fillRect(828, 255, 8, 32);
 
-      // Pulsing Landing Target
+      // Landing Target
       if (state === 'rally' && ball.vy > 0 && ball.y < 460) {
         var targetY = Math.min(450, ball.y + ball.vy * 16);
         var pulse = (Math.sin(Date.now() * 0.015) + 1) * 0.5;
@@ -765,11 +847,12 @@
     };
   })();
 
-/* ==========================================================================
-     6. SPORT 2: 🎳 DOGNEY BOWLING (10 PINS SCATTER PHYSICS)
+  /* ==========================================================================
+     6. SPORT 2: 🎳 DOGNEY BOWLING (STRIKES, SPARES, SPIN HOOK & 2-ROLL FRAMES)
      ========================================================================== */
   var Bowling = (function () {
     var frame = 1, totalScore = 0;
+    var rollInFrame = 1; // 1 or 2
     var state = 'position'; // 'position' | 'aim' | 'roll' | 'reset'
     var ball = { x: 480, y: 470, vx: 0, vy: 0, r: 16, spin: 0 };
     var aimAngle = 0, aimDir = 1;
@@ -801,39 +884,50 @@
     }
 
     function initSport() {
-      frame = 1; totalScore = 0;
+      frame = 1; totalScore = 0; rollInFrame = 1;
       initPins();
       resetBall();
+      $('btnActionLeft').textContent = '◀ เล็งซ้าย / สปิน';
+      $('btnActionRight').textContent = 'เล็งขวา / สปิน ▶';
+      $('btnActionUp').style.display = 'none';
+      $('btnActionDown').style.display = 'none';
+      $('btnActionLeft').style.display = 'inline-flex';
+      $('btnActionRight').style.display = 'inline-flex';
       $('btnMainAction').textContent = '🎳 กลิ้งลูกโบว์ลิ่ง (Space)';
-      $('btnSubAction').textContent = '🎯 ล็อคเป้าหมาย';
-      $('hintText').textContent = '💡 เทคนิค: เล็งลูกให้อยู่กึ่งกลาง หรือใส่สปินเบี่ยงเข้าซอกพิน 1 กับ 3 เพื่อทำ Strike!';
+      $('btnSubAction').textContent = '🔄 เล็งใหม่';
+      $('hintText').textContent = '💡 เทคนิค: ขณะลูกกลิ้ง ให้กดซ้าย/ขวาค้างเพื่อปั่นสปินโค้ง (Hook) เข้าซอกพิน 1 กับ 3!';
       updateHud();
     }
 
     function updateHud() {
-      $('p1ScoreDisplay').textContent = totalScore;
-      $('p2ScoreDisplay').textContent = 'เฟรม ' + frame + '/5';
+      $('p1ScoreDisplay').textContent = totalScore + ' แต้ม';
+      $('p2ScoreDisplay').textContent = 'เฟรม ' + frame + '/5 (ครั้งที่ ' + rollInFrame + ')';
     }
 
     function resetBall() {
       state = 'position';
       ball.x = 480; ball.y = 470; ball.vx = 0; ball.vy = 0; ball.spin = 0;
       aimAngle = 0;
-      $('hudSubStatus').textContent = '🎳 ขยับลูกซ้าย-ขวา แล้วกด Space เพื่อเล็งมุม!';
+      $('hudSubStatus').textContent = '🎳 ขยับลูกซ้าย-ขวา แล้วกด Space เพื่อเล็งมุมปล่อยลูก!';
     }
 
     function onAction() {
       if (state === 'position') {
         state = 'aim';
-        $('hudSubStatus').textContent = '🎯 ดูมุมเล็ง แล้วกด Space เพื่อปล่อยลูก!';
+        $('hudSubStatus').textContent = '🎯 ดูมุมลูกศรเล็ง แล้วกด Space อีกครั้งเพื่อปล่อยลูก!';
       } else if (state === 'aim') {
         state = 'roll';
         var char = getSelectedChar();
-        ball.vx = Math.sin(aimAngle) * 9 * char.power;
-        ball.vy = -12 * char.power;
+        ball.vx = Math.sin(aimAngle) * 8.5 * char.power;
+        ball.vy = -11.5 * char.power;
+        ball.spin = 0;
         Snd.play('bowling_roll');
-        $('hudSubStatus').textContent = '🎳 ลูกกำลังพุ่งเข้าหาพิน...';
+        $('hudSubStatus').textContent = '🎳 ลูกกำลังพุ่ง! กดซ้าย/ขวาเพื่อปั่นสปินโค้ง (Hook)!';
       }
+    }
+
+    function onSuper() {
+      resetBall();
     }
 
     function update() {
@@ -847,6 +941,10 @@
         if (aimAngle > 0.35) { aimAngle = 0.35; aimDir = -1; }
         if (aimAngle < -0.35) { aimAngle = -0.35; aimDir = 1; }
       } else if (state === 'roll') {
+        // Spin hook curve!
+        if (keys.left) { ball.vx -= 0.10; ball.spin -= 0.12; }
+        if (keys.right) { ball.vx += 0.10; ball.spin += 0.12; }
+
         ball.x += ball.vx;
         ball.y += ball.vy;
 
@@ -858,167 +956,216 @@
 
         // Collision with pins
         var hitAny = false;
+        var hitCount = 0;
         pins.forEach(function (pin) {
           if (pin.isStanding) {
             var dist = Math.hypot(ball.x - pin.x, ball.y - pin.y);
             if (dist < ball.r + pin.r) {
               pin.isStanding = false;
-              pin.vx = ball.vx * 0.7 + (Math.random() - 0.5) * 6;
-              pin.vy = ball.vy * 0.7 - Math.random() * 4;
+              pin.vx = ball.vx * 0.75 + (Math.random() - 0.5) * 7;
+              pin.vy = ball.vy * 0.75 - Math.random() * 5;
               hitAny = true;
+              hitCount++;
             }
           }
         });
 
         if (hitAny) {
           Snd.play('bowling_pin');
+          triggerScreenShake(Math.min(8, hitCount * 1.5), 10);
         }
 
-        // Pins knocking other pins
+        // Pin-to-pin collisions
         pins.forEach(function (p1) {
-          if (!p1.isStanding && (Math.abs(p1.vx) > 0.5 || Math.abs(p1.vy) > 0.5)) {
+          if (!p1.isStanding && (Math.abs(p1.vx) > 0.4 || Math.abs(p1.vy) > 0.4)) {
             pins.forEach(function (p2) {
               if (p2.isStanding) {
                 var d = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-                if (d < 22) {
+                if (d < 24) {
                   p2.isStanding = false;
-                  p2.vx = p1.vx * 0.6 + (Math.random() - 0.5) * 4;
-                  p2.vy = p1.vy * 0.6 - Math.random() * 3;
+                  p2.vx = p1.vx * 0.65 + (Math.random() - 0.5) * 5;
+                  p2.vy = p1.vy * 0.65 - Math.random() * 4;
+                  Snd.play('bowling_pin');
                 }
               }
             });
           }
         });
 
-        // Pin physics updates
+        // Pin physics
         pins.forEach(function (p) {
           if (!p.isStanding) {
             p.x += p.vx; p.y += p.vy;
-            p.vx *= 0.9; p.vy *= 0.9;
-            p.rot += 0.1;
+            p.vx *= 0.88; p.vy *= 0.88;
+            p.rot += 0.12;
           }
         });
 
-        // End roll
+        // End of Roll
         if (ball.y < 40) {
           state = 'reset';
           var downCount = pins.filter(function (p) { return !p.isStanding; }).length;
-          var frameScore = downCount * 10;
-          totalScore += frameScore;
-          updateHud();
+          var standingCount = pins.filter(function (p) { return p.isStanding; }).length;
 
-          if (downCount === 10) {
-            Snd.play('strike');
-            showBanner('STRIKE! 🎳🔥', 'สไตรค์สมบูรณ์แบบ ล้มทั้ง 10 พิน!');
-          } else {
-            showBanner(downCount + ' PINS!', 'ล้มไป ' + downCount + ' พิน ได้ ' + frameScore + ' แต้ม!');
-          }
-
-          setTimeout(function () {
-            frame++;
-            if (frame > 5) {
-              endSportMatch(totalScore >= 250, totalScore + ' แต้ม', 'Bowling King 🎳');
+          if (rollInFrame === 1) {
+            // First roll in frame
+            if (downCount === 10) {
+              // STRIKE!
+              totalScore += 30;
+              updateHud();
+              Snd.play('strike');
+              triggerScreenShake(10, 16);
+              showBanner('STRIKE! 🎳🔥', 'สไตรค์สมบูรณ์แบบ 10 พินรวด!');
+              setTimeout(function () {
+                frame++;
+                rollInFrame = 1;
+                checkBowlingEnd();
+              }, 2200);
             } else {
-              initPins();
-              resetBall();
+              // Open frame for roll 2 (SPARE CHANCE)
+              var pointsFirst = downCount * 2;
+              totalScore += pointsFirst;
+              updateHud();
+              showBanner(downCount + ' PINS!', 'ล้ม ' + downCount + ' พิน! โอกาสเก็บ SPARE ครั้งที่ 2!');
+              setTimeout(function () {
+                // Clear fallen pins, keep standing ones!
+                pins = pins.filter(function (p) { return p.isStanding; });
+                rollInFrame = 2;
+                resetBall();
+                updateHud();
+              }, 2000);
             }
-          }, 2000);
+          } else {
+            // Second roll in frame (Spare check)
+            var spareSuccess = (standingCount === 0);
+            if (spareSuccess) {
+              totalScore += 20;
+              updateHud();
+              Snd.play('strike');
+              triggerScreenShake(8, 14);
+              showBanner('SPARE! 🎳✨', 'เก็บสแปร์สำเร็จงดงาม!');
+            } else {
+              totalScore += (pins.length - standingCount) * 2;
+              updateHud();
+              showBanner('FRAME COMPLETE!', 'จบเฟรมที่ ' + frame);
+            }
+
+            setTimeout(function () {
+              frame++;
+              rollInFrame = 1;
+              checkBowlingEnd();
+            }, 2200);
+          }
         }
       }
     }
 
+    function checkBowlingEnd() {
+      if (frame > 5) {
+        endSportMatch(totalScore >= 70, totalScore + ' แต้ม', 'Bowling Champion 🎳');
+      } else {
+        initPins();
+        resetBall();
+        updateHud();
+      }
+    }
+
     function render(c) {
-      // Stadium floor
       c.fillStyle = '#0f172a';
       c.fillRect(0, 0, 960, 540);
 
-      // Polished Maple Bowling Lane
+      // Polished Maple Bowling Lane with Lacquer Glaze
       var grad = c.createLinearGradient(310, 0, 650, 0);
       grad.addColorStop(0, '#78350f');
-      grad.addColorStop(0.1, '#fef3c7');
+      grad.addColorStop(0.12, '#fef3c7');
       grad.addColorStop(0.5, '#fde68a');
-      grad.addColorStop(0.9, '#fef3c7');
+      grad.addColorStop(0.88, '#fef3c7');
       grad.addColorStop(1, '#78350f');
       c.fillStyle = grad;
       c.fillRect(310, 40, 340, 470);
 
-      // Gutters on left & right
+      // Gutters
       c.fillStyle = '#1e293b';
       c.fillRect(280, 40, 30, 470);
       c.fillRect(650, 40, 30, 470);
 
-      // Lane Guide Arrows (Chevron dots)
-      c.fillStyle = '#92400e';
-      [400, 440, 480, 520, 560].forEach(function (ax) {
+      // Lane Guide Dots & Arrows
+      c.fillStyle = '#b45309';
+      for (var aX = 350; aX <= 610; aX += 45) {
         c.beginPath();
-        c.moveTo(ax, 320); c.lineTo(ax - 6, 335); c.lineTo(ax + 6, 335); c.closePath();
+        c.moveTo(aX, 320); c.lineTo(aX - 6, 335); c.lineTo(aX + 6, 335); c.closePath();
         c.fill();
-      });
+      }
 
-      // Draw Pins
-      pins.forEach(function (p) {
-        c.save();
-        c.translate(p.x, p.y);
-        c.rotate(p.rot);
-        if (p.isStanding) {
-          // Standing pin
-          c.fillStyle = '#ffffff';
-          c.beginPath(); c.ellipse(0, 0, 7, 14, 0, 0, Math.PI * 2); c.fill();
-          // Red stripes
-          c.fillStyle = '#ef4444';
-          c.fillRect(-6, -4, 12, 3);
-          c.fillRect(-5, 2, 10, 3);
-          c.strokeStyle = '#334155'; c.lineWidth = 1; c.stroke();
-        } else {
-          // Knocked down pin
-          c.fillStyle = 'rgba(255, 255, 255, 0.6)';
-          c.beginPath(); c.ellipse(0, 0, 5, 12, 1.2, 0, Math.PI * 2); c.fill();
-        }
-        c.restore();
-      });
+      // Foul Line
+      c.strokeStyle = '#ef4444'; c.lineWidth = 4;
+      c.beginPath(); c.moveTo(310, 450); c.lineTo(650, 450); c.stroke();
 
-      // Aim Arrow Line
+      // Aiming Arrow indicator
       if (state === 'aim') {
         c.save();
-        c.strokeStyle = '#ef4444';
-        c.lineWidth = 3;
-        c.setLineDash([8, 6]);
+        c.translate(ball.x, ball.y);
+        c.rotate(aimAngle);
+        c.strokeStyle = '#f59e0b'; c.lineWidth = 3.5;
         c.beginPath();
-        c.moveTo(ball.x, ball.y);
-        c.lineTo(ball.x + Math.sin(aimAngle) * 320, ball.y - 320);
+        c.moveTo(0, 0); c.lineTo(0, -90);
+        c.lineTo(-8, -75); c.moveTo(0, -90); c.lineTo(8, -75);
         c.stroke();
         c.restore();
       }
 
+      // Draw Pins
+      pins.forEach(function (pin) {
+        c.save();
+        c.translate(pin.x, pin.y);
+        c.rotate(pin.rot);
+
+        c.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        c.beginPath(); c.ellipse(0, 10, pin.r, 4, 0, 0, Math.PI * 2); c.fill();
+
+        c.fillStyle = '#ffffff';
+        c.beginPath();
+        c.arc(0, 0, pin.r, 0, Math.PI * 2);
+        c.fill();
+        c.strokeStyle = '#cbd5e1'; c.lineWidth = 1.5; c.stroke();
+
+        c.fillStyle = '#ef4444';
+        c.fillRect(-pin.r * 0.7, -3, pin.r * 1.4, 4);
+        c.restore();
+      });
+
       // Draw Bowling Ball
       c.save();
-      c.fillStyle = 'rgba(0,0,0,0.3)';
-      c.beginPath(); c.ellipse(ball.x, ball.y + 6, ball.r, 6, 0, 0, Math.PI * 2); c.fill();
-      // Shiny Marble Bowling Ball
-      var bGrad = c.createRadialGradient(ball.x - 4, ball.y - 4, 2, ball.x, ball.y, ball.r);
-      bGrad.addColorStop(0, '#38bdf8');
-      bGrad.addColorStop(0.7, '#0284c7');
-      bGrad.addColorStop(1, '#082f49');
-      c.fillStyle = bGrad;
-      c.beginPath(); c.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2); c.fill();
+      c.fillStyle = 'rgba(0, 0, 0, 0.4)';
+      c.beginPath(); c.ellipse(ball.x, ball.y + 12, ball.r, 5, 0, 0, Math.PI * 2); c.fill();
 
-      // Finger Holes
+      // Shiny Purple Bowling Ball
+      c.fillStyle = '#7e22ce';
+      c.beginPath(); c.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = '#3b0764'; c.lineWidth = 2; c.stroke();
+
+      // Three Finger Holes
       c.fillStyle = '#0f172a';
-      c.beginPath(); c.arc(ball.x - 4, ball.y - 5, 2.5, 0, Math.PI * 2); c.fill();
-      c.beginPath(); c.arc(ball.x + 4, ball.y - 5, 2.5, 0, Math.PI * 2); c.fill();
-      c.beginPath(); c.arc(ball.x, ball.y + 3, 2.5, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.arc(ball.x - 4, ball.y - 3, 2.5, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.arc(ball.x + 4, ball.y - 3, 2.5, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.arc(ball.x, ball.y + 4, 3, 0, Math.PI * 2); c.fill();
+
+      // Specular Shine
+      c.fillStyle = 'rgba(255, 255, 255, 0.45)';
+      c.beginPath(); c.arc(ball.x - 5, ball.y - 5, 4, 0, Math.PI * 2); c.fill();
       c.restore();
     }
 
     return {
       init: initSport,
       onAction: onAction,
+      onSuper: onSuper,
       update: update,
       render: render
     };
   })();
 
-    /* ==========================================================================
+  /* ==========================================================================
      7. SPORT 3: ⚾ DOGNEY BASEBALL (REAL STADIUM MATCH & HOME RUN DERBY)
      ========================================================================== */
   var Baseball = (function () {
@@ -1033,17 +1180,17 @@
     var pitchSpeedKm = 142;
 
     var ball = {
-      x: 480, y: 220, z: 12,
+      x: 480, y: 240, z: 12,
       vx: 0, vy: 0, vz: 0,
       scale: 0.38,
       isHit: false,
-      flightTimer: 0,
       trail: []
     };
 
     var bat = { isSwinging: false, swingTimer: 0 };
+    var activeRunners = []; // animated base runners sprinting along paths!
+    var fireworks = [];
 
-    // Real stadium fielders
     var fielders = [
       { role: 'LF', x: 230, y: 150, avatar: '🤖' },
       { role: 'CF', x: 480, y: 110, avatar: '🤖' },
@@ -1058,6 +1205,7 @@
     function initSport() {
       inning = 1; outs = 0; runs = 0; strikes = 0; pitchCount = 0;
       bases = { first: false, second: false, third: false };
+      activeRunners = []; fireworks = [];
       updateHud();
 
       $('btnActionLeft').style.display = 'none';
@@ -1118,16 +1266,15 @@
       bat.swingTimer = 14;
 
       if (state === 'pitch' && !ball.isHit) {
-        // Strike zone: ball.y around 410 (370 - 440)
         var diff = Math.abs(ball.y - 410);
         if (diff < 44) {
           ball.isHit = true;
           state = 'flying';
           Snd.play('bat_crack');
+          triggerScreenShake(7, 10);
           var char = getSelectedChar();
 
           if (diff < 14) {
-            // PERFECT HOME RUN!
             resolveHit('HOMERUN', char);
           } else if (diff < 26) {
             var isTriple = Math.random() < 0.35;
@@ -1137,6 +1284,27 @@
             resolveHit(isFielderCatch ? 'FLYOUT' : 'SINGLE', char);
           }
         }
+      }
+    }
+
+    function spawnRunner(fromX, fromY, toX, toY, avatar) {
+      activeRunners.push({
+        x: fromX, y: fromY,
+        toX: toX, toY: toY,
+        progress: 0,
+        avatar: avatar || '🏃'
+      });
+    }
+
+    function spawnFireworks(x, y) {
+      for (var i = 0; i < 35; i++) {
+        fireworks.push({
+          x: x, y: y,
+          vx: (Math.random() - 0.5) * 14,
+          vy: -Math.random() * 12 - 3,
+          color: ['#f59e0b', '#ef4444', '#38bdf8', '#a855f7', '#22c55e'][Math.floor(Math.random() * 5)],
+          life: 30
+        });
       }
     }
 
@@ -1151,10 +1319,13 @@
         bases = { first: false, second: false, third: false };
         updateHud();
         Snd.play('homerun');
+        triggerScreenShake(10, 18);
+        spawnFireworks(480, 180);
         showBanner(scored >= 4 ? 'GRAND SLAM! ⚾🔥🎉' : 'HOME RUN! ⚾🔥', char.name + ' ซัดทะลุสเตเดียม ' + dist + 'm! ได้ ' + scored + ' คะแนน!');
         ball.vx = (Math.random() - 0.5) * 4;
         ball.vy = -9.5;
         ball.vz = 14;
+        spawnRunner(480, 440, 650, 310, char.avatar);
         setTimeout(nextPitch, 2800);
       } else if (type === 'TRIPLE') {
         var scored = 0;
@@ -1169,6 +1340,7 @@
         ball.vx = (Math.random() > 0.5 ? 4.5 : -4.5);
         ball.vy = -7;
         ball.vz = 9;
+        spawnRunner(480, 440, 650, 310, char.avatar);
         setTimeout(nextPitch, 2200);
       } else if (type === 'DOUBLE') {
         var scored = 0;
@@ -1183,6 +1355,7 @@
         ball.vx = (Math.random() - 0.5) * 5;
         ball.vy = -6;
         ball.vz = 7;
+        spawnRunner(480, 440, 650, 310, char.avatar);
         setTimeout(nextPitch, 2000);
       } else if (type === 'SINGLE') {
         var scored = 0;
@@ -1197,6 +1370,7 @@
         ball.vx = (Math.random() - 0.5) * 3;
         ball.vy = -4.5;
         ball.vz = 5;
+        spawnRunner(480, 440, 650, 310, char.avatar);
         setTimeout(nextPitch, 1800);
       } else if (type === 'FLYOUT') {
         outs++;
@@ -1216,13 +1390,27 @@
         if (bat.swingTimer === 0) bat.isSwinging = false;
       }
 
+      // Base runners animation
+      activeRunners.forEach(function (r) {
+        r.progress += 0.04;
+        r.x += (r.toX - r.x) * 0.12;
+        r.y += (r.toY - r.y) * 0.12;
+      });
+      activeRunners = activeRunners.filter(function (r) { return r.progress < 1; });
+
+      // Fireworks
+      fireworks.forEach(function (fw) {
+        fw.x += fw.vx; fw.y += fw.vy; fw.vy += 0.35;
+        fw.life--;
+      });
+      fireworks = fireworks.filter(function (fw) { return fw.life > 0; });
+
       if (state === 'pitch') {
         if (!ball.isHit) {
           ball.y += ball.vy;
           ball.x += ball.vx;
           ball.scale = 0.38 + (ball.y - 240) / 200 * 0.7;
 
-          // Strike / Missed
           if (ball.y > 465) {
             state = 'ready';
             strikes++;
@@ -1250,7 +1438,6 @@
     }
 
     function render(c) {
-      // 1. Stadium Atmosphere & Sky
       c.fillStyle = '#0f172a';
       c.fillRect(0, 0, 960, 540);
 
@@ -1262,7 +1449,7 @@
         c.beginPath(); c.arc(ci, 60 + Math.sin(ci) * 12, 5, 0, Math.PI * 2); c.fill();
       }
 
-      // Outfield Wall (Deep Green with Distance Markers)
+      // Outfield Wall
       c.fillStyle = '#064e3b';
       c.beginPath();
       c.arc(480, 480, 460, Math.PI * 1.15, Math.PI * 1.85);
@@ -1285,7 +1472,7 @@
       c.closePath();
       c.fill();
 
-      // Infield Inner Grass
+      // Infield Grass
       c.fillStyle = '#15803d';
       c.beginPath();
       c.moveTo(480, 230);
@@ -1295,17 +1482,14 @@
       c.closePath();
       c.fill();
 
-      // White Chalk Foul Lines & Bases
+      // Foul Lines
       c.strokeStyle = '#ffffff';
       c.lineWidth = 3;
       c.beginPath();
-      // 3rd Base foul line to left pole
       c.moveTo(480, 440); c.lineTo(130, 150);
-      // 1st Base foul line to right pole
       c.moveTo(480, 440); c.lineTo(830, 150);
       c.stroke();
 
-      // Draw Bases (White Squares)
       function drawBase(bx, by, occupied) {
         c.save();
         c.fillStyle = occupied ? '#facc15' : '#ffffff';
@@ -1320,34 +1504,45 @@
         c.restore();
       }
 
-      drawBase(650, 310, bases.first);  // 1st
-      drawBase(480, 200, bases.second); // 2nd
-      drawBase(310, 310, bases.third);  // 3rd
+      drawBase(650, 310, bases.first);
+      drawBase(480, 200, bases.second);
+      drawBase(310, 310, bases.third);
 
-      // Home Plate (Pentagon)
+      // Home Plate
       c.fillStyle = '#ffffff';
       c.beginPath();
       c.moveTo(480, 440); c.lineTo(494, 430); c.lineTo(494, 420); c.lineTo(466, 420); c.lineTo(466, 430);
       c.closePath(); c.fill();
 
-      // Pitcher Mound & Rubber
+      // Pitcher Mound
       c.fillStyle = '#b45309';
       c.beginPath(); c.ellipse(480, 240, 34, 16, 0, 0, Math.PI * 2); c.fill();
       c.fillStyle = '#ffffff'; c.fillRect(472, 238, 16, 4);
 
-      // Draw Fielders
+      // Fielders
       fielders.forEach(function (f) {
         c.font = '26px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
         c.fillText(f.avatar, f.x, f.y);
       });
 
-      // Draw Batter (Player) at Home Plate
+      // Animated Base Runners
+      activeRunners.forEach(function (r) {
+        c.font = '24px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.fillText(r.avatar, r.x, r.y);
+      });
+
+      // Fireworks particles
+      fireworks.forEach(function (fw) {
+        c.fillStyle = fw.color;
+        c.beginPath(); c.arc(fw.x, fw.y, 3.5, 0, Math.PI * 2); c.fill();
+      });
+
+      // Batter
       var char = getSelectedChar();
       c.save();
       c.font = '36px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
       c.fillText(char.avatar, 440, 425);
 
-      // Wooden Bat
       var batAngle = bat.isSwinging ? -0.8 : 0.6;
       c.save();
       c.translate(452, 422);
@@ -1358,7 +1553,7 @@
       c.restore();
       c.restore();
 
-      // Draw Ball
+      // Ball
       if (state === 'pitch' || state === 'flying') {
         var drawY = ball.y - (ball.z || 0);
         c.fillStyle = '#ffffff';
@@ -1368,19 +1563,17 @@
         c.strokeStyle = '#ef4444'; c.lineWidth = 1.5; c.stroke();
       }
 
-      // Mini Diamond HUD at Top-Left
+      // Mini Diamond HUD
       c.save();
       c.fillStyle = 'rgba(15, 23, 42, 0.85)';
       c.strokeStyle = '#38bdf8'; c.lineWidth = 1.5;
       c.beginPath(); c.roundRect(30, 60, 90, 85, 12); c.fill(); c.stroke();
 
-      // Diamond lines
       c.strokeStyle = '#64748b'; c.lineWidth = 2;
       c.beginPath();
       c.moveTo(75, 78); c.lineTo(100, 98); c.lineTo(75, 118); c.lineTo(50, 98); c.closePath();
       c.stroke();
 
-      // Small Bases
       function drawMiniBase(mx, my, on) {
         c.fillStyle = on ? '#facc15' : '#334155';
         c.fillRect(mx - 4, my - 4, 8, 8);
@@ -1388,7 +1581,7 @@
       drawMiniBase(100, 98, bases.first);
       drawMiniBase(75, 78, bases.second);
       drawMiniBase(50, 98, bases.third);
-      c.fillStyle = '#ffffff'; c.fillRect(73, 116, 5, 5); // Home plate
+      c.fillStyle = '#ffffff'; c.fillRect(73, 116, 5, 5);
 
       c.font = 'bold 11px sans-serif'; c.fillStyle = '#cbd5e1'; c.textAlign = 'center';
       c.fillText('BASES', 75, 137);
@@ -1405,33 +1598,39 @@
   })();
 
   /* ==========================================================================
-     8. SPORT 4: 🥊 DOGNEY BOXING (PUNCH, GUARD, WEAVE & KNOCKOUT)
+     8. SPORT 4: 🥊 DOGNEY BOXING (IN-CANVAS HEALTH BARS, UPPERCUTS & K.O. COUNT)
      ========================================================================== */
   var Boxing = (function () {
     var p1Hp = 100, p2Hp = 100;
     var state = 'fight'; // 'fight' | 'ko'
     var p1 = {
       guard: false,
-      dodge: 0, // -1 = left, 0 = center, 1 = right
+      dodge: 0,
       punchLeftTimer: 0,
       punchRightTimer: 0,
+      uppercutTimer: 0,
       combo: 0
     };
     var p2 = {
       x: 480, y: 215,
-      state: 'idle', // 'idle' | 'windup' | 'punching' | 'stunned' | 'hit'
+      state: 'idle', // 'idle' | 'windup' | 'punching' | 'stunned' | 'hit' | 'uppercut_fly'
       windupTimer: 0,
       punchTimer: 0,
       stunTimer: 0,
       hitReactionTimer: 0,
-      atkTimer: 65
+      atkTimer: 65,
+      flyY: 0
     };
     var sparks = [];
+    var damageNumbers = []; // Floating damage numbers!
+    var refCount = 0, refTimer = 0;
 
     function initSport() {
       p1Hp = 100; p2Hp = 100; state = 'fight';
       p1.guard = false; p1.dodge = 0; p1.combo = 0;
-      p2.state = 'idle'; p2.atkTimer = 65;
+      p1.uppercutTimer = 0;
+      p2.state = 'idle'; p2.atkTimer = 65; p2.flyY = 0;
+      sparks = []; damageNumbers = []; refCount = 0;
       updateHud();
 
       $('btnActionLeft').textContent = '🥊 ชกซ้าย (A)';
@@ -1441,8 +1640,8 @@
       $('btnActionUp').style.display = 'none';
       $('btnActionDown').style.display = 'none';
       $('btnMainAction').textContent = '🛡️ ยกการ์ด (S / Space)';
-      $('btnSubAction').textContent = '💨 โยกหลบ (W)';
-      $('hintText').textContent = '💡 เทคนิค: สังเกตสัญญาณ ⚠️ เมื่อบอทจะชก ให้กด "ยกการ์ด" บล็อก หรือ "โยกหลบ" แล้วสวนหมัดกลับ!';
+      $('btnSubAction').textContent = '💥 อัปเปอร์คัต / โยกหลบ (W)';
+      $('hintText').textContent = '💡 เทคนิค: โยกหลบหมัดคู่แข่งตอนมีเตือน ⚠️ เพื่อทำ Counter Uppercut ปลิดชีพ!';
       $('hudSubStatus').textContent = '🥊 ยกที่ 1 ระฆังดังแล้ว! ลุยเลย!';
       Snd.play('whistle');
     }
@@ -1466,12 +1665,37 @@
       deliverPunch('right', 16);
     }
 
+    function uppercut() {
+      if (state !== 'fight' || p1.uppercutTimer > 0) return;
+      p1.uppercutTimer = 18;
+      p1.guard = false;
+
+      var char = getSelectedChar();
+      var dmg = (p2.state === 'stunned' ? 45 : 22) * char.power;
+      Snd.play('box_punch');
+      triggerScreenShake(12, 14);
+
+      p2.state = 'uppercut_fly';
+      p2.flyY = -40;
+      p2Hp -= dmg;
+      addSparks(480, 200, 22, '#f59e0b');
+      addDamageNumber(480, 160, Math.round(dmg), true);
+      showBanner('SUPER UPPERCUT! 🥊🔥💥', char.name + ' อัปเปอร์คัตเสยคางตัวลอย!');
+      updateHud();
+
+      if (p2Hp <= 0) {
+        triggerKnockout();
+      }
+    }
+
     function deliverPunch(hand, baseDmg) {
       var char = getSelectedChar();
       var dmg = baseDmg * char.power;
       Snd.play('box_punch');
+      triggerScreenShake(hand === 'left' ? 4 : 7, 8);
 
-      if (p2.state === 'stunned') {
+      var isCritical = (p2.state === 'stunned');
+      if (isCritical) {
         dmg *= 2.2;
         showBanner('COUNTER PUNCH! ⚡💥', 'เคาน์เตอร์คริติคอลรุนแรง!');
         addSparks(480, 210, 16, '#facc15');
@@ -1486,19 +1710,24 @@
         p1.combo = 0;
       }
 
+      addDamageNumber(hand === 'left' ? 450 : 510, 180, Math.round(dmg), isCritical);
       p2Hp -= dmg;
       p2.hitReactionTimer = 10;
       p2.state = 'hit';
       updateHud();
 
       if (p2Hp <= 0) {
-        state = 'ko';
-        Snd.play('box_ko');
-        showBanner('K.O.! 🥊🏆', 'น็อกเอาต์คู่แข่งลงไปกองกับพื้น!');
-        setTimeout(function () {
-          endSportMatch(true, 'K.O. Heavyweight Champion', 'Boxing MVP 🥊');
-        }, 2600);
+        triggerKnockout();
       }
+    }
+
+    function triggerKnockout() {
+      state = 'ko';
+      refCount = 1;
+      refTimer = 25;
+      Snd.play('box_ko');
+      triggerScreenShake(14, 20);
+      showBanner('K.O.! 🥊🏆', 'น็อกเอาต์คู่แข่งลงไปกองกับพื้น!');
     }
 
     function setGuard(isGuarding) {
@@ -1508,6 +1737,10 @@
 
     function dodge() {
       if (state !== 'fight') return;
+      if (p2.state === 'stunned') {
+        uppercut();
+        return;
+      }
       p1.dodge = (p1.dodge === 0) ? -1 : (p1.dodge === -1 ? 1 : -1);
       p1.guard = false;
       setTimeout(function () { p1.dodge = 0; }, 400);
@@ -1525,17 +1758,36 @@
       }
     }
 
+    function addDamageNumber(x, y, num, crit) {
+      damageNumbers.push({
+        x: x, y: y,
+        text: (crit ? '💥 -' : '-') + num,
+        crit: crit,
+        alpha: 1.0,
+        vy: -2.5
+      });
+    }
+
     function update() {
       if (p1.punchLeftTimer > 0) p1.punchLeftTimer--;
       if (p1.punchRightTimer > 0) p1.punchRightTimer--;
+      if (p1.uppercutTimer > 0) p1.uppercutTimer--;
 
       sparks.forEach(function (s) {
         s.x += s.vx; s.y += s.vy; s.life--;
       });
       sparks = sparks.filter(function (s) { return s.life > 0; });
 
+      damageNumbers.forEach(function (d) {
+        d.y += d.vy; d.alpha -= 0.04;
+      });
+      damageNumbers = damageNumbers.filter(function (d) { return d.alpha > 0; });
+
       if (state === 'fight') {
-        if (p2.state === 'hit') {
+        if (p2.state === 'uppercut_fly') {
+          p2.flyY += 2;
+          if (p2.flyY >= 0) { p2.flyY = 0; p2.state = 'idle'; }
+        } else if (p2.state === 'hit') {
           p2.hitReactionTimer--;
           if (p2.hitReactionTimer <= 0) p2.state = 'idle';
         } else if (p2.state === 'stunned') {
@@ -1544,29 +1796,28 @@
         } else if (p2.state === 'windup') {
           p2.windupTimer--;
           if (p2.windupTimer <= 0) {
-            // Deliver Opponent Punch!
             p2.state = 'punching';
             p2.punchTimer = 14;
 
             if (p1.dodge !== 0) {
-              // Successfully Dodged!
               p2.state = 'stunned';
-              p2.stunTimer = 65;
+              p2.stunTimer = 75;
               Snd.play('tennis_hit');
-              showBanner('DODGED! 💨', 'โยกหลบสวยงาม! โอกาสเคาน์เตอร์!');
+              showBanner('DODGED! 💨', 'โยกหลบสวยงาม! กด W อัปเปอร์คัตสวน!');
             } else if (p1.guard) {
-              // Guard Blocked!
-              p1Hp -= 3;
+              p1Hp -= 2;
               p2.state = 'idle';
               Snd.play('tennis_hit');
+              triggerScreenShake(3, 6);
               showBanner('GUARD BLOCKED! 🛡️', 'การ์ดยกบล็อกหมัดได้!');
               updateHud();
             } else {
-              // Direct Hit to Player!
               p1Hp -= 16;
               p2.state = 'idle';
               Snd.play('box_punch');
+              triggerScreenShake(8, 12);
               addSparks(480, 420, 10, '#ef4444');
+              addDamageNumber(480, 360, 16, false);
               showBanner('TAKEN HIT! 💥', 'โดนหมัดคู่แข่ง!');
               updateHud();
 
@@ -1585,25 +1836,36 @@
           if (p2.atkTimer <= 0) {
             p2.atkTimer = 60 + Math.floor(Math.random() * 30);
             p2.state = 'windup';
-            p2.windupTimer = 26; // 0.43s warning telegraph
+            p2.windupTimer = 26;
           }
+        }
+      } else if (state === 'ko') {
+        // Referee count
+        refTimer--;
+        if (refTimer <= 0 && refCount < 10) {
+          refCount++;
+          refTimer = 22;
+          Snd.play('whistle');
+        } else if (refCount >= 10 && refTimer <= 0) {
+          setTimeout(function () {
+            endSportMatch(true, 'K.O. Heavyweight Champion', 'Boxing MVP 🥊');
+          }, 600);
         }
       }
     }
 
     function render(c) {
-      // 1. Boxing Arena & Ropes
       c.fillStyle = '#090d16';
       c.fillRect(0, 0, 960, 540);
 
-      // Ring Canvas (Deep Blue Mat)
+      // Ring Mat
       c.fillStyle = '#1e3a8a';
       c.beginPath();
       c.moveTo(170, 160); c.lineTo(790, 160);
       c.lineTo(890, 510); c.lineTo(70, 510);
       c.closePath(); c.fill();
 
-      // Ring Ropes (Red, White, Blue)
+      // Ring Ropes
       [140, 175, 210].forEach(function (ry, idx) {
         c.strokeStyle = (idx === 0) ? '#ef4444' : (idx === 1 ? '#ffffff' : '#3b82f6');
         c.lineWidth = 5;
@@ -1619,71 +1881,67 @@
         c.beginPath(); c.arc(s.x, s.y, 4, 0, Math.PI * 2); c.fill();
       });
 
-      // 2. Opponent Boxer (Robo-Bot)
-      var p2HeadX = p2.x + (p2.state === 'hit' ? (p1.punchLeftTimer > 0 ? 18 : -18) : 0);
-      var p2HeadY = p2.y;
+      // Opponent Boxer
+      var p2HeadX = p2.x + (p2.state === 'hit' ? (p1.punchLeftTimer > 0 ? 20 : -20) : 0);
+      var p2HeadY = p2.y + p2.flyY;
 
-      // Opponent Shadow
+      // Shadow
       c.fillStyle = 'rgba(0,0,0,0.4)';
       c.beginPath(); c.ellipse(p2.x, 260, 45, 14, 0, 0, Math.PI * 2); c.fill();
 
-      // Opponent Body / Shorts
+      // Body
       c.fillStyle = '#b91c1c';
       c.fillRect(p2HeadX - 25, p2HeadY + 10, 50, 40);
 
-      // Opponent Head (Robo-Bot)
+      // Head
       c.font = '54px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
       c.fillText('🤖', p2HeadX, p2HeadY - 15);
 
-      // Warning Indicator (Telegraph before attacking)
+      // Telegraph Warnings
       if (p2.state === 'windup') {
         c.save();
-        c.font = 'bold 24px sans-serif';
-        c.fillStyle = '#ef4444';
+        c.font = 'bold 24px sans-serif'; c.fillStyle = '#ef4444';
         c.fillText('⚠️ ATTACK!', p2.x, p2.y - 65);
         c.restore();
       } else if (p2.state === 'stunned') {
         c.save();
-        c.font = 'bold 22px sans-serif';
-        c.fillStyle = '#facc15';
-        c.fillText('💫 STUNNED! ⚡', p2.x, p2.y - 65);
+        c.font = 'bold 22px sans-serif'; c.fillStyle = '#facc15';
+        c.fillText('💫 STUNNED! (กด W อัปเปอร์คัต!) ⚡', p2.x, p2.y - 65);
         c.restore();
       }
 
       // Opponent Gloves
       c.fillStyle = '#ef4444';
-      var p2GlovesOffset = (p2.state === 'windup') ? -12 : (p2.state === 'punching' ? 22 : 0);
+      var p2GlovesOffset = (p2.state === 'windup') ? -12 : (p2.state === 'punching' ? 24 : 0);
       c.beginPath(); c.arc(p2HeadX - 42, p2HeadY + 10 + p2GlovesOffset, 16, 0, Math.PI * 2); c.fill();
       c.beginPath(); c.arc(p2HeadX + 42, p2HeadY + 10 + p2GlovesOffset, 16, 0, Math.PI * 2); c.fill();
 
-      // 3. Player Foreground Dual Cartoon Boxing Gloves (First-Person Perspective!)
+      // Player Gloves in Foreground
       var bob = Math.sin(Date.now() * 0.008) * 6;
       var dodgeOffset = p1.dodge * 65;
 
-      // Left Glove
       var lGloveX = 390 + dodgeOffset;
-      var lGloveY = (p1.punchLeftTimer > 0) ? 310 : (p1.guard ? 350 : (420 + bob));
+      var lGloveY = (p1.punchLeftTimer > 0) ? 305 : (p1.guard ? 350 : (420 + bob));
       if (p1.guard) lGloveX = 450 + dodgeOffset;
 
       c.save();
       c.fillStyle = '#dc2626';
       c.beginPath();
-      c.arc(lGloveX, lGloveY, (p1.punchLeftTimer > 0) ? 34 : 40, 0, Math.PI * 2);
+      c.arc(lGloveX, lGloveY, (p1.punchLeftTimer > 0) ? 35 : 40, 0, Math.PI * 2);
       c.fill();
       c.strokeStyle = '#ffffff'; c.lineWidth = 3; c.stroke();
       c.fillStyle = '#ffffff'; c.font = 'bold 16px sans-serif'; c.textAlign = 'center';
       c.fillText('🥊 L', lGloveX, lGloveY + 5);
       c.restore();
 
-      // Right Glove
       var rGloveX = 570 + dodgeOffset;
-      var rGloveY = (p1.punchRightTimer > 0) ? 300 : (p1.guard ? 350 : (420 - bob));
+      var rGloveY = (p1.punchRightTimer > 0) ? 295 : (p1.guard ? 350 : (420 - bob));
       if (p1.guard) rGloveX = 510 + dodgeOffset;
 
       c.save();
       c.fillStyle = '#dc2626';
       c.beginPath();
-      c.arc(rGloveX, rGloveY, (p1.punchRightTimer > 0) ? 36 : 40, 0, Math.PI * 2);
+      c.arc(rGloveX, rGloveY, (p1.punchRightTimer > 0) ? 37 : 40, 0, Math.PI * 2);
       c.fill();
       c.strokeStyle = '#ffffff'; c.lineWidth = 3; c.stroke();
       c.fillStyle = '#ffffff'; c.font = 'bold 16px sans-serif'; c.textAlign = 'center';
@@ -1702,15 +1960,63 @@
         c.fill();
         c.restore();
       }
+
+      // Floating Damage Numbers
+      damageNumbers.forEach(function (d) {
+        c.save();
+        c.font = d.crit ? 'bold 26px sans-serif' : 'bold 20px sans-serif';
+        c.fillStyle = d.crit ? '#facc15' : '#ef4444';
+        c.globalAlpha = d.alpha;
+        c.fillText(d.text, d.x, d.y);
+        c.restore();
+      });
+
+      // Referee Count on K.O.
+      if (state === 'ko') {
+        c.save();
+        c.fillStyle = 'rgba(15, 23, 42, 0.85)';
+        c.fillRect(320, 90, 320, 65);
+        c.strokeStyle = '#f59e0b'; c.lineWidth = 3; c.strokeRect(320, 90, 320, 65);
+        c.font = 'bold 24px sans-serif'; c.fillStyle = '#fde047'; c.textAlign = 'center';
+        c.fillText('🐶 REF: ' + refCount + (refCount >= 10 ? ' · K.O. WINNER!' : '...'), 480, 130);
+        c.restore();
+      }
+
+      // IN-CANVAS ARCADE HEALTH BARS AT TOP
+      c.save();
+      // P1 Health Bar (Left)
+      var char = getSelectedChar();
+      c.fillStyle = 'rgba(15, 23, 42, 0.75)';
+      c.fillRect(80, 20, 260, 24);
+      c.fillStyle = '#22c55e';
+      c.fillRect(80, 20, 260 * (Math.max(0, p1Hp) / 100), 24);
+      c.strokeStyle = '#ffffff'; c.lineWidth = 2; c.strokeRect(80, 20, 260, 24);
+      c.font = 'bold 13px sans-serif'; c.fillStyle = '#ffffff'; c.textAlign = 'left';
+      c.fillText(char.avatar + ' ' + char.name.split(' ')[0] + ' ' + Math.max(0, Math.round(p1Hp)) + ' HP', 88, 36);
+
+      // VS in Center
+      c.font = 'bold 16px sans-serif'; c.fillStyle = '#f59e0b'; c.textAlign = 'center';
+      c.fillText('⚡ VS ⚡', 480, 35);
+
+      // P2 Health Bar (Right)
+      c.fillStyle = 'rgba(15, 23, 42, 0.75)';
+      c.fillRect(620, 20, 260, 24);
+      c.fillStyle = '#ef4444';
+      c.fillRect(620, 20, 260 * (Math.max(0, p2Hp) / 100), 24);
+      c.strokeStyle = '#ffffff'; c.lineWidth = 2; c.strokeRect(620, 20, 260, 24);
+      c.font = 'bold 13px sans-serif'; c.fillStyle = '#ffffff'; c.textAlign = 'right';
+      c.fillText('Robo-Bot 🤖 ' + Math.max(0, Math.round(p2Hp)) + ' HP', 872, 36);
+      c.restore();
     }
 
     return {
       init: initSport,
       punchLeft: punchLeft,
       punchRight: punchRight,
+      uppercut: uppercut,
       setGuard: setGuard,
       dodge: dodge,
-      onAction: function (isSuper) { if (isSuper) punchRight(); else punchLeft(); },
+      onAction: function (isSuper) { if (isSuper) uppercut(); else punchRight(); },
       update: update,
       render: render
     };
@@ -1975,10 +2281,20 @@
       }
 
       if (ctx) {
+        ctx.save();
+        if (shakeTimer > 0) {
+          shakeTimer--;
+          var sx = (Math.random() - 0.5) * shakePower;
+          var sy = (Math.random() - 0.5) * shakePower;
+          ctx.translate(sx, sy);
+        }
+
         if (STATE.activeSport === 'tennis') Tennis.render(ctx);
         else if (STATE.activeSport === 'bowling') Bowling.render(ctx);
         else if (STATE.activeSport === 'baseball') Baseball.render(ctx);
         else if (STATE.activeSport === 'boxing') Boxing.render(ctx);
+
+        ctx.restore();
       }
 
       requestAnimationFrame(loop);
