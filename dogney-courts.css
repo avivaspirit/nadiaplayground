@@ -1,0 +1,713 @@
+/* ==========================================================================
+   DOGNEY COURTS — WII SPORTS PET EDITION (dogney-courts.css)
+   ========================================================================== */
+
+:root {
+  --courts-blue: #0284c7;
+  --courts-green: #10b981;
+  --courts-gold: #f59e0b;
+  --courts-red: #ef4444;
+  --courts-purple: #8b5cf6;
+  --ink-dark: #1e293b;
+  --ink-soft: #64748b;
+  --bg-gradient: radial-gradient(circle at 50% 10%, #0c4a6e 0%, #0f172a 100%);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Nunito', 'Prompt', sans-serif;
+  color: #ffffff;
+  min-height: 100vh;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow-x: hidden;
+  background: var(--bg-gradient);
+}
+
+/* ==========================================================================
+   TOP NAVIGATION BAR
+   ========================================================================== */
+.courts-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 2px solid rgba(56, 189, 248, 0.25);
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.nav-left, .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-back-hub {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #bae6fd;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  transition: all 0.2s;
+}
+.btn-back-hub:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #38bdf8;
+  transform: translateX(-2px);
+}
+
+.courts-title-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.3), rgba(16, 185, 129, 0.3));
+  border: 1.5px solid rgba(56, 189, 248, 0.4);
+  padding: 4px 14px;
+  border-radius: 999px;
+}
+.pill-icon { font-size: 1.2rem; }
+.pill-text {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: 1.05rem;
+  color: #38bdf8;
+  letter-spacing: 0.3px;
+}
+.pill-sub {
+  font-size: 0.7rem;
+  font-weight: 800;
+  background: #0284c7;
+  color: #fff;
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.hud-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-weight: 900;
+  font-size: 0.85rem;
+}
+.hud-trophies { border-color: #f59e0b; color: #fde68a; background: rgba(245, 158, 11, 0.15); }
+.hud-coins { border-color: #eab308; color: #fef08a; background: rgba(234, 179, 8, 0.15); }
+
+.nav-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 6px 13px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: #ffffff;
+  transition: all 0.18s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+.btn-roster {
+  background: linear-gradient(135deg, #059669, #10b981);
+  border-color: #34d399;
+}
+.btn-lock { color: #fca5a5; border-color: rgba(239, 68, 68, 0.4); }
+
+/* ==========================================================================
+   VIEWPORT & MAIN LAYOUT
+   ========================================================================== */
+.courts-viewport {
+  margin-top: 58px;
+  padding: 10px 14px 24px;
+  max-width: 1060px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ==========================================================================
+   SPORTS SELECTION TABS BAR (Wii Sports Selector Strip)
+   ========================================================================== */
+.sports-selector-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 6px;
+  backdrop-filter: blur(8px);
+}
+
+.sport-tab {
+  background: rgba(15, 23, 42, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 8px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-weight: 800;
+  font-size: 0.88rem;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sport-tab:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+.sport-tab.active {
+  color: #ffffff;
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+.sport-tab[data-sport="tennis"].active {
+  background: linear-gradient(135deg, #059669, #10b981);
+  border-color: #34d399;
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.45);
+}
+.sport-tab[data-sport="bowling"].active {
+  background: linear-gradient(135deg, #d97706, #f59e0b);
+  border-color: #fbbf24;
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.45);
+}
+.sport-tab[data-sport="baseball"].active {
+  background: linear-gradient(135deg, #c2410c, #ea580c);
+  border-color: #fb923c;
+  box-shadow: 0 0 18px rgba(234, 88, 12, 0.45);
+}
+.sport-tab[data-sport="boxing"].active {
+  background: linear-gradient(135deg, #b91c1c, #dc2626);
+  border-color: #f87171;
+  box-shadow: 0 0 18px rgba(220, 38, 38, 0.45);
+}
+.tab-emoji { font-size: 1.3rem; }
+
+/* ==========================================================================
+   SPORT HUD BAR
+   ========================================================================== */
+.sport-hud-bar {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+.hud-player-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+.hud-player-badge.player-2 {
+  justify-content: flex-end;
+}
+
+.player-avatar {
+  font-size: 28px;
+  width: 44px;
+  height: 44px;
+  background: #334155;
+  border: 2px solid #38bdf8;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.player-2 .player-avatar { border-color: #f87171; }
+
+.player-meta {
+  display: flex;
+  flex-direction: column;
+}
+.player-name {
+  font-weight: 900;
+  font-size: 0.94rem;
+  color: #ffffff;
+}
+.player-role {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.player-score {
+  font-family: 'Fraunces', serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #38bdf8;
+  min-width: 40px;
+  text-align: center;
+}
+.player-2 .player-score { color: #f87171; }
+
+.hud-center-meta {
+  text-align: center;
+  padding: 0 16px;
+}
+.hud-sport-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #fef08a;
+  letter-spacing: 0.5px;
+}
+.hud-sub-status {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #bae6fd;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   ARENA CANVAS CONTAINER
+   ========================================================================== */
+.arena-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 540px;
+  background: #022c22;
+  border: 3.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.6), inset 0 0 50px rgba(0,0,0,0.4);
+}
+
+#arenaCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* FLOATING BANNER */
+.courts-banner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  background: rgba(15, 23, 42, 0.95);
+  border: 3.5px solid #f59e0b;
+  border-radius: 24px;
+  padding: 16px 36px;
+  text-align: center;
+  z-index: 50;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 0 30px rgba(245, 158, 11, 0.6);
+  animation: bannerPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  pointer-events: none;
+}
+@keyframes bannerPop {
+  to { transform: translate(-50%, -50%) scale(1); }
+}
+.banner-headline {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: 2.3rem;
+  color: #fde047;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+}
+.banner-sub {
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+/* POWER METER BOX (For Tennis Serve / Bowling Power) */
+.power-meter-box {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.85);
+  border: 2px solid #38bdf8;
+  border-radius: 14px;
+  padding: 8px 16px;
+  text-align: center;
+  z-index: 40;
+}
+.meter-track {
+  width: 160px;
+  height: 14px;
+  background: #334155;
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+  margin: 0 auto 4px;
+}
+.meter-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+  transition: width 0.05s linear;
+}
+.meter-target {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 75%;
+  width: 16%;
+  background: rgba(255, 255, 255, 0.4);
+  border-left: 2px solid #fff;
+  border-right: 2px solid #fff;
+}
+.meter-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #38bdf8;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   ON-SCREEN CONTROLS BAR (Mobile & Touch)
+   ========================================================================== */
+.arena-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 8px 12px;
+}
+
+.controls-left, .controls-right {
+  display: flex;
+  gap: 8px;
+}
+
+.ctrl-btn {
+  background: #1e293b;
+  color: #ffffff;
+  border: 2px solid #334155;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 3px 0 #0f172a;
+}
+.ctrl-btn:active, .ctrl-btn.pressed {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+.btn-main-action {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  border-color: #38bdf8;
+  color: #fff;
+  font-size: 0.95rem;
+  padding: 10px 22px;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
+}
+.btn-sub-action {
+  background: linear-gradient(135deg, #ea580c, #c2410c);
+  border-color: #fb923c;
+  color: #fff;
+  font-size: 0.95rem;
+  padding: 10px 20px;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.4);
+}
+
+.controls-center {
+  flex: 1;
+  text-align: center;
+  padding: 0 8px;
+}
+.hint-text {
+  font-size: 0.8rem;
+  color: #fde047;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   PC KEYBOARD GUIDE STRIP
+   ========================================================================== */
+.pc-guide-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+}
+.guide-tag { font-weight: 800; color: #38bdf8; }
+.guide-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.guide-key.highlight kbd {
+  background: #0284c7;
+  border-color: #38bdf8;
+  color: #fff;
+}
+kbd {
+  display: inline-block;
+  background: #0f172a;
+  color: #f8fafc;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  box-shadow: 0 2px 0 #020617;
+  padding: 2px 8px;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+/* ==========================================================================
+   MODALS (ROSTER & RESULTS)
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+
+.modal-card {
+  background: #ffffff;
+  color: var(--ink-dark);
+  border-radius: 24px;
+  padding: 24px;
+  width: 100%;
+  max-width: 640px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: #f1f5f9;
+  border: none;
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: 900;
+  color: var(--ink-soft);
+}
+.modal-close:hover { background: #e2e8f0; color: #0f172a; }
+
+.modal-header { text-align: center; margin-bottom: 18px; }
+.modal-icon { font-size: 42px; display: block; margin-bottom: 4px; }
+.modal-header h2 { font-family: 'Fraunces', serif; font-size: 1.45rem; font-weight: 900; color: var(--ink-dark); }
+.modal-header p { font-size: 0.86rem; color: var(--ink-soft); margin-top: 4px; }
+
+/* Roster Grid */
+.roster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+.roster-card {
+  background: #f8fafc;
+  border: 2.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.roster-card:hover {
+  transform: translateY(-3px);
+  border-color: #0284c7;
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.25);
+}
+.roster-card.active {
+  border-color: #0284c7;
+  background: #e0f2fe;
+}
+.roster-avatar { font-size: 42px; margin-bottom: 6px; }
+.roster-name { font-weight: 900; font-size: 0.95rem; color: var(--ink-dark); }
+.roster-trait { font-size: 0.74rem; font-weight: 700; color: #0284c7; margin-top: 2px; }
+.roster-super { font-size: 0.7rem; color: var(--ink-soft); margin-top: 4px; }
+
+/* Result Modal */
+.result-modal-card {
+  max-width: 440px;
+  text-align: center;
+}
+.result-badge { font-size: 56px; margin-bottom: 4px; }
+#resultTitle { font-family: 'Fraunces', serif; font-size: 1.65rem; color: var(--ink-dark); margin: 6px 0; }
+#resultSub { font-size: 0.88rem; color: var(--ink-soft); }
+
+.result-stats-box {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+.stat-pill {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 8px 14px;
+}
+.stat-lbl { display: block; font-size: 0.72rem; color: var(--ink-soft); font-weight: 700; }
+.stat-pill strong { font-size: 1.25rem; font-weight: 900; color: #0284c7; }
+
+.result-rewards {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.reward-chip {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-weight: 900;
+  font-size: 0.88rem;
+  color: var(--ink-dark);
+}
+.result-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 20px;
+  font-weight: 900;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+  transition: transform 0.18s;
+}
+.btn-primary:hover { transform: scale(1.02); }
+.btn-sec {
+  background: #f1f5f9;
+  color: var(--ink-dark);
+  border: none;
+  border-radius: 14px;
+  padding: 10px 20px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   PASSWORD GATE OVERLAY
+   ========================================================================== */
+.gate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: radial-gradient(circle at center, rgba(12, 74, 110, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.gate-box {
+  background: #ffffff;
+  border: 3px solid #38bdf8;
+  border-radius: 28px;
+  padding: 36px 32px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+.gate-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.65rem;
+  font-weight: 900;
+  color: #0284c7;
+  margin: 12px 0 4px;
+}
+.gate-sub { color: #64748b; font-size: 0.88rem; font-weight: 600; margin-bottom: 20px; }
+.gate-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #cbd5e1;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 2px;
+  outline: none;
+  background: #f8fafc;
+  color: var(--ink-dark);
+}
+.gate-input:focus { border-color: #0284c7; background: #fff; }
+.gate-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px;
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  font-weight: 900;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+}
+.gate-err { color: #ef4444; font-size: 0.82rem; font-weight: 800; margin-top: 10px; display: none; }
+
+@media (max-width: 768px) {
+  .sports-selector-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .player-role { display: none; }
+  .arena-controls-bar {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

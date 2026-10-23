@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dogney Courts 🎾🎳⚾🥊 — Wii Sports Pet Edition</title>
+<meta name="description" content="Dogney Courts — ชุดเกมส์กีฬา Wii Sports สไตล์แก๊ง Dogney & Nadia Playground มันส์สะใจ 4 กีฬา: เทนนิส โบว์ลิ่ง เบสบอล และต่อยมวย!">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Nunito:wght@400;600;700;800;900&family=Prompt:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="dogney-courts.css?v=1">
+</head>
+<body>
+
+<!-- TOP NAVIGATION BAR -->
+<header class="courts-nav">
+  <div class="nav-left">
+    <a href="index.html" class="btn-back-hub" title="กลับหน้าหลัก Nadia Playground">⬅ สนามเด็กเล่น</a>
+    <div class="courts-title-pill">
+      <span class="pill-icon">🏆</span>
+      <span class="pill-text">Dogney Courts</span>
+      <span class="pill-sub">Wii Sports Edition</span>
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <div class="hud-pill hud-trophies" title="ถ้วยรางวัลแชมป์กีฬา (Trophies)">
+      <span class="hud-icon">🏆</span>
+      <span id="hudTrophies">0</span>
+    </div>
+    <div class="hud-pill hud-coins" title="เหรียญรางวัล (Coins)">
+      <span class="hud-icon">🪙</span>
+      <span id="hudCoins">600</span>
+    </div>
+    <button class="nav-btn" id="btnAudioToggle" title="เปิด/ปิดเสียง">🔊</button>
+    <button class="nav-btn btn-roster" id="btnRosterModal" title="เปลี่ยนตัวละครนักกีฬา">🐾 เปลี่ยนนักกีฬา</button>
+    <button class="nav-btn btn-lock" id="btnRelock" title="ออกจากระบบ / ล็อกรหัสผ่าน">🔒 ล็อก</button>
+  </div>
+</header>
+
+<!-- MAIN GAME CONTAINER -->
+<div class="courts-viewport" id="courtsViewport">
+
+  <!-- SPORTS SWITCHER CAROUSEL BAR (Wii Sports Style Selection) -->
+  <div class="sports-selector-strip" id="sportsSelectorStrip">
+    <button class="sport-tab active" data-sport="tennis" id="tabTennis">
+      <span class="tab-emoji">🎾</span>
+      <span class="tab-label">เทนนิส (Tennis)</span>
+    </button>
+    <button class="sport-tab" data-sport="bowling" id="tabBowling">
+      <span class="tab-emoji">🎳</span>
+      <span class="tab-label">โบว์ลิ่ง (Bowling)</span>
+    </button>
+    <button class="sport-tab" data-sport="baseball" id="tabBaseball">
+      <span class="tab-emoji">⚾</span>
+      <span class="tab-label">เบสบอล (Baseball)</span>
+    </button>
+    <button class="sport-tab" data-sport="boxing" id="tabBoxing">
+      <span class="tab-emoji">🥊</span>
+      <span class="tab-label">มวยสากล (Boxing)</span>
+    </button>
+  </div>
+
+  <!-- HUD STATUS & SCORE STRIP -->
+  <div class="sport-hud-bar" id="sportHudBar">
+    <div class="hud-player-badge player-1">
+      <div class="player-avatar" id="p1AvatarDisplay">🐕</div>
+      <div class="player-meta">
+        <span class="player-name" id="p1NameDisplay">Dogney Pup</span>
+        <span class="player-role" id="p1RoleDisplay">นักเทนนิสมือฉมัง</span>
+      </div>
+      <div class="player-score" id="p1ScoreDisplay">0</div>
+    </div>
+
+    <div class="hud-center-meta">
+      <div class="hud-sport-title" id="hudSportTitle">🎾 DOGNEY TENNIS</div>
+      <div class="hud-sub-status" id="hudSubStatus">กด Spacebar หรือคลิกเพื่อเสิร์ฟบอล!</div>
+    </div>
+
+    <div class="hud-player-badge player-2">
+      <div class="player-score" id="p2ScoreDisplay">0</div>
+      <div class="player-meta" style="text-align:right">
+        <span class="player-name" id="p2NameDisplay">Robo-Bot 🤖</span>
+        <span class="player-role" id="p2RoleDisplay">คู่แข่ง AI</span>
+      </div>
+      <div class="player-avatar" id="p2AvatarDisplay">🤖</div>
+    </div>
+  </div>
+
+  <!-- MAIN CANVAS ARENA -->
+  <div class="arena-container" id="arenaContainer">
+    <canvas id="arenaCanvas" width="960" height="540"></canvas>
+
+    <!-- FLOATING PUNCHY IMPACT / RESULT BANNER -->
+    <div class="courts-banner" id="courtsBanner" style="display:none">
+      <div class="banner-headline" id="bannerHeadline">NICE SHOT! 🔥</div>
+      <div class="banner-sub" id="bannerSub">Dogney hits an unstoppable smash!</div>
+    </div>
+
+    <!-- TENNIS SERVE POWER METER OVERLAY -->
+    <div class="power-meter-box" id="powerMeterBox" style="display:none">
+      <div class="meter-track">
+        <div class="meter-bar" id="meterBar"></div>
+        <div class="meter-target"></div>
+      </div>
+      <span class="meter-label">จังหวะเสิร์ฟ (PRESS SPACE!)</span>
+    </div>
+  </div>
+
+  <!-- ON-SCREEN ACTION CONTROLS (TOUCH & MOBILE FRIENDLY) -->
+  <div class="arena-controls-bar" id="arenaControlsBar">
+    <!-- Sport-specific dynamic controls will be wired here -->
+    <div class="controls-left">
+      <button class="ctrl-btn btn-dpad" id="btnActionLeft">◀ ซ้าย</button>
+      <button class="ctrl-btn btn-dpad" id="btnActionRight">ขวา ▶</button>
+      <button class="ctrl-btn btn-dpad" id="btnActionUp" style="display:none">▲ ขึ้น</button>
+      <button class="ctrl-btn btn-dpad" id="btnActionDown" style="display:none">▼ ลง</button>
+    </div>
+
+    <div class="controls-center" id="controlsCenterHint">
+      <span class="hint-text" id="hintText">💡 เทคนิค: กะจังหวะลูกให้พอดีเพื่อตีลูกพุ่งไซด์โค้งความเร็วสูง!</span>
+    </div>
+
+    <div class="controls-right">
+      <button class="ctrl-btn btn-main-action" id="btnMainAction">🎾 ตีลูก / หวด (Space)</button>
+      <button class="ctrl-btn btn-sub-action" id="btnSubAction">⚡ สแมช / ไม้ตาย</button>
+    </div>
+  </div>
+
+  <!-- PC KEYBOARD GUIDE STRIP -->
+  <div class="pc-guide-strip" id="pcGuideStrip">
+    <span class="guide-tag">⌨️ คีย์บอร์ด PC:</span>
+    <span class="guide-key"><kbd>◀</kbd><kbd>▶</kbd> / <kbd>A</kbd><kbd>D</kbd> เคลื่อนที่ / เล็งทิศทาง</span>
+    <span class="guide-key highlight"><kbd>Spacebar</kbd> หรือ <kbd>Enter</kbd> หรือคลิกเมาส์ = หวด / โยน / ชก</span>
+    <span class="guide-key"><kbd>W</kbd> หรือ <kbd>▲</kbd> กระโดด / สแมช</span>
+    <span class="guide-key"><kbd>Shift</kbd> / <kbd>X</kbd> ท่าไม้ตาย</span>
+  </div>
+
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: CHARACTER ROSTER (เลือกนักกีฬาแก๊ง Dogney) -->
+<!-- ========================================================================= -->
+<div class="modal-overlay" id="rosterModal">
+  <div class="modal-card">
+    <button class="modal-close" id="closeRosterModal">&times;</button>
+    <div class="modal-header">
+      <span class="modal-icon">🐾</span>
+      <h2>เลือกนักกีฬา The Dogney Courts ของคุณ</h2>
+      <p>คาแรคเตอร์แต่ละตัวมีจุดเด่น พลังหวด และสไตล์การเล่นที่แตกต่างกัน!</p>
+    </div>
+
+    <div class="roster-grid" id="rosterGrid">
+      <!-- Rendered dynamically by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: MATCH RESULT & TROPHY CEREMONY -->
+<!-- ========================================================================= -->
+<div class="modal-overlay" id="resultModal">
+  <div class="modal-card result-modal-card">
+    <div class="result-badge" id="resultBadge">🏆</div>
+    <h2 id="resultTitle">CHAMPION! ชัยชนะอันยอดเยี่ยม!</h2>
+    <p id="resultSub">คุณทำผลงานได้อย่างยอดเยี่ยมใน Dogney Courts!</p>
+
+    <div class="result-stats-box" id="resultStatsBox">
+      <div class="stat-pill"><span class="stat-lbl">คะแนน</span> <strong id="resFinalScore">3 - 0</strong></div>
+      <div class="stat-pill"><span class="stat-lbl">ระดับ</span> <strong id="resSportName">Tennis Master</strong></div>
+    </div>
+
+    <div class="result-rewards">
+      <div class="reward-chip">🪙 <span id="rewardCoins">+200</span> เหรียญ</div>
+      <div class="reward-chip">🏆 <span id="rewardTrophies">+1</span> ถ้วยรางวัล</div>
+    </div>
+
+    <div class="result-buttons">
+      <button class="btn-primary" id="btnPlayAgain">🔄 เล่นใหม่อีกรอบ (Rematch)</button>
+      <button class="btn-sec" id="btnNextSport">➡️ เปลี่ยนไปเล่นกีฬาถัดไป</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- PASSWORD GATE: VIP CHECK-IN (PASSWORD: "larny") -->
+<!-- ========================================================================= -->
+<div class="gate-overlay" id="gateOverlay" style="display:none">
+  <div class="gate-box" id="gateBox">
+    <div class="gate-sports-icon">
+      <span style="font-size:56px">🎾🎳⚾🥊</span>
+    </div>
+    
+    <h2 class="gate-title">Dogney Courts</h2>
+    <p class="gate-sub">กรุณากรอกรหัสผ่านเพื่อเข้าสู่สนามรวมกีฬา Wii Sports Edition</p>
+    
+    <input type="password" id="gatePass" class="gate-input" placeholder="รหัสผ่าน..." autocomplete="off">
+    <button id="gateBtn" class="gate-btn">🏆 เข้าสู่สนาม Dogney Courts ✨</button>
+    <div class="gate-err" id="gateErr">❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="dogney-courts.js?v=1"></script>
+</body>
+</html>
