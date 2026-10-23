@@ -344,10 +344,30 @@
     peer: null,
     conn: null,
     roomCode: '',
+    hostCharId: 'doji_dog',
+    guestCharId: 'nadia_star',
     remotePlayerName: 'นาเดีย (P2)',
     remotePlayerCharId: 'nadia_star',
-    guestKeys: { left: false, right: false, jump: false, kick: false, super: false }
+    guestKeys: { left: false, right: false, jump: false, kick: false, super: false },
+    lastInputSentTime: 0,
+    lastSentKeys: null
   };
+
+  function getP1CharDef() {
+    if (ONLINE.isOnline) {
+      var id = ONLINE.isHost ? STATE.selectedCharId : (ONLINE.hostCharId || 'doji_dog');
+      return CHARACTERS.find(function (c) { return c.id === id; }) || CHARACTERS[0];
+    }
+    return getSelectedChar();
+  }
+
+  function getP2CharDef() {
+    if (ONLINE.isOnline) {
+      var id = ONLINE.isHost ? (ONLINE.guestCharId || 'nadia_star') : STATE.selectedCharId;
+      return CHARACTERS.find(function (c) { return c.id === id; }) || CHARACTERS[4];
+    }
+    return { avatar: '🤖', jerseyColor: '#e63946', name: AI_NAMES[STATE.aiOpponentIndex] };
+  }
 
   function loadSavedData() {
     var raw = lsGet('dojibos_save_v1');
@@ -533,16 +553,30 @@
     // IF GUEST (Nadia): send local input to Host, Host is authoritative!
     if (ONLINE.isOnline && !ONLINE.isHost) {
       if (ONLINE.conn && ONLINE.conn.open) {
-        ONLINE.conn.send({
-          type: 'input',
-          keys: {
-            left: keys.left,
-            right: keys.right,
-            jump: keys.jump,
-            kick: keys.kick,
-            super: keys.super
-          }
-        });
+        var now = performance.now();
+        var k = keys;
+        var changed = !ONLINE.lastSentKeys ||
+          ONLINE.lastSentKeys.left !== k.left ||
+          ONLINE.lastSentKeys.right !== k.right ||
+          ONLINE.lastSentKeys.jump !== k.jump ||
+          ONLINE.lastSentKeys.kick !== k.kick ||
+          ONLINE.lastSentKeys.super !== k.super;
+
+        // Send immediately upon any keypress change, or heartbeat every 33ms (~30Hz)
+        if (changed || (now - ONLINE.lastInputSentTime > 33)) {
+          ONLINE.conn.send({
+            type: 'input',
+            keys: {
+              left: k.left,
+              right: k.right,
+              jump: k.jump,
+              kick: k.kick,
+              super: k.super
+            }
+          });
+          ONLINE.lastInputSentTime = now;
+          ONLINE.lastSentKeys = { left: k.left, right: k.right, jump: k.jump, kick: k.kick, super: k.super };
+        }
       }
       if (ball.isSuper) {
         ball.trail.push({ x: ball.x, y: ball.y, color: ball.superColor, r: ball.radius });
@@ -782,8 +816,8 @@
     if (ONLINE.isOnline && ONLINE.isHost && ONLINE.conn && ONLINE.conn.open) {
       ONLINE.conn.send({
         type: 'state',
-        p1: { x: Math.round(p1.x), y: Math.round(p1.y), vx: p1.vx, vy: p1.vy, facing: p1.facing, isKicking: p1.isKicking },
-        p2: { x: Math.round(p2.x), y: Math.round(p2.y), vx: p2.vx, vy: p2.vy, facing: p2.facing, isKicking: p2.isKicking },
+        p1: { x: Math.round(p1.x), y: Math.round(p1.y), vx: p1.vx, vy: p1.vy, facing: p1.facing, isKicking: p1.isKicking, scaleX: p1.scaleX, scaleY: p1.scaleY, tilt: p1.tilt, bob: p1.bob },
+        p2: { x: Math.round(p2.x), y: Math.round(p2.y), vx: p2.vx, vy: p2.vy, facing: p2.facing, isKicking: p2.isKicking, scaleX: p2.scaleX, scaleY: p2.scaleY, tilt: p2.tilt, bob: p2.bob },
         ball: { x: Math.round(ball.x), y: Math.round(ball.y), vx: ball.vx, vy: ball.vy, rotation: ball.rotation, isSuper: ball.isSuper, superColor: ball.superColor },
         score1: STATE.p1Score,
         score2: STATE.p2Score,
@@ -1072,10 +1106,9 @@
     }
 
     // 5. Draw Players
-    drawPlayer(p1, getSelectedChar(), true);
-    var p2Def = ONLINE.isOnline
-      ? (CHARACTERS.find(function (c) { return c.id === ONLINE.remotePlayerCharId; }) || CHARACTERS[4])
-      : { avatar: '🤖', jerseyColor: '#e63946', name: AI_NAMES[STATE.aiOpponentIndex] };
+    var p1Def = getP1CharDef();
+    var p2Def = getP2CharDef();
+    drawPlayer(p1, p1Def, true);
     drawPlayer(p2, p2Def, false);
 
     // 6. Draw Soccer Ball
@@ -1190,6 +1223,47 @@
     ctx.stroke();
 
     ctx.restore();
+
+    // Floating YOU indicator above the active local player
+    var isLocalPlayer = (!ONLINE.isOnline && isP1) ||
+      (ONLINE.isOnline && ((ONLINE.isHost && isP1) || (!ONLINE.isHost && !isP1)));
+
+    if (isLocalPlayer) {
+      ctx.save();
+      var arrowBob = Math.sin(Date.now() * 0.007) * 3;
+      var tagY = cy - player.radius - 18 + arrowBob;
+
+      // Glow pill
+      ctx.fillStyle = '#06d6a0';
+      ctx.strokeStyle = '#023020';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(cx - 18, tagY - 14, 36, 17, 8);
+      } else {
+        ctx.rect(cx - 18, tagY - 14, 36, 17);
+      }
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#023020';
+      ctx.font = '900 10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('YOU', cx, tagY - 5);
+
+      // Down arrow tip
+      ctx.fillStyle = '#06d6a0';
+      ctx.beginPath();
+      ctx.moveTo(cx - 4, tagY + 3);
+      ctx.lineTo(cx + 4, tagY + 3);
+      ctx.lineTo(cx, tagY + 7);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.restore();
+    }
   }
 
   /* ==========================================================================
@@ -1211,22 +1285,28 @@
     $('matchTimer').textContent = '60';
     $('matchPeriod').textContent = '1ST HALF';
 
-    var curChar = getSelectedChar();
+    var p1Def = getP1CharDef();
+    var p2Def = getP2CharDef();
+    $('p1AvatarDisplay').textContent = p1Def.avatar;
+    $('p2AvatarDisplay').textContent = p2Def.avatar;
+
     if (ONLINE.isOnline) {
-      $('p1AvatarDisplay').textContent = curChar.avatar;
-      $('p1NameDisplay').textContent = ONLINE.isHost ? 'แมค (P1)' : 'แมค';
-      var p2Char = CHARACTERS.find(function (c) { return c.id === ONLINE.remotePlayerCharId; }) || CHARACTERS[4];
-      $('p2AvatarDisplay').textContent = p2Char.avatar;
-      $('p2NameDisplay').textContent = ONLINE.isHost ? 'นาเดีย (P2)' : 'นาเดีย';
+      $('p1NameDisplay').textContent = ONLINE.isHost ? 'แมค (คุณ)' : 'แมค (P1)';
+      $('p2NameDisplay').textContent = ONLINE.isHost ? 'นาเดีย (P2)' : 'นาเดีย (คุณ)';
     } else {
-      $('p1AvatarDisplay').textContent = curChar.avatar;
-      $('p1NameDisplay').textContent = curChar.name;
-      $('p2AvatarDisplay').textContent = '🤖';
+      $('p1NameDisplay').textContent = p1Def.name;
       $('p2NameDisplay').textContent = AI_NAMES[STATE.aiOpponentIndex];
     }
 
     updateSuperBars();
     resetPositions(0);
+
+    // If Online and Guest (Nadia), do not run local timer (Host is authoritative clock)
+    if (ONLINE.isOnline && !ONLINE.isHost) {
+      if (matchInterval) clearInterval(matchInterval);
+      matchInterval = null;
+      return;
+    }
 
     startKickoffSequence(function () {
       if (matchInterval) clearInterval(matchInterval);
@@ -1260,19 +1340,24 @@
     $('resP2Score').textContent = STATE.p2Score;
 
     if (ONLINE.isOnline) {
-      if (isWin) {
-        $('resultBadge').textContent = '🏆';
-        $('resultTitle').textContent = ONLINE.isHost ? 'แมคชนะการแข่งขัน!' : 'แมคชนะในนัดนี้!';
-        $('resultSub').textContent = 'แมตช์ออนไลน์ 1 ต่อ 1 สุดเดือดระหว่าง แมค vs นาเดีย!';
-      } else if (isDraw) {
+      var amIWinner = (ONLINE.isHost && isWin) || (!ONLINE.isHost && !isWin && !isDraw);
+
+      if (isDraw) {
         $('resultBadge').textContent = '🤝';
         $('resultTitle').textContent = 'เสมอกันอย่างดุเดือด!';
         $('resultSub').textContent = 'แมค และ นาเดีย ฝีมือสูสีกันมาก แข่งใหม่อีกนัดเพื่อตัดสิน!';
-      } else {
+      } else if (amIWinner) {
         $('resultBadge').textContent = '🏆';
-        $('resultTitle').textContent = !ONLINE.isHost ? 'นาเดียชนะการแข่งขัน!' : 'นาเดียเป็นฝ่ายชนะ!';
-        $('resultSub').textContent = 'แมตช์ออนไลน์ 1 ต่อ 1 สุดเดือดระหว่าง แมค vs นาเดีย!';
+        $('resultTitle').textContent = '🎉 คุณชนะการแข่งขัน!';
+        $('resultSub').textContent = 'ฝีเท้าสุดยอด เอาชนะการดวลแข้ง 1 ต่อ 1 สำเร็จ!';
+      } else {
+        $('resultBadge').textContent = '⚽';
+        $('resultTitle').textContent = (ONLINE.isHost ? 'นาเดีย' : 'แมค') + ' เป็นฝ่ายชนะ!';
+        $('resultSub').textContent = 'แมตช์ออนไลน์ 1 ต่อ 1 สุดมันส์ กดเล่นอีกรอบเพื่อแก้มือ!';
       }
+
+      var rewBox = $('rewardBox');
+      if (rewBox) rewBox.style.display = 'none';
 
       if (ONLINE.isHost && ONLINE.conn && ONLINE.conn.open) {
         ONLINE.conn.send({
@@ -1347,8 +1432,22 @@
     STATE.selectedCharId = charId;
     saveGameData();
     var cur = getSelectedChar();
-    $('p1AvatarDisplay').textContent = cur.avatar;
-    $('p1NameDisplay').textContent = cur.name;
+    if (ONLINE.isOnline) {
+      if (ONLINE.isHost) {
+        $('p1AvatarDisplay').textContent = cur.avatar;
+        if (ONLINE.conn && ONLINE.conn.open) {
+          ONLINE.conn.send({ type: 'init', p1Char: charId, p1Name: 'แมค (P1)' });
+        }
+      } else {
+        $('p2AvatarDisplay').textContent = cur.avatar;
+        if (ONLINE.conn && ONLINE.conn.open) {
+          ONLINE.conn.send({ type: 'ready', p2Char: charId, p2Name: 'นาเดีย (P2)' });
+        }
+      }
+    } else {
+      $('p1AvatarDisplay').textContent = cur.avatar;
+      $('p1NameDisplay').textContent = cur.name;
+    }
     Snd.play('whistle');
     $('rosterModal').classList.remove('open');
   };
@@ -1664,9 +1763,23 @@
     $('btnPlayAgain')?.addEventListener('click', function () {
       $('resultModal').classList.remove('open');
       if (ONLINE.isOnline && ONLINE.conn && ONLINE.conn.open) {
-        ONLINE.conn.send({ type: 'rematch' });
+        if (ONLINE.isHost) {
+          ONLINE.conn.send({ type: 'start_match' });
+          startMatch();
+        } else {
+          ONLINE.conn.send({ type: 'rematch' });
+        }
+      } else {
+        startMatch();
       }
-      startMatch();
+    });
+
+    $('btnRndHostCode')?.addEventListener('click', function () {
+      var rnd = 'doji-' + Math.floor(1000 + Math.random() * 9000);
+      if ($('hostRoomInput')) $('hostRoomInput').value = rnd;
+    });
+    $('btnShareRoomLink')?.addEventListener('click', function () {
+      shareRoomLink($('lblRoomCode')?.textContent);
     });
 
     $('btnChangeDiff')?.addEventListener('click', function () {
@@ -1721,8 +1834,41 @@
   }
 
   /* ==========================================================================
-     9. ONLINE 2-PLAYER ENGINE (WEBRTC PEERJS)
+     9. ONLINE 2-PLAYER ENGINE (WEBRTC PEERJS + OPENRELAY TURN)
      ========================================================================== */
+  var ICE_CONFIG = {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun.cloudflare.com:3478' },
+      {
+        urls: [
+          'turn:openrelay.metered.ca:80',
+          'turn:openrelay.metered.ca:443',
+          'turn:openrelay.metered.ca:443?transport=tcp'
+        ],
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      }
+    ],
+    iceCandidatePoolSize: 10
+  };
+
+  function ensurePeerJS(callback) {
+    if (typeof Peer !== 'undefined') {
+      callback();
+      return;
+    }
+    var s = document.createElement('script');
+    s.src = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
+    s.onload = function () { callback(); };
+    s.onerror = function () {
+      alert('ไม่สามารถโหลดไลบรารี PeerJS ได้ กรุณาลองใหม่อีกครั้ง');
+    };
+    document.head.appendChild(s);
+  }
+
   function openOnlineModal() {
     var modal = $('onlineModal');
     if (modal) modal.classList.add('open');
@@ -1757,195 +1903,277 @@
   }
 
   function startHost(roomCode) {
-    if (typeof Peer === 'undefined') {
-      alert('ระบบเชื่อมต่อ PeerJS กำลังโหลด กรุณาลองใหม่อีกครั้ง');
-      return;
-    }
+    ensurePeerJS(function () {
+      var cleanCode = (roomCode || 'mac-nadia').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'mac-nadia';
+      ONLINE.roomCode = cleanCode;
 
-    var cleanCode = (roomCode || 'mac-nadia').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'mac-nadia';
-    ONLINE.roomCode = cleanCode;
+      if (ONLINE.peer) {
+        try { ONLINE.peer.destroy(); } catch (e) {}
+        ONLINE.peer = null;
+      }
 
-    if (ONLINE.peer) {
-      try { ONLINE.peer.destroy(); } catch (e) {}
-    }
-
-    var peerId = 'dojibos-' + cleanCode;
-    try {
-      ONLINE.peer = new Peer(peerId, {
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-          ]
-        }
-      });
-    } catch (e) {
-      alert('ไม่สามารถสร้าง Peer ได้ กรุณารีเฟรชหน้าเว็บ');
-      return;
-    }
-
-    $('hostActivePanel').style.display = 'flex';
-    $('lblRoomCode').textContent = cleanCode;
-
-    ONLINE.peer.on('open', function (id) {
-      setOnlineModeUI(true, '⏳ ห้องพร้อมแล้ว: กำลังรอนาเดียเข้าห้อง (' + cleanCode + ')...');
-    });
-
-    ONLINE.peer.on('connection', function (conn) {
-      ONLINE.conn = conn;
-
-      conn.on('open', function () {
-        ONLINE.isOnline = true;
-        ONLINE.isHost = true;
-        closeOnlineModal();
-        setOnlineModeUI(true, '🟢 แข่งขัน Real-Time: แมค vs นาเดีย');
-
-        // Send welcome
-        conn.send({
-          type: 'init',
-          p1Char: STATE.selectedCharId,
-          p1Name: 'แมค (P1)'
+      var peerId = 'dojibos-' + cleanCode;
+      try {
+        ONLINE.peer = new Peer(peerId, {
+          config: ICE_CONFIG,
+          debug: 1
         });
-
-        Snd.play('whistle');
-        startMatch();
-      });
-
-      conn.on('data', function (data) {
-        if (!data) return;
-        if (data.type === 'ready') {
-          ONLINE.remotePlayerCharId = data.p2Char || 'nadia_star';
-          ONLINE.remotePlayerName = data.p2Name || 'นาเดีย (P2)';
-          var p2Char = CHARACTERS.find(function (c) { return c.id === ONLINE.remotePlayerCharId; }) || CHARACTERS[4];
-          $('p2NameDisplay').textContent = ONLINE.remotePlayerName;
-          $('p2AvatarDisplay').textContent = p2Char.avatar;
-        } else if (data.type === 'input') {
-          if (data.keys) ONLINE.guestKeys = data.keys;
-        } else if (data.type === 'rematch') {
-          $('resultModal').classList.remove('open');
-          startMatch();
-        }
-      });
-
-      conn.on('close', function () {
-        showGoalBanner('⚠️ นาเดียออกจากเกมแล้ว', 'กลับสู่โหมดเล่นคนเดียว');
-        setTimeout(function () {
-          leaveOnlineMode();
-        }, 2000);
-      });
-    });
-
-    ONLINE.peer.on('error', function (err) {
-      if (err.type === 'unavailable-id') {
-        var altCode = cleanCode + '-' + Math.floor(10 + Math.random() * 89);
-        startHost(altCode);
+      } catch (e) {
+        alert('ไม่สามารถสร้าง Peer ได้: ' + (e.message || e));
         return;
       }
-      setOnlineModeUI(false);
-      alert('การเชื่อมต่อขัดข้อง: ' + (err.message || err.type));
+
+      $('hostActivePanel').style.display = 'flex';
+      $('lblRoomCode').textContent = cleanCode;
+      if ($('hostRoomInput')) $('hostRoomInput').value = cleanCode;
+
+      setOnlineModeUI(true, '⏳ กำลังเปิดห้อง ' + cleanCode + ' กับเครือข่ายกลาง...');
+      if ($('hostWaitingText')) {
+        $('hostWaitingText').innerHTML = '⏳ กำลังเปิดห้อง <strong>"' + cleanCode + '"</strong>...';
+      }
+
+      // Sync window URL
+      if (window.history && window.history.replaceState) {
+        var newUrl = window.location.pathname + '?room=' + encodeURIComponent(cleanCode);
+        window.history.replaceState({}, '', newUrl);
+      }
+
+      ONLINE.peer.on('open', function (id) {
+        setOnlineModeUI(true, '⏳ ห้องพร้อมแล้ว: กำลังรอนาเดียเข้าห้อง (' + cleanCode + ')...');
+        if ($('hostWaitingText')) {
+          $('hostWaitingText').innerHTML = '⏳ ห้อง <strong>"' + cleanCode + '"</strong> พร้อมแล้ว! ส่งลิงก์ให้นาเดียกดเปิดในเครื่องได้เลย';
+        }
+      });
+
+      ONLINE.peer.on('connection', function (conn) {
+        ONLINE.conn = conn;
+
+        conn.on('open', function () {
+          ONLINE.isOnline = true;
+          ONLINE.isHost = true;
+          closeOnlineModal();
+          setOnlineModeUI(true, '🟢 แข่งขัน Real-Time: แมค vs นาเดีย');
+
+          // Send welcome with Mac's character
+          conn.send({
+            type: 'init',
+            p1Char: STATE.selectedCharId,
+            p1Name: 'แมค (P1)'
+          });
+
+          Snd.play('whistle');
+          showGoalBanner('นาเดียเข้าห้องแล้ว! ⚽✨', 'เริ่มดวล 1v1 สุดมันส์');
+          setTimeout(hideGoalBanner, 1800);
+          startMatch();
+        });
+
+        conn.on('data', function (data) {
+          if (!data) return;
+          if (data.type === 'ready') {
+            ONLINE.guestCharId = data.p2Char || 'nadia_star';
+            ONLINE.guestName = data.p2Name || 'นาเดีย (P2)';
+            var p2Char = getP2CharDef();
+            $('p2NameDisplay').textContent = ONLINE.guestName;
+            $('p2AvatarDisplay').textContent = p2Char.avatar;
+          } else if (data.type === 'input') {
+            if (data.keys) ONLINE.guestKeys = data.keys;
+          } else if (data.type === 'rematch') {
+            $('resultModal').classList.remove('open');
+            if (ONLINE.conn && ONLINE.conn.open) {
+              ONLINE.conn.send({ type: 'start_match' });
+            }
+            startMatch();
+          }
+        });
+
+        conn.on('close', function () {
+          showGoalBanner('⚠️ นาเดียออกจากเกมแล้ว', 'สลับกลับสู่โหมดเล่นคนเดียว');
+          setTimeout(function () {
+            leaveOnlineMode();
+          }, 2200);
+        });
+
+        conn.on('error', function (err) {
+          console.warn('Host conn error:', err);
+        });
+      });
+
+      ONLINE.peer.on('error', function (err) {
+        if (err.type === 'unavailable-id') {
+          var altCode = cleanCode + '-' + Math.floor(10 + Math.random() * 89);
+          if ($('hostRoomInput')) $('hostRoomInput').value = altCode;
+          if ($('lblRoomCode')) $('lblRoomCode').textContent = altCode;
+          if ($('hostWaitingText')) {
+            $('hostWaitingText').innerHTML = '⚠️ รหัสเดิมยังติดค้างในระบบ จึงเปลี่ยนเป็น <strong>"' + altCode + '"</strong> ให้อัตโนมัติ (กรุณาส่งลิงก์ใหม่นี้นะคะ)';
+          }
+          if (window.history && window.history.replaceState) {
+            var altUrl = window.location.pathname + '?room=' + encodeURIComponent(altCode);
+            window.history.replaceState({}, '', altUrl);
+          }
+          startHost(altCode);
+          return;
+        }
+        setOnlineModeUI(false);
+        var msg = err.message || err.type || 'เกิดข้อผิดพลาดในการเชื่อมต่อ';
+        alert('การเชื่อมต่อขัดข้อง: ' + msg);
+      });
     });
   }
 
-  function startJoin(roomCode) {
-    if (typeof Peer === 'undefined') {
-      alert('ระบบเชื่อมต่อ PeerJS กำลังโหลด กรุณาลองใหม่อีกครั้ง');
-      return;
-    }
+  function startJoin(roomCode, retryCount) {
+    ensurePeerJS(function () {
+      var cleanCode = (roomCode || 'mac-nadia').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'mac-nadia';
+      ONLINE.roomCode = cleanCode;
+      var retries = retryCount || 0;
+      var MAX_RETRIES = 3;
 
-    var cleanCode = (roomCode || 'mac-nadia').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'mac-nadia';
-    ONLINE.roomCode = cleanCode;
+      var statusEl = $('joinStatusDisplay');
+      if (statusEl) {
+        statusEl.style.display = 'block';
+        statusEl.innerHTML = '<div class="online-connecting-box">⏳ กำลังเชื่อมต่อไปยังห้องของแมค <strong>"' + cleanCode + '"</strong>... ' + (retries > 0 ? '(รอบที่ ' + (retries + 1) + '/' + (MAX_RETRIES + 1) + ')' : '') + '</div>';
+      }
 
-    var statusEl = $('joinStatusDisplay');
-    if (statusEl) {
-      statusEl.style.display = 'block';
-      statusEl.innerHTML = '<span style="color:#0284c7">⏳ กำลังเชื่อมต่อไปยังห้องของแมค (' + cleanCode + ')...</span>';
-    }
+      if (ONLINE.peer) {
+        try { ONLINE.peer.destroy(); } catch (e) {}
+        ONLINE.peer = null;
+      }
 
-    if (ONLINE.peer) {
-      try { ONLINE.peer.destroy(); } catch (e) {}
-    }
-
-    try {
-      ONLINE.peer = new Peer({
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-          ]
+      try {
+        ONLINE.peer = new Peer({
+          config: ICE_CONFIG,
+          debug: 1
+        });
+      } catch (e) {
+        if (statusEl) {
+          statusEl.innerHTML = '<div class="online-error-box">❌ เริ่ม WebRTC ไม่สำเร็จ: ' + (e.message || e) + '</div>';
         }
-      });
-    } catch (e) {
-      alert('ไม่สามารถเริ่มระบบเชื่อมต่อได้');
-      return;
-    }
+        return;
+      }
 
-    ONLINE.peer.on('open', function () {
-      var targetId = 'dojibos-' + cleanCode;
-      var conn = ONLINE.peer.connect(targetId, { reliable: false });
-      ONLINE.conn = conn;
+      ONLINE.peer.on('open', function () {
+        var targetId = 'dojibos-' + cleanCode;
+        var conn = ONLINE.peer.connect(targetId, {
+          reliable: true
+        });
+        ONLINE.conn = conn;
 
-      conn.on('open', function () {
-        ONLINE.isOnline = true;
-        ONLINE.isHost = false;
-        closeOnlineModal();
-        setOnlineModeUI(true, '🟢 เชื่อมต่อสำเร็จ: คุณคือ นาเดีย (P2) แข่งกับแมค');
+        conn.on('open', function () {
+          ONLINE.isOnline = true;
+          ONLINE.isHost = false;
 
-        // Handshake
-        conn.send({
-          type: 'ready',
-          p2Char: STATE.selectedCharId,
-          p2Name: 'นาเดีย (P2)'
+          // Clear local solo timer on guest
+          if (matchInterval) {
+            clearInterval(matchInterval);
+            matchInterval = null;
+          }
+          STATE.isMatchRunning = true;
+          STATE.isGoalPaused = false;
+
+          closeOnlineModal();
+          setOnlineModeUI(true, '🟢 เชื่อมต่อสำเร็จ: คุณคือ นาเดีย (P2) ดวลกับแมค');
+
+          // Send ready handshake with Nadia's character
+          conn.send({
+            type: 'ready',
+            p2Char: STATE.selectedCharId,
+            p2Name: 'นาเดีย (P2)'
+          });
+
+          $('p1NameDisplay').textContent = 'แมค (P1)';
+          $('p2NameDisplay').textContent = 'นาเดีย (คุณ)';
+          var p2Char = getP2CharDef();
+          $('p2AvatarDisplay').textContent = p2Char.avatar;
+
+          Snd.play('whistle');
+          showGoalBanner('ยินดีต้อนรับนาเดีย! ⚽✨', 'เชื่อมต่อห้องของแมคสำเร็จ พร้อมลุย 1v1!');
+          setTimeout(hideGoalBanner, 2000);
         });
 
-        $('p1NameDisplay').textContent = 'แมค (P1)';
-        $('p2NameDisplay').textContent = 'นาเดีย (คุณ)';
-        $('p2AvatarDisplay').textContent = getSelectedChar().avatar;
-        Snd.play('whistle');
-        showGoalBanner('ยินดีต้อนรับนาเดีย! ⚽✨', 'เชื่อมต่อห้องของแมคสำเร็จ พร้อมลุย 1v1!');
-        setTimeout(hideGoalBanner, 2000);
+        conn.on('data', function (data) {
+          if (!data) return;
+          if (data.type === 'init') {
+            ONLINE.hostCharId = data.p1Char || 'doji_dog';
+            var p1Char = getP1CharDef();
+            $('p1AvatarDisplay').textContent = p1Char.avatar;
+          } else if (data.type === 'state') {
+            p1.x = data.p1.x; p1.y = data.p1.y; p1.vx = data.p1.vx; p1.vy = data.p1.vy; p1.facing = data.p1.facing; p1.isKicking = data.p1.isKicking;
+            p1.scaleX = data.p1.scaleX || 1; p1.scaleY = data.p1.scaleY || 1; p1.tilt = data.p1.tilt || 0; p1.bob = data.p1.bob || 0;
+            p2.x = data.p2.x; p2.y = data.p2.y; p2.vx = data.p2.vx; p2.vy = data.p2.vy; p2.facing = data.p2.facing; p2.isKicking = data.p2.isKicking;
+            p2.scaleX = data.p2.scaleX || 1; p2.scaleY = data.p2.scaleY || 1; p2.tilt = data.p2.tilt || 0; p2.bob = data.p2.bob || 0;
+            ball.x = data.ball.x; ball.y = data.ball.y; ball.vx = data.ball.vx; ball.vy = data.ball.vy;
+            ball.rotation = data.ball.rotation; ball.isSuper = data.ball.isSuper; ball.superColor = data.ball.superColor;
+
+            STATE.isMatchRunning = true;
+            STATE.p1Score = data.score1; STATE.p2Score = data.score2;
+            $('p1Score').textContent = data.score1; $('p2Score').textContent = data.score2;
+            STATE.timer = data.timer; $('matchTimer').textContent = data.timer;
+            STATE.p1SuperEnergy = data.p1Super; STATE.p2SuperEnergy = data.p2Super;
+            updateSuperBars();
+          } else if (data.type === 'goal') {
+            STATE.p1Score = data.s1; STATE.p2Score = data.s2;
+            STATE.isGoalPaused = true;
+            $('p1Score').textContent = data.s1; $('p2Score').textContent = data.s2;
+            var who = data.scorer === 2 ? 'นาเดีย (คุณ)' : 'แมค';
+            showGoalBanner(data.scorer === 2 ? 'GOOOOOAL! ⚽🔥' : 'GOAL! ⚽💥', who + ' ยิงประตูได้แล้ว!');
+            Snd.play('goal');
+            setTimeout(function () {
+              hideGoalBanner();
+              STATE.isGoalPaused = false;
+            }, 2200);
+          } else if (data.type === 'start_match') {
+            $('resultModal').classList.remove('open');
+            STATE.p1Score = 0; STATE.p2Score = 0; STATE.timer = 60;
+            $('p1Score').textContent = '0'; $('p2Score').textContent = '0'; $('matchTimer').textContent = '60';
+            STATE.isMatchRunning = true;
+            STATE.isGoalPaused = false;
+            Snd.play('whistle');
+            showGoalBanner('แมตช์ใหม่เริ่มต้น! ⚽⚡', 'ลุยกันต่อเลย!');
+            setTimeout(hideGoalBanner, 1500);
+          } else if (data.type === 'end') {
+            STATE.p1Score = data.s1; STATE.p2Score = data.s2;
+            endMatch();
+          }
+        });
+
+        conn.on('close', function () {
+          showGoalBanner('⚠️ ขาดการเชื่อมต่อ', 'แมคออกจากห้องแล้ว');
+          setTimeout(function () {
+            leaveOnlineMode();
+          }, 2200);
+        });
+
+        conn.on('error', function (err) {
+          console.warn('Guest conn error:', err);
+        });
       });
 
-      conn.on('data', function (data) {
-        if (!data) return;
-        if (data.type === 'init') {
-          var p1Char = CHARACTERS.find(function (c) { return c.id === data.p1Char; }) || CHARACTERS[0];
-          $('p1AvatarDisplay').textContent = p1Char.avatar;
-        } else if (data.type === 'state') {
-          p1.x = data.p1.x; p1.y = data.p1.y; p1.vx = data.p1.vx; p1.vy = data.p1.vy; p1.facing = data.p1.facing; p1.isKicking = data.p1.isKicking;
-          p2.x = data.p2.x; p2.y = data.p2.y; p2.vx = data.p2.vx; p2.vy = data.p2.vy; p2.facing = data.p2.facing; p2.isKicking = data.p2.isKicking;
-          ball.x = data.ball.x; ball.y = data.ball.y; ball.vx = data.ball.vx; ball.vy = data.ball.vy;
-          ball.rotation = data.ball.rotation; ball.isSuper = data.ball.isSuper; ball.superColor = data.ball.superColor;
+      ONLINE.peer.on('error', function (err) {
+        if (retries < MAX_RETRIES) {
+          if (statusEl) {
+            statusEl.innerHTML = '<div class="online-connecting-box">⏳ ยังไม่พบห้องของแมค กำลังลองเชื่อมต่อใหม่ (รอบที่ ' + (retries + 1) + '/' + MAX_RETRIES + ')...</div>';
+          }
+          setTimeout(function () {
+            startJoin(cleanCode, retries + 1);
+          }, 2200);
+          return;
+        }
 
-          STATE.p1Score = data.score1; STATE.p2Score = data.score2;
-          $('p1Score').textContent = data.score1; $('p2Score').textContent = data.score2;
-          STATE.timer = data.timer; $('matchTimer').textContent = data.timer;
-          STATE.p1SuperEnergy = data.p1Super; STATE.p2SuperEnergy = data.p2Super;
-          updateSuperBars();
-        } else if (data.type === 'goal') {
-          STATE.p1Score = data.s1; STATE.p2Score = data.s2;
-          $('p1Score').textContent = data.s1; $('p2Score').textContent = data.s2;
-          var who = data.scorer === 2 ? 'คุณ (นาเดีย)' : 'แมค';
-          showGoalBanner(data.scorer === 2 ? 'GOOOOAL! ⚽🔥' : 'GOAL! ⚽💥', who + ' ยิงประตูได้แล้ว!');
-          Snd.play('goal');
-          setTimeout(hideGoalBanner, 2200);
-        } else if (data.type === 'end') {
-          STATE.p1Score = data.s1; STATE.p2Score = data.s2;
-          endMatch();
+        if (statusEl) {
+          statusEl.innerHTML = '<div class="online-error-box">' +
+            '<div style="font-size:1.02rem;font-weight:900;color:#dc2626;margin-bottom:6px;">❌ ยังไม่พบห้อง "' + cleanCode + '"</div>' +
+            '<div style="font-size:0.83rem;color:#475569;margin-bottom:10px;line-height:1.5;">' +
+              '• แมคอาจจะยังไม่ได้กดปุ่ม <strong>"⚽ สร้างห้องแข่ง"</strong><br>' +
+              '• หรือรหัสห้องไม่ตรงกัน (ลองเช็ครหัสที่แมคส่งมา)' +
+            '</div>' +
+            '<button class="btn-retry-join" id="btnManualRetryJoin">🔄 ลองเชื่อมต่อใหม่อีกครั้ง</button>' +
+          '</div>';
+
+          $('btnManualRetryJoin')?.addEventListener('click', function () {
+            var code = ($('joinRoomInput')?.value || cleanCode).trim();
+            startJoin(code, 0);
+          });
         }
       });
-
-      conn.on('close', function () {
-        showGoalBanner('⚠️ ขาดการเชื่อมต่อ', 'แมคออกจากห้องแล้ว');
-        setTimeout(function () {
-          leaveOnlineMode();
-        }, 2000);
-      });
-    });
-
-    ONLINE.peer.on('error', function (err) {
-      if (statusEl) {
-        statusEl.innerHTML = '<span style="color:#dc2626">❌ ไม่พบห้อง "' + cleanCode + '" (แมคอาจจะยังไม่ได้กดสร้างห้อง)</span>';
-      }
     });
   }
 
@@ -1972,13 +2200,19 @@
       var a = $('copyAlert');
       if (a) {
         a.style.display = 'block';
-        setTimeout(function () { a.style.display = 'none'; }, 3000);
+        setTimeout(function () { a.style.display = 'none'; }, 3500);
       }
       var b = $('btnCopyRoomLinkInline');
       if (b) {
         var old = b.textContent;
         b.textContent = '✅ คัดลอกแล้ว!';
         setTimeout(function () { b.textContent = old; }, 2000);
+      }
+      var c = $('btnCopyRoomLink');
+      if (c) {
+        var oldC = c.textContent;
+        c.textContent = '✅ คัดลอกลิงก์สำเร็จ!';
+        setTimeout(function () { c.textContent = oldC; }, 2000);
       }
     }
 
@@ -1991,9 +2225,33 @@
     }
   }
 
+  function shareRoomLink(code) {
+    var room = code || ONLINE.roomCode || 'mac-nadia';
+    var url = window.location.origin + window.location.pathname + '?room=' + encodeURIComponent(room);
+    if (navigator.share) {
+      navigator.share({
+        title: 'The Dojibos - ดวลฟุตบอล 1 ต่อ 1!',
+        text: 'แมคชวนเล่นฟุตบอล The Dojibos เข้าห้องมาแข่งกันเลย! (รหัสห้อง: ' + room + ')',
+        url: url
+      }).catch(function () {});
+    } else {
+      copyRoomLink(code);
+    }
+  }
+
   /* ==========================================================================
      10. PASSWORD GATE (VIP CHECK-IN)
      ========================================================================== */
+  var PENDING_ROOM_JOIN = null;
+
+  function isGateAuthed() {
+    try {
+      return (localStorage.getItem('nadiaplayground_auth') || '').toLowerCase() === 'larny';
+    } catch (e) {
+      return false;
+    }
+  }
+
   function setupPasswordGate() {
     var overlay = $('gateOverlay');
     var input = $('gatePass');
@@ -2002,15 +2260,7 @@
     var box = $('gateBox');
     if (!overlay || !input || !btn) return;
 
-    function isAuthed() {
-      try {
-        return (localStorage.getItem('nadiaplayground_auth') || '').toLowerCase() === 'larny';
-      } catch (e) {
-        return false;
-      }
-    }
-
-    if (!isAuthed()) {
+    if (!isGateAuthed()) {
       overlay.style.display = 'flex';
       document.body.style.overflow = 'hidden';
       setTimeout(function () { input.focus(); }, 150);
@@ -2033,6 +2283,14 @@
           overlay.style.display = 'none';
         }, 300);
         Snd.play('whistle');
+
+        if (PENDING_ROOM_JOIN) {
+          var targetRoom = PENDING_ROOM_JOIN;
+          PENDING_ROOM_JOIN = null;
+          setTimeout(function () {
+            startJoin(targetRoom, 0);
+          }, 350);
+        }
       } else {
         if (err) err.style.display = 'block';
         if (box) {
@@ -2064,7 +2322,7 @@
   }
 
   /* ==========================================================================
-     10. INITIALIZATION
+     11. INITIALIZATION
      ========================================================================== */
   function init() {
     canvas = $('pitchCanvas');
@@ -2112,9 +2370,13 @@
     var roomQuery = urlParams.get('room') || urlParams.get('join');
     if (roomQuery) {
       if ($('joinRoomInput')) $('joinRoomInput').value = roomQuery;
-      setTimeout(function () {
-        startJoin(roomQuery);
-      }, 600);
+      if (isGateAuthed()) {
+        setTimeout(function () {
+          startJoin(roomQuery, 0);
+        }, 500);
+      } else {
+        PENDING_ROOM_JOIN = roomQuery;
+      }
     }
   }
 

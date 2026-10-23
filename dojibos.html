@@ -195,18 +195,24 @@
         <p>สร้างห้องเพื่อรับลิงก์ แล้วกดส่งให้นาเดียเปิดในเบราว์เซอร์</p>
         
         <div class="room-action-box">
-          <input type="text" id="hostRoomInput" class="room-text-input" placeholder="รหัสห้อง (เช่น mac-nadia)" value="mac-nadia" maxlength="18">
+          <div style="display:flex;gap:6px;">
+            <input type="text" id="hostRoomInput" class="room-text-input" placeholder="รหัสห้อง (เช่น mac-nadia)" value="mac-nadia" maxlength="18">
+            <button class="btn-rnd-code" id="btnRndHostCode" type="button" title="สุ่มรหัสห้องใหม่" style="background:#e0f2fe;border:2px solid #bae6fd;border-radius:10px;padding:0 12px;font-size:1.1rem;cursor:pointer;">🎲</button>
+          </div>
           <button class="btn-primary" id="btnStartHost">⚽ สร้างห้องแข่ง</button>
         </div>
 
         <div class="host-active-panel" id="hostActivePanel" style="display:none">
           <div class="room-code-display">
-            <span>รหัสห้อง:</span> <strong id="lblRoomCode">mac-nadia</strong>
+            <span>รหัสห้อง:</span> <strong id="lblRoomCode" style="font-size:1.15rem;letter-spacing:1px;color:#0284c7;">mac-nadia</strong>
           </div>
-          <button class="btn-copy-link" id="btnCopyRoomLink">📋 คัดลอกลิงก์ส่งให้นาเดีย</button>
-          <div class="copy-alert" id="copyAlert" style="display:none">✅ คัดลอกลิงก์แล้ว! ส่งให้นาเดียเปิดในคอมได้ทันที</div>
-          <div class="waiting-indicator">
-            <span class="spin-icon">⏳</span> กำลังรอนาเดียกดลิงก์เข้าห้อง...
+          <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+            <button class="btn-copy-link" id="btnCopyRoomLink">📋 คัดลอกลิงก์ส่งให้นาเดีย</button>
+            <button class="btn-copy-link" id="btnShareRoomLink" style="background:#059669;">📲 แชร์ลิงก์ห้อง</button>
+          </div>
+          <div class="copy-alert" id="copyAlert" style="display:none">✅ คัดลอกลิงก์แล้ว! ส่งให้นาเดียเปิดในคอมหรือมือถือได้ทันที</div>
+          <div class="waiting-indicator" id="hostWaitingIndicator">
+            <span class="spin-icon">⏳</span> <span id="hostWaitingText">กำลังรอนาเดียกดลิงก์เข้าห้อง...</span>
           </div>
         </div>
       </div>

@@ -82,7 +82,12 @@ assert.ok(js.includes('triggerGoal'), 'Must have goal detection and celebration'
 assert.ok(js.includes('performKick'), 'Must have kick mechanics');
 assert.ok(js.includes('updateAI'), 'Must have AI opponent bot');
 assert.ok(js.includes('startKickoffSequence'), 'Must have kickoff countdown');
-console.log('✔ dojibos.js engine, 5 difficulty levels & online WebRTC validated');
+assert.ok(js.includes('openrelay.metered.ca'), 'Must configure TURN servers for cellular 4G/5G and NAT traversal');
+assert.ok(js.includes('reliable: true'), 'Must configure reliable WebRTC data channel');
+assert.ok(js.includes('PENDING_ROOM_JOIN'), 'Must handle password gate deferral on join query');
+assert.ok(js.includes('getP1CharDef'), 'Must correctly map P1 character definitions');
+assert.ok(js.includes('getP2CharDef'), 'Must correctly map P2 character definitions');
+console.log('✔ dojibos.js engine, 5 difficulty levels & online WebRTC + TURN validated');
 
 // 4. Verify index.html portal
 const indexHtml = fs.readFileSync(dir + '\\index.html', 'utf8');
