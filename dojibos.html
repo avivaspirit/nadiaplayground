@@ -36,6 +36,7 @@
       <span id="diffPillIcon">🟢</span>
       <span id="diffPillText">ระดับ 1 (ง่ายมาก)</span>
     </button>
+    <button class="nav-btn btn-online-nav" id="btnOnlineNav" title="แข่งออนไลน์ 2 คนระหว่างคอม 2 เครื่อง (แมค & นาเดีย)">🌐 เล่น 2 คนออนไลน์ ✨</button>
     <button class="nav-btn" id="btnAudioToggle" title="เปิด/ปิดเสียง">🔊</button>
     <button class="nav-btn" id="btnRosterModal" title="เลือกตัวละคร">🐾 เปลี่ยนตัว</button>
     <button class="nav-btn btn-lock" id="btnRelock" title="ออกจากระบบ / ล็อกรหัสผ่าน">🔒 ล็อก</button>
@@ -72,6 +73,42 @@
         </div>
       </div>
       <div class="team-avatar" id="p2AvatarDisplay">🤖</div>
+    </div>
+  </div>
+
+  <!-- GAME MODE & QUICK DIFFICULTY TOOLBAR (ชัดเจน หาง่าย ไม่พลาดแน่นอน) -->
+  <div class="mode-difficulty-bar" id="modeDifficultyBar">
+    <div class="mode-tabs-row">
+      <button class="mode-tab active" id="tabModeSolo">
+        🤖 โหมดเล่นคนเดียว (แข่งกับบอท)
+      </button>
+      <button class="mode-tab mode-tab-online" id="tabModeOnline">
+        🌐 โหมดออนไลน์ 2 คน (แมค & นาเดีย) ✨
+      </button>
+    </div>
+
+    <!-- 5 Difficulty Levels Quick Buttons (ชัดเจนตรงหน้าจอ ไม่ต้องหา) -->
+    <div class="quick-diff-selector" id="quickDiffSelector">
+      <span class="diff-title-tag">🎯 ปรับระดับความยาก:</span>
+      <div class="diff-buttons-group">
+        <button class="quick-diff-btn active" data-lvl="1" title="ระดับ 1: ง่ายมาก เล่นสบาย ยิงเข้าง่าย">🟢 เลเวล 1 (ง่ายมาก)</button>
+        <button class="quick-diff-btn" data-lvl="2" title="ระดับ 2: ง่าย เริ่มสกัดบอลเบาๆ">🟡 เลเวล 2 (ง่าย)</button>
+        <button class="quick-diff-btn" data-lvl="3" title="ระดับ 3: ปานกลาง สูสี ท้าทาย">🟠 เลเวล 3 (ปานกลาง)</button>
+        <button class="quick-diff-btn" data-lvl="4" title="ระดับ 4: ยาก ว่องไว ดักทางแม่น">🔴 เลเวล 4 (ยาก)</button>
+        <button class="quick-diff-btn" data-lvl="5" title="ระดับ 5: บอสระดับโลก ซัดหนัก ไวปานสายฟ้า">🟣 เลเวล 5 (ระดับโลก)</button>
+      </div>
+    </div>
+
+    <!-- Online Match Info Strip (Visible in Online Mode) -->
+    <div class="online-match-strip" id="onlineMatchStrip" style="display:none">
+      <div class="online-status-badge">
+        <span class="online-ping-dot" id="onlinePingDot"></span>
+        <span id="onlineStatusText">กำลังเชื่อมต่อออนไลน์...</span>
+      </div>
+      <div class="online-actions-inline">
+        <button class="btn-copy-mini" id="btnCopyRoomLinkInline" style="display:none">📋 คัดลอกลิงก์ให้นาเดีย</button>
+        <button class="btn-leave-online" id="btnLeaveOnline">❌ ออกจากโหมดออนไลน์</button>
+      </div>
     </div>
   </div>
 
@@ -129,6 +166,59 @@
 
     <div class="roster-grid" id="rosterGrid">
       <!-- Rendered dynamically by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: ONLINE 2-PLAYER LOBBY (เล่นออนไลน์ 2 คน: แมค & นาเดีย) -->
+<!-- ========================================================================= -->
+<div class="modal-overlay" id="onlineModal">
+  <div class="modal-card online-modal-card">
+    <button class="modal-close" id="closeOnlineModal">&times;</button>
+    <div class="modal-header">
+      <span class="modal-icon">🌐</span>
+      <h2>เล่นฟุตบอลออนไลน์ 2 คน (แมค & นาเดีย)</h2>
+      <p>ดวลแข้ง 1 ต่อ 1 ผ่านคอมคนละเครื่องแบบ Real-Time ด้วย WebRTC</p>
+    </div>
+
+    <div class="online-lobby-grid">
+      <!-- 1. HOST ROOM (สำหรับแมค) -->
+      <div class="online-card host-card">
+        <div class="card-badge">👑 เจ้าบ้าน (Host)</div>
+        <h3>1. สร้างห้องแข่ง (แมค)</h3>
+        <p>สร้างห้องเพื่อรับลิงก์ แล้วกดส่งให้นาเดียเปิดในเบราว์เซอร์</p>
+        
+        <div class="room-action-box">
+          <input type="text" id="hostRoomInput" class="room-text-input" placeholder="รหัสห้อง (เช่น mac-nadia)" value="mac-nadia" maxlength="18">
+          <button class="btn-primary" id="btnStartHost">⚽ สร้างห้องแข่ง</button>
+        </div>
+
+        <div class="host-active-panel" id="hostActivePanel" style="display:none">
+          <div class="room-code-display">
+            <span>รหัสห้อง:</span> <strong id="lblRoomCode">mac-nadia</strong>
+          </div>
+          <button class="btn-copy-link" id="btnCopyRoomLink">📋 คัดลอกลิงก์ส่งให้นาเดีย</button>
+          <div class="copy-alert" id="copyAlert" style="display:none">✅ คัดลอกลิงก์แล้ว! ส่งให้นาเดียเปิดในคอมได้ทันที</div>
+          <div class="waiting-indicator">
+            <span class="spin-icon">⏳</span> กำลังรอนาเดียกดลิงก์เข้าห้อง...
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. JOIN ROOM (สำหรับนาเดีย) -->
+      <div class="online-card join-card">
+        <div class="card-badge join-badge">🚀 ผู้มาเยือน (Guest)</div>
+        <h3>2. เข้าร่วมห้อง (นาเดีย)</h3>
+        <p>ใส่รหัสห้องที่แมคตั้งไว้ แล้วกดเข้าร่วมได้ทันที (หรือเปิดจากลิงก์ที่แมคส่งมา)</p>
+        
+        <div class="room-action-box">
+          <input type="text" id="joinRoomInput" class="room-text-input" placeholder="ใส่รหัสห้อง (เช่น mac-nadia)" value="mac-nadia" maxlength="18">
+          <button class="btn-join-primary" id="btnStartJoin">🥊 เข้าเล่นทันที</button>
+        </div>
+
+        <div class="join-status-display" id="joinStatusDisplay" style="display:none"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -206,6 +296,7 @@
 </div>
 
 <!-- SCRIPTS -->
-<script src="dojibos.js?v=1"></script>
+<script src="peerjs.min.js"></script>
+<script src="dojibos.js?v=2"></script>
 </body>
 </html>

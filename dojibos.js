@@ -251,7 +251,7 @@
   ];
 
   /* ==========================================================================
-     4. GAME STATE
+     4. GAME STATE & ONLINE 2-PLAYER STATE
      ========================================================================== */
   var STATE = {
     coins: 500,
@@ -266,6 +266,17 @@
     p1SuperEnergy: 0,
     p2SuperEnergy: 0,
     aiOpponentIndex: 0
+  };
+
+  var ONLINE = {
+    isOnline: false,
+    isHost: false,
+    peer: null,
+    conn: null,
+    roomCode: '',
+    remotePlayerName: 'นาเดีย (P2)',
+    remotePlayerCharId: 'nadia_star',
+    guestKeys: { left: false, right: false, jump: false, kick: false, super: false }
   };
 
   function loadSavedData() {
@@ -306,6 +317,24 @@
     var textEl = $('diffPillText');
     if (iconEl) iconEl.textContent = diff.icon;
     if (textEl) textEl.textContent = diff.name.split(' (')[0] + ' (' + diff.tagText + ')';
+
+    // Highlight the active button in the quick difficulty bar above pitch
+    var btns = document.querySelectorAll('.quick-diff-btn');
+    btns.forEach(function (btn) {
+      var lvl = parseInt(btn.dataset.lvl, 10);
+      if (lvl === STATE.difficulty) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    // Also update diff cards inside modal if open
+    var cards = document.querySelectorAll('.diff-card');
+    cards.forEach(function (card, idx) {
+      if (idx + 1 === STATE.difficulty) card.classList.add('active');
+      else card.classList.remove('active');
+    });
   }
 
   /* ==========================================================================
@@ -421,9 +450,32 @@
   function updatePhysics() {
     if (!STATE.isMatchRunning || STATE.isGoalPaused) return;
 
+    // IF GUEST (Nadia): send local input to Host, Host is authoritative!
+    if (ONLINE.isOnline && !ONLINE.isHost) {
+      if (ONLINE.conn && ONLINE.conn.open) {
+        ONLINE.conn.send({
+          type: 'input',
+          keys: {
+            left: keys.left,
+            right: keys.right,
+            jump: keys.jump,
+            kick: keys.kick,
+            super: keys.super
+          }
+        });
+      }
+      if (ball.isSuper) {
+        ball.trail.push({ x: ball.x, y: ball.y, color: ball.superColor, r: ball.radius });
+        if (ball.trail.length > 10) ball.trail.shift();
+      } else {
+        if (ball.trail.length > 0) ball.trail.shift();
+      }
+      return;
+    }
+
     var curChar = getSelectedChar();
 
-    // 1. Player 1 Movement
+    // 1. Player 1 Movement (Local Mac or Solo Player)
     if (keys.left) p1.vx = -curChar.speed;
     else if (keys.right) p1.vx = curChar.speed;
     else p1.vx *= 0.75;
@@ -466,8 +518,55 @@
       if (p1.kickTimer === 0) p1.isKicking = false;
     }
 
-    // 2. Player 2 (AI Bot) Movement
-    updateAI();
+    // 2. Player 2 Movement (Nadia via WebRTC if Online Host, otherwise AI Bot)
+    if (ONLINE.isOnline && ONLINE.isHost) {
+      var p2Char = CHARACTERS.find(function (c) { return c.id === ONLINE.remotePlayerCharId; }) || CHARACTERS[4];
+      if (ONLINE.guestKeys.left) {
+        p2.vx = -p2Char.speed;
+        p2.facing = -1;
+      } else if (ONLINE.guestKeys.right) {
+        p2.vx = p2Char.speed;
+        p2.facing = 1;
+      } else {
+        p2.vx *= 0.75;
+      }
+
+      if (ONLINE.guestKeys.jump && p2.isGrounded) {
+        p2.vy = -p2Char.jumpForce;
+        p2.isGrounded = false;
+        Snd.play('jump');
+      }
+
+      p2.vy += 0.48;
+      p2.x += p2.vx;
+      p2.y += p2.vy;
+
+      if (p2.y >= GROUND_Y) {
+        p2.y = GROUND_Y;
+        p2.vy = 0;
+        p2.isGrounded = true;
+      }
+
+      if (p2.x < GOAL_W + p2.radius) p2.x = GOAL_W + p2.radius;
+      if (p2.x > W - GOAL_W - p2.radius) p2.x = W - GOAL_W - p2.radius;
+
+      if (ONLINE.guestKeys.kick && !p2.isKicking) {
+        p2.isKicking = true;
+        p2.kickTimer = 10;
+        performKick(p2, false, p2Char.kickPower);
+      }
+      if (ONLINE.guestKeys.super && STATE.p2SuperEnergy >= 100) {
+        STATE.p2SuperEnergy = 0;
+        updateSuperBars();
+        performKick(p2, true, p2Char.kickPower);
+      }
+      if (p2.kickTimer > 0) {
+        p2.kickTimer--;
+        if (p2.kickTimer === 0) p2.isKicking = false;
+      }
+    } else {
+      updateAI();
+    }
 
     // 3. Ball Physics
     ball.vy += 0.36; // Gravity
@@ -545,6 +644,21 @@
       if (ball.trail.length > 10) ball.trail.shift();
     } else {
       if (ball.trail.length > 0) ball.trail.shift();
+    }
+
+    // 5. If Host, broadcast updated authoritative state to Guest (Nadia)
+    if (ONLINE.isOnline && ONLINE.isHost && ONLINE.conn && ONLINE.conn.open) {
+      ONLINE.conn.send({
+        type: 'state',
+        p1: { x: Math.round(p1.x), y: Math.round(p1.y), vx: p1.vx, vy: p1.vy, facing: p1.facing, isKicking: p1.isKicking },
+        p2: { x: Math.round(p2.x), y: Math.round(p2.y), vx: p2.vx, vy: p2.vy, facing: p2.facing, isKicking: p2.isKicking },
+        ball: { x: Math.round(ball.x), y: Math.round(ball.y), vx: ball.vx, vy: ball.vy, rotation: ball.rotation, isSuper: ball.isSuper, superColor: ball.superColor },
+        score1: STATE.p1Score,
+        score2: STATE.p2Score,
+        timer: STATE.timer,
+        p1Super: STATE.p1SuperEnergy,
+        p2Super: STATE.p2SuperEnergy
+      });
     }
   }
 
@@ -669,13 +783,24 @@
     if (scorer === 1) {
       STATE.p1Score++;
       $('p1Score').textContent = STATE.p1Score;
-      showGoalBanner('GOOOOAL! ⚽🔥', getSelectedChar().name + ' ทำประตูได้อย่างงดงาม!');
+      var p1Title = ONLINE.isOnline ? (ONLINE.isHost ? 'คุณ (แมค)' : 'แมค') : getSelectedChar().name;
+      showGoalBanner('GOOOOAL! ⚽🔥', p1Title + ' ทำประตูได้อย่างงดงาม!');
       Snd.play('goal');
     } else {
       STATE.p2Score++;
       $('p2Score').textContent = STATE.p2Score;
-      showGoalBanner('GOAL! ⚽💥', AI_NAMES[STATE.aiOpponentIndex] + ' ซัดเข้าประตูไปแล้ว!');
+      var p2Title = ONLINE.isOnline ? (!ONLINE.isHost ? 'คุณ (นาเดีย)' : 'นาเดีย') : AI_NAMES[STATE.aiOpponentIndex];
+      showGoalBanner(ONLINE.isOnline ? 'GOOOOAL! ⚽🔥' : 'GOAL! ⚽💥', p2Title + ' ซัดเข้าประตูไปแล้ว!');
       Snd.play('goal');
+    }
+
+    if (ONLINE.isOnline && ONLINE.isHost && ONLINE.conn && ONLINE.conn.open) {
+      ONLINE.conn.send({
+        type: 'goal',
+        scorer: scorer,
+        s1: STATE.p1Score,
+        s2: STATE.p2Score
+      });
     }
 
     setTimeout(function () {
@@ -783,7 +908,10 @@
 
     // 5. Draw Players
     drawPlayer(p1, getSelectedChar(), true);
-    drawPlayer(p2, { avatar: '🤖', jerseyColor: '#e63946', name: AI_NAMES[STATE.aiOpponentIndex] }, false);
+    var p2Def = ONLINE.isOnline
+      ? (CHARACTERS.find(function (c) { return c.id === ONLINE.remotePlayerCharId; }) || CHARACTERS[4])
+      : { avatar: '🤖', jerseyColor: '#e63946', name: AI_NAMES[STATE.aiOpponentIndex] };
+    drawPlayer(p2, p2Def, false);
 
     // 6. Draw Soccer Ball
     ctx.save();
@@ -913,10 +1041,18 @@
     $('matchPeriod').textContent = '1ST HALF';
 
     var curChar = getSelectedChar();
-    $('p1AvatarDisplay').textContent = curChar.avatar;
-    $('p1NameDisplay').textContent = curChar.name;
-    $('p2AvatarDisplay').textContent = '🤖';
-    $('p2NameDisplay').textContent = AI_NAMES[STATE.aiOpponentIndex];
+    if (ONLINE.isOnline) {
+      $('p1AvatarDisplay').textContent = curChar.avatar;
+      $('p1NameDisplay').textContent = ONLINE.isHost ? 'แมค (P1)' : 'แมค';
+      var p2Char = CHARACTERS.find(function (c) { return c.id === ONLINE.remotePlayerCharId; }) || CHARACTERS[4];
+      $('p2AvatarDisplay').textContent = p2Char.avatar;
+      $('p2NameDisplay').textContent = ONLINE.isHost ? 'นาเดีย (P2)' : 'นาเดีย';
+    } else {
+      $('p1AvatarDisplay').textContent = curChar.avatar;
+      $('p1NameDisplay').textContent = curChar.name;
+      $('p2AvatarDisplay').textContent = '🤖';
+      $('p2NameDisplay').textContent = AI_NAMES[STATE.aiOpponentIndex];
+    }
 
     updateSuperBars();
     resetPositions(0);
@@ -952,37 +1088,61 @@
     $('resP1Score').textContent = STATE.p1Score;
     $('resP2Score').textContent = STATE.p2Score;
 
-    var diffObj = getCurrentDifficulty();
+    if (ONLINE.isOnline) {
+      if (isWin) {
+        $('resultBadge').textContent = '🏆';
+        $('resultTitle').textContent = ONLINE.isHost ? 'แมคชนะการแข่งขัน!' : 'แมคชนะในนัดนี้!';
+        $('resultSub').textContent = 'แมตช์ออนไลน์ 1 ต่อ 1 สุดเดือดระหว่าง แมค vs นาเดีย!';
+      } else if (isDraw) {
+        $('resultBadge').textContent = '🤝';
+        $('resultTitle').textContent = 'เสมอกันอย่างดุเดือด!';
+        $('resultSub').textContent = 'แมค และ นาเดีย ฝีมือสูสีกันมาก แข่งใหม่อีกนัดเพื่อตัดสิน!';
+      } else {
+        $('resultBadge').textContent = '🏆';
+        $('resultTitle').textContent = !ONLINE.isHost ? 'นาเดียชนะการแข่งขัน!' : 'นาเดียเป็นฝ่ายชนะ!';
+        $('resultSub').textContent = 'แมตช์ออนไลน์ 1 ต่อ 1 สุดเดือดระหว่าง แมค vs นาเดีย!';
+      }
 
-    if (isWin) {
-      $('resultBadge').textContent = '🏆';
-      $('resultTitle').textContent = 'ชัยชนะอันยอดเยี่ยม!';
-      $('resultSub').textContent = 'คุณเอาชนะ ' + AI_NAMES[STATE.aiOpponentIndex] + ' ใน ' + diffObj.name.split(' (')[0] + ' (' + diffObj.tagText + ') ได้สำเร็จ!';
-      var winCoins = 150 + (STATE.p1Score * 25);
-      STATE.coins += winCoins;
-      STATE.trophies += 1;
-      $('rewardCoins').textContent = '+' + winCoins;
-      $('rewardTrophies').textContent = '+1';
-      Snd.play('goal');
-    } else if (isDraw) {
-      $('resultBadge').textContent = '🤝';
-      $('resultTitle').textContent = 'เสมอกันอย่างดุเดือด!';
-      $('resultSub').textContent = 'สูสีกันมากใน ' + diffObj.name.split(' (')[0] + ' (' + diffObj.tagText + ') แข่งใหม่อีกนัดเพื่อตัดสิน!';
-      STATE.coins += 60;
-      $('rewardCoins').textContent = '+60';
-      $('rewardTrophies').textContent = '+0';
+      if (ONLINE.isHost && ONLINE.conn && ONLINE.conn.open) {
+        ONLINE.conn.send({
+          type: 'end',
+          s1: STATE.p1Score,
+          s2: STATE.p2Score
+        });
+      }
     } else {
-      $('resultBadge').textContent = '😢';
-      $('resultTitle').textContent = 'พ่ายแพ้ในนัดนี้!';
-      $('resultSub').textContent = 'แข่งใน ' + diffObj.name.split(' (')[0] + ' (' + diffObj.tagText + ') อย่าเพิ่งท้อ ลองปรับระดับความยากหรือแข่งใหม่!';
-      STATE.coins += 30;
-      $('rewardCoins').textContent = '+30';
-      $('rewardTrophies').textContent = '+0';
-    }
+      var diffObj = getCurrentDifficulty();
 
-    $('hudCoins').textContent = STATE.coins.toLocaleString();
-    $('hudTrophies').textContent = STATE.trophies.toLocaleString();
-    saveGameData();
+      if (isWin) {
+        $('resultBadge').textContent = '🏆';
+        $('resultTitle').textContent = 'ชัยชนะอันยอดเยี่ยม!';
+        $('resultSub').textContent = 'คุณเอาชนะ ' + AI_NAMES[STATE.aiOpponentIndex] + ' ใน ' + diffObj.name.split(' (')[0] + ' (' + diffObj.tagText + ') ได้สำเร็จ!';
+        var winCoins = 150 + (STATE.p1Score * 25);
+        STATE.coins += winCoins;
+        STATE.trophies += 1;
+        $('rewardCoins').textContent = '+' + winCoins;
+        $('rewardTrophies').textContent = '+1';
+        Snd.play('goal');
+      } else if (isDraw) {
+        $('resultBadge').textContent = '🤝';
+        $('resultTitle').textContent = 'เสมอกันอย่างดุเดือด!';
+        $('resultSub').textContent = 'สูสีกันมากใน ' + diffObj.name.split(' (')[0] + ' (' + diffObj.tagText + ') แข่งใหม่อีกนัดเพื่อตัดสิน!';
+        STATE.coins += 60;
+        $('rewardCoins').textContent = '+60';
+        $('rewardTrophies').textContent = '+0';
+      } else {
+        $('resultBadge').textContent = '😢';
+        $('resultTitle').textContent = 'พ่ายแพ้ในนัดนี้!';
+        $('resultSub').textContent = 'แข่งใน ' + diffObj.name.split(' (')[0] + ' (' + diffObj.tagText + ') อย่าเพิ่งท้อ ลองปรับระดับความยากหรือแข่งใหม่!';
+        STATE.coins += 30;
+        $('rewardCoins').textContent = '+30';
+        $('rewardTrophies').textContent = '+0';
+      }
+
+      $('hudCoins').textContent = STATE.coins.toLocaleString();
+      $('hudTrophies').textContent = STATE.trophies.toLocaleString();
+      saveGameData();
+    }
 
     if (modal) modal.classList.add('open');
   }
@@ -1129,6 +1289,9 @@
 
     $('btnPlayAgain')?.addEventListener('click', function () {
       $('resultModal').classList.remove('open');
+      if (ONLINE.isOnline && ONLINE.conn && ONLINE.conn.open) {
+        ONLINE.conn.send({ type: 'rematch' });
+      }
       startMatch();
     });
 
@@ -1146,10 +1309,316 @@
     $('closeDiffModal')?.addEventListener('click', function () {
       $('diffModal').classList.remove('open');
     });
+
+    // Quick Difficulty Buttons on pitch toolbar
+    document.querySelectorAll('.quick-diff-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var lvl = parseInt(this.dataset.lvl, 10);
+        window.selectDifficulty(lvl);
+      });
+    });
+
+    // Game Mode Switcher
+    $('tabModeSolo')?.addEventListener('click', function () {
+      if (ONLINE.isOnline) leaveOnlineMode();
+    });
+    $('tabModeOnline')?.addEventListener('click', openOnlineModal);
+    $('btnOnlineNav')?.addEventListener('click', openOnlineModal);
+    $('closeOnlineModal')?.addEventListener('click', closeOnlineModal);
+
+    // Online Lobby Buttons
+    $('btnStartHost')?.addEventListener('click', function () {
+      var room = ($('hostRoomInput')?.value || 'mac-nadia').trim();
+      startHost(room);
+    });
+    $('btnStartJoin')?.addEventListener('click', function () {
+      var room = ($('joinRoomInput')?.value || 'mac-nadia').trim();
+      startJoin(room);
+    });
+    $('btnCopyRoomLink')?.addEventListener('click', function () {
+      copyRoomLink($('lblRoomCode')?.textContent);
+    });
+    $('btnCopyRoomLinkInline')?.addEventListener('click', function () {
+      copyRoomLink(ONLINE.roomCode);
+    });
+    $('btnLeaveOnline')?.addEventListener('click', function () {
+      leaveOnlineMode();
+    });
   }
 
   /* ==========================================================================
-     9. PASSWORD GATE (VIP CHECK-IN)
+     9. ONLINE 2-PLAYER ENGINE (WEBRTC PEERJS)
+     ========================================================================== */
+  function openOnlineModal() {
+    var modal = $('onlineModal');
+    if (modal) modal.classList.add('open');
+  }
+
+  function closeOnlineModal() {
+    var modal = $('onlineModal');
+    if (modal) modal.classList.remove('open');
+  }
+
+  function setOnlineModeUI(active, statusText) {
+    var barSolo = $('tabModeSolo');
+    var barOnline = $('tabModeOnline');
+    var diffSelector = $('quickDiffSelector');
+    var onlineStrip = $('onlineMatchStrip');
+    var statusEl = $('onlineStatusText');
+    var copyBtn = $('btnCopyRoomLinkInline');
+
+    if (active) {
+      barSolo?.classList.remove('active');
+      barOnline?.classList.add('active');
+      if (diffSelector) diffSelector.style.display = 'none';
+      if (onlineStrip) onlineStrip.style.display = 'flex';
+      if (statusEl) statusEl.textContent = statusText || '🟢 ออนไลน์: แมค vs นาเดีย';
+      if (copyBtn) copyBtn.style.display = ONLINE.isHost ? 'inline-block' : 'none';
+    } else {
+      barSolo?.classList.add('active');
+      barOnline?.classList.remove('active');
+      if (diffSelector) diffSelector.style.display = 'flex';
+      if (onlineStrip) onlineStrip.style.display = 'none';
+    }
+  }
+
+  function startHost(roomCode) {
+    if (typeof Peer === 'undefined') {
+      alert('ระบบเชื่อมต่อ PeerJS กำลังโหลด กรุณาลองใหม่อีกครั้ง');
+      return;
+    }
+
+    var cleanCode = (roomCode || 'mac-nadia').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'mac-nadia';
+    ONLINE.roomCode = cleanCode;
+
+    if (ONLINE.peer) {
+      try { ONLINE.peer.destroy(); } catch (e) {}
+    }
+
+    var peerId = 'dojibos-' + cleanCode;
+    try {
+      ONLINE.peer = new Peer(peerId, {
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+          ]
+        }
+      });
+    } catch (e) {
+      alert('ไม่สามารถสร้าง Peer ได้ กรุณารีเฟรชหน้าเว็บ');
+      return;
+    }
+
+    $('hostActivePanel').style.display = 'flex';
+    $('lblRoomCode').textContent = cleanCode;
+
+    ONLINE.peer.on('open', function (id) {
+      setOnlineModeUI(true, '⏳ ห้องพร้อมแล้ว: กำลังรอนาเดียเข้าห้อง (' + cleanCode + ')...');
+    });
+
+    ONLINE.peer.on('connection', function (conn) {
+      ONLINE.conn = conn;
+
+      conn.on('open', function () {
+        ONLINE.isOnline = true;
+        ONLINE.isHost = true;
+        closeOnlineModal();
+        setOnlineModeUI(true, '🟢 แข่งขัน Real-Time: แมค vs นาเดีย');
+
+        // Send welcome
+        conn.send({
+          type: 'init',
+          p1Char: STATE.selectedCharId,
+          p1Name: 'แมค (P1)'
+        });
+
+        Snd.play('whistle');
+        startMatch();
+      });
+
+      conn.on('data', function (data) {
+        if (!data) return;
+        if (data.type === 'ready') {
+          ONLINE.remotePlayerCharId = data.p2Char || 'nadia_star';
+          ONLINE.remotePlayerName = data.p2Name || 'นาเดีย (P2)';
+          var p2Char = CHARACTERS.find(function (c) { return c.id === ONLINE.remotePlayerCharId; }) || CHARACTERS[4];
+          $('p2NameDisplay').textContent = ONLINE.remotePlayerName;
+          $('p2AvatarDisplay').textContent = p2Char.avatar;
+        } else if (data.type === 'input') {
+          if (data.keys) ONLINE.guestKeys = data.keys;
+        } else if (data.type === 'rematch') {
+          $('resultModal').classList.remove('open');
+          startMatch();
+        }
+      });
+
+      conn.on('close', function () {
+        showGoalBanner('⚠️ นาเดียออกจากเกมแล้ว', 'กลับสู่โหมดเล่นคนเดียว');
+        setTimeout(function () {
+          leaveOnlineMode();
+        }, 2000);
+      });
+    });
+
+    ONLINE.peer.on('error', function (err) {
+      if (err.type === 'unavailable-id') {
+        var altCode = cleanCode + '-' + Math.floor(10 + Math.random() * 89);
+        startHost(altCode);
+        return;
+      }
+      setOnlineModeUI(false);
+      alert('การเชื่อมต่อขัดข้อง: ' + (err.message || err.type));
+    });
+  }
+
+  function startJoin(roomCode) {
+    if (typeof Peer === 'undefined') {
+      alert('ระบบเชื่อมต่อ PeerJS กำลังโหลด กรุณาลองใหม่อีกครั้ง');
+      return;
+    }
+
+    var cleanCode = (roomCode || 'mac-nadia').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'mac-nadia';
+    ONLINE.roomCode = cleanCode;
+
+    var statusEl = $('joinStatusDisplay');
+    if (statusEl) {
+      statusEl.style.display = 'block';
+      statusEl.innerHTML = '<span style="color:#0284c7">⏳ กำลังเชื่อมต่อไปยังห้องของแมค (' + cleanCode + ')...</span>';
+    }
+
+    if (ONLINE.peer) {
+      try { ONLINE.peer.destroy(); } catch (e) {}
+    }
+
+    try {
+      ONLINE.peer = new Peer({
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+          ]
+        }
+      });
+    } catch (e) {
+      alert('ไม่สามารถเริ่มระบบเชื่อมต่อได้');
+      return;
+    }
+
+    ONLINE.peer.on('open', function () {
+      var targetId = 'dojibos-' + cleanCode;
+      var conn = ONLINE.peer.connect(targetId, { reliable: false });
+      ONLINE.conn = conn;
+
+      conn.on('open', function () {
+        ONLINE.isOnline = true;
+        ONLINE.isHost = false;
+        closeOnlineModal();
+        setOnlineModeUI(true, '🟢 เชื่อมต่อสำเร็จ: คุณคือ นาเดีย (P2) แข่งกับแมค');
+
+        // Handshake
+        conn.send({
+          type: 'ready',
+          p2Char: STATE.selectedCharId,
+          p2Name: 'นาเดีย (P2)'
+        });
+
+        $('p1NameDisplay').textContent = 'แมค (P1)';
+        $('p2NameDisplay').textContent = 'นาเดีย (คุณ)';
+        $('p2AvatarDisplay').textContent = getSelectedChar().avatar;
+        Snd.play('whistle');
+        showGoalBanner('ยินดีต้อนรับนาเดีย! ⚽✨', 'เชื่อมต่อห้องของแมคสำเร็จ พร้อมลุย 1v1!');
+        setTimeout(hideGoalBanner, 2000);
+      });
+
+      conn.on('data', function (data) {
+        if (!data) return;
+        if (data.type === 'init') {
+          var p1Char = CHARACTERS.find(function (c) { return c.id === data.p1Char; }) || CHARACTERS[0];
+          $('p1AvatarDisplay').textContent = p1Char.avatar;
+        } else if (data.type === 'state') {
+          p1.x = data.p1.x; p1.y = data.p1.y; p1.vx = data.p1.vx; p1.vy = data.p1.vy; p1.facing = data.p1.facing; p1.isKicking = data.p1.isKicking;
+          p2.x = data.p2.x; p2.y = data.p2.y; p2.vx = data.p2.vx; p2.vy = data.p2.vy; p2.facing = data.p2.facing; p2.isKicking = data.p2.isKicking;
+          ball.x = data.ball.x; ball.y = data.ball.y; ball.vx = data.ball.vx; ball.vy = data.ball.vy;
+          ball.rotation = data.ball.rotation; ball.isSuper = data.ball.isSuper; ball.superColor = data.ball.superColor;
+
+          STATE.p1Score = data.score1; STATE.p2Score = data.score2;
+          $('p1Score').textContent = data.score1; $('p2Score').textContent = data.score2;
+          STATE.timer = data.timer; $('matchTimer').textContent = data.timer;
+          STATE.p1SuperEnergy = data.p1Super; STATE.p2SuperEnergy = data.p2Super;
+          updateSuperBars();
+        } else if (data.type === 'goal') {
+          STATE.p1Score = data.s1; STATE.p2Score = data.s2;
+          $('p1Score').textContent = data.s1; $('p2Score').textContent = data.s2;
+          var who = data.scorer === 2 ? 'คุณ (นาเดีย)' : 'แมค';
+          showGoalBanner(data.scorer === 2 ? 'GOOOOAL! ⚽🔥' : 'GOAL! ⚽💥', who + ' ยิงประตูได้แล้ว!');
+          Snd.play('goal');
+          setTimeout(hideGoalBanner, 2200);
+        } else if (data.type === 'end') {
+          STATE.p1Score = data.s1; STATE.p2Score = data.s2;
+          endMatch();
+        }
+      });
+
+      conn.on('close', function () {
+        showGoalBanner('⚠️ ขาดการเชื่อมต่อ', 'แมคออกจากห้องแล้ว');
+        setTimeout(function () {
+          leaveOnlineMode();
+        }, 2000);
+      });
+    });
+
+    ONLINE.peer.on('error', function (err) {
+      if (statusEl) {
+        statusEl.innerHTML = '<span style="color:#dc2626">❌ ไม่พบห้อง "' + cleanCode + '" (แมคอาจจะยังไม่ได้กดสร้างห้อง)</span>';
+      }
+    });
+  }
+
+  function leaveOnlineMode() {
+    ONLINE.isOnline = false;
+    ONLINE.isHost = false;
+    if (ONLINE.conn) {
+      try { ONLINE.conn.close(); } catch (e) {}
+      ONLINE.conn = null;
+    }
+    if (ONLINE.peer) {
+      try { ONLINE.peer.destroy(); } catch (e) {}
+      ONLINE.peer = null;
+    }
+    setOnlineModeUI(false);
+    startMatch();
+  }
+
+  function copyRoomLink(code) {
+    var room = code || ONLINE.roomCode || 'mac-nadia';
+    var url = window.location.origin + window.location.pathname + '?room=' + encodeURIComponent(room);
+    
+    function onSuccess() {
+      var a = $('copyAlert');
+      if (a) {
+        a.style.display = 'block';
+        setTimeout(function () { a.style.display = 'none'; }, 3000);
+      }
+      var b = $('btnCopyRoomLinkInline');
+      if (b) {
+        var old = b.textContent;
+        b.textContent = '✅ คัดลอกแล้ว!';
+        setTimeout(function () { b.textContent = old; }, 2000);
+      }
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(onSuccess).catch(function () {
+        prompt('คัดลอกลิงก์นี้ส่งให้นาเดีย:', url);
+      });
+    } else {
+      prompt('คัดลอกลิงก์นี้ส่งให้นาเดีย:', url);
+    }
+  }
+
+  /* ==========================================================================
+     10. PASSWORD GATE (VIP CHECK-IN)
      ========================================================================== */
   function setupPasswordGate() {
     var overlay = $('gateOverlay');
@@ -1247,6 +1716,16 @@
 
     // Start first match
     startMatch();
+
+    // Auto-detect room parameter in URL (e.g. ?room=mac-nadia)
+    var urlParams = new URLSearchParams(window.location.search);
+    var roomQuery = urlParams.get('room') || urlParams.get('join');
+    if (roomQuery) {
+      if ($('joinRoomInput')) $('joinRoomInput').value = roomQuery;
+      setTimeout(function () {
+        startJoin(roomQuery);
+      }, 600);
+    }
   }
 
   if (document.readyState === 'loading') {

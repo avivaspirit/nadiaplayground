@@ -20,10 +20,21 @@ assert.ok(html.includes('id="touchSuper"'), 'Must have touch super button');
 assert.ok(html.includes('id="rosterModal"'), 'Must have character roster modal');
 assert.ok(html.includes('id="diffModal"'), 'Must have difficulty selection modal');
 assert.ok(html.includes('id="btnDiffToggle"'), 'Must have difficulty selector toggle button in nav');
+assert.ok(html.includes('id="modeDifficultyBar"'), 'Must have prominent on-screen mode & difficulty toolbar');
+assert.ok(html.includes('id="tabModeSolo"'), 'Must have Solo bot mode tab');
+assert.ok(html.includes('id="tabModeOnline"'), 'Must have Online 2-player mode tab');
+assert.ok(html.includes('id="quickDiffSelector"'), 'Must have quick 5 difficulty level buttons directly on screen');
+assert.ok(html.includes('data-lvl="1"'), 'Must have quick button for Level 1');
+assert.ok(html.includes('data-lvl="5"'), 'Must have quick button for Level 5');
+assert.ok(html.includes('id="onlineModal"'), 'Must have online 2-player modal');
+assert.ok(html.includes('id="btnStartHost"'), 'Must have host room button for Mac');
+assert.ok(html.includes('id="btnStartJoin"'), 'Must have join room button for Nadia');
+assert.ok(html.includes('id="btnCopyRoomLink"'), 'Must have 1-click shareable link copy button for Nadia');
 assert.ok(html.includes('id="pcControlsGuide"'), 'Must have PC controls helper guide strip');
 assert.ok(html.includes('id="resultModal"'), 'Must have match result modal');
 assert.ok(html.includes('id="goalBanner"'), 'Must have celebration goal banner');
-console.log('✔ dojibos.html structure validated');
+assert.ok(html.includes('peerjs.min.js'), 'Must include local peerjs script');
+console.log('✔ dojibos.html structure, quick difficulty bar & online lobby validated');
 
 // 2. Verify dojibos.css
 const css = fs.readFileSync(dir + '\\dojibos.css', 'utf8');
@@ -35,6 +46,9 @@ assert.ok(css.includes('.gate-overlay'), 'Must style gate overlay');
 assert.ok(css.includes('.btn-diff'), 'Must style difficulty button');
 assert.ok(css.includes('.pc-controls-guide'), 'Must style PC controls helper bar');
 assert.ok(css.includes('.diff-grid'), 'Must style difficulty modal grid');
+assert.ok(css.includes('.mode-difficulty-bar'), 'Must style on-screen difficulty toolbar');
+assert.ok(css.includes('.quick-diff-btn'), 'Must style quick difficulty buttons');
+assert.ok(css.includes('.online-modal-card'), 'Must style online 2-player modal');
 console.log('✔ dojibos.css styling validated');
 
 // 3. Verify dojibos.js logic
@@ -47,6 +61,10 @@ assert.ok(js.includes('ระดับ 2 (ง่าย - Amateur)'), 'Must have 
 assert.ok(js.includes('ระดับ 3 (ปานกลาง - Semi-Pro)'), 'Must have Level 3 Semi-Pro');
 assert.ok(js.includes('ระดับ 4 (ยาก - Professional)'), 'Must have Level 4 Professional');
 assert.ok(js.includes('ระดับ 5 (ระดับโลก - World Class Legend)'), 'Must have Level 5 World Class Legend');
+assert.ok(js.includes('ONLINE'), 'Must have ONLINE engine object');
+assert.ok(js.includes('startHost'), 'Must have startHost function for Mac');
+assert.ok(js.includes('startJoin'), 'Must have startJoin function for Nadia');
+assert.ok(js.includes('copyRoomLink'), 'Must have copyRoomLink function');
 assert.ok(js.includes('openDiffModal'), 'Must have difficulty modal open function');
 assert.ok(js.includes('window.selectDifficulty'), 'Must have difficulty selection function');
 assert.ok(js.includes('Space'), 'Must handle spacebar key for jump');
@@ -62,7 +80,7 @@ assert.ok(js.includes('triggerGoal'), 'Must have goal detection and celebration'
 assert.ok(js.includes('performKick'), 'Must have kick mechanics');
 assert.ok(js.includes('updateAI'), 'Must have AI opponent bot');
 assert.ok(js.includes('startKickoffSequence'), 'Must have kickoff countdown');
-console.log('✔ dojibos.js engine & 5 difficulty levels validated');
+console.log('✔ dojibos.js engine, 5 difficulty levels & online WebRTC validated');
 
 // 4. Verify index.html portal
 const indexHtml = fs.readFileSync(dir + '\\index.html', 'utf8');
