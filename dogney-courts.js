@@ -271,25 +271,126 @@
       if (k === 'Shift' || k === 'c' || k === 'C') keys.superAction = false;
     });
 
-    // Touch button bindings
-    function bindBtn(btnId, onDown, onUp) {
-      var b = $(btnId);
-      if (!b) return;
-      var press = function (e) { e.preventDefault(); b.classList.add('pressed'); if (onDown) onDown(); };
-      var release = function (e) { e.preventDefault(); b.classList.remove('pressed'); if (onUp) onUp(); };
-      b.addEventListener('touchstart', press, { passive: false });
-      b.addEventListener('touchend', release, { passive: false });
-      b.addEventListener('mousedown', press);
-      b.addEventListener('mouseup', release);
-      b.addEventListener('mouseleave', release);
+    // ========================================================================
+    // MOBILE TOUCH CONTROLS (GLIDE D-PAD + MULTI-TOUCH ACTIONS)
+    // ========================================================================
+    var ctrlLeft = document.querySelector('.controls-left');
+    var btnL = $('btnActionLeft');
+    var btnR = $('btnActionRight');
+    var btnU = $('btnActionUp');
+    var btnD = $('btnActionDown');
+    var glideTouchId = null;
+
+    function updateGlide(t) {
+      if (!ctrlLeft || !t) return;
+      var rect = ctrlLeft.getBoundingClientRect();
+      var midX = rect.left + rect.width * 0.5;
+      if (t.clientX < midX) {
+        keys.left = true; keys.right = false;
+        btnL?.classList.add('pressed'); btnR?.classList.remove('pressed');
+      } else {
+        keys.right = true; keys.left = false;
+        btnR?.classList.add('pressed'); btnL?.classList.remove('pressed');
+      }
     }
 
-    bindBtn('btnActionLeft', function () { keys.left = true; }, function () { keys.left = false; });
-    bindBtn('btnActionRight', function () { keys.right = true; }, function () { keys.right = false; });
-    bindBtn('btnActionUp', function () { keys.up = true; }, function () { keys.up = false; });
-    bindBtn('btnActionDown', function () { keys.down = true; }, function () { keys.down = false; });
-    bindBtn('btnMainAction', function () { keys.action = true; handleActionPress(); }, function () { keys.action = false; });
-    bindBtn('btnSubAction', function () { keys.superAction = true; handleSuperActionPress(); }, function () { keys.superAction = false; });
+    function clearGlide() {
+      glideTouchId = null;
+      keys.left = false; keys.right = false; keys.up = false; keys.down = false;
+      btnL?.classList.remove('pressed'); btnR?.classList.remove('pressed');
+      btnU?.classList.remove('pressed'); btnD?.classList.remove('pressed');
+    }
+
+    if (ctrlLeft) {
+      ctrlLeft.addEventListener('touchstart', function (e) {
+        e.preventDefault();
+        for (var i = 0; i < e.changedTouches.length; i++) {
+          glideTouchId = e.changedTouches[i].identifier;
+          updateGlide(e.changedTouches[i]);
+          break;
+        }
+      }, { passive: false });
+
+      window.addEventListener('touchmove', function (e) {
+        if (glideTouchId === null) return;
+        for (var i = 0; i < e.touches.length; i++) {
+          if (e.touches[i].identifier === glideTouchId) {
+            updateGlide(e.touches[i]);
+            break;
+          }
+        }
+      }, { passive: false });
+
+      window.addEventListener('touchend', function (e) {
+        if (glideTouchId === null) return;
+        for (var i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === glideTouchId) {
+            clearGlide();
+            break;
+          }
+        }
+      });
+      window.addEventListener('touchcancel', clearGlide);
+    }
+
+    // Discrete action buttons (Main action & Super action) with independent multi-touch
+    function bindActionBtn(btnId, onDown, onUp, hapticMs) {
+      var b = $(btnId);
+      if (!b) return;
+      var tId = null;
+
+      b.addEventListener('touchstart', function (e) {
+        e.preventDefault();
+        for (var i = 0; i < e.changedTouches.length; i++) {
+          tId = e.changedTouches[i].identifier;
+          b.classList.add('pressed');
+          if (onDown) onDown();
+          if (navigator.vibrate && hapticMs) {
+            try { navigator.vibrate(hapticMs); } catch (_) {}
+          }
+          break;
+        }
+      }, { passive: false });
+
+      window.addEventListener('touchend', function (e) {
+        if (tId === null) return;
+        for (var i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === tId) {
+            tId = null;
+            b.classList.remove('pressed');
+            if (onUp) onUp();
+            break;
+          }
+        }
+      });
+
+      window.addEventListener('touchcancel', function (e) {
+        if (tId === null) return;
+        tId = null;
+        b.classList.remove('pressed');
+        if (onUp) onUp();
+      });
+
+      // Mouse support
+      b.addEventListener('mousedown', function (e) {
+        e.preventDefault();
+        b.classList.add('pressed');
+        if (onDown) onDown();
+      });
+      window.addEventListener('mouseup', function () {
+        if (b.classList.contains('pressed') && tId === null) {
+          b.classList.remove('pressed');
+          if (onUp) onUp();
+        }
+      });
+    }
+
+    bindActionBtn('btnActionLeft', function () { keys.left = true; }, function () { keys.left = false; }, 8);
+    bindActionBtn('btnActionRight', function () { keys.right = true; }, function () { keys.right = false; }, 8);
+    bindActionBtn('btnActionUp', function () { keys.up = true; }, function () { keys.up = false; }, 8);
+    bindActionBtn('btnActionDown', function () { keys.down = true; }, function () { keys.down = false; }, 8);
+    bindActionBtn('btnMainAction', function () { keys.action = true; handleActionPress(); }, function () { keys.action = false; }, 12);
+    bindActionBtn('btnSubAction', function () { keys.superAction = true; handleSuperActionPress(); }, function () { keys.superAction = false; }, 18);
 
     // Canvas click also triggers main action
     $('arenaCanvas')?.addEventListener('click', function () {
@@ -1417,23 +1518,33 @@
     // Start initial sport
     switchSport(STATE.activeSport || 'tennis');
 
-    // 60 FPS Engine Loop
-    function loop() {
-      if (ctx) {
-        if (STATE.activeSport === 'tennis') {
-          Tennis.update();
-          Tennis.render(ctx);
-        } else if (STATE.activeSport === 'bowling') {
-          Bowling.update();
-          Bowling.render(ctx);
-        } else if (STATE.activeSport === 'baseball') {
-          Baseball.update();
-          Baseball.render(ctx);
-        } else if (STATE.activeSport === 'boxing') {
-          Boxing.update();
-          Boxing.render(ctx);
-        }
+    // Fixed 60Hz Physics Timestep Loop (Buttery smooth on 60Hz / 90Hz / 120Hz phone screens)
+    var lastFrameTime = performance.now();
+    var accumulator = 0;
+    var FIXED_TIMESTEP = 1000 / 60; // 16.666ms
+
+    function loop(currentTime) {
+      if (!currentTime) currentTime = performance.now();
+      var dt = currentTime - lastFrameTime;
+      lastFrameTime = currentTime;
+      if (dt > 100) dt = 100;
+      accumulator += dt;
+
+      while (accumulator >= FIXED_TIMESTEP) {
+        if (STATE.activeSport === 'tennis') Tennis.update();
+        else if (STATE.activeSport === 'bowling') Bowling.update();
+        else if (STATE.activeSport === 'baseball') Baseball.update();
+        else if (STATE.activeSport === 'boxing') Boxing.update();
+        accumulator -= FIXED_TIMESTEP;
       }
+
+      if (ctx) {
+        if (STATE.activeSport === 'tennis') Tennis.render(ctx);
+        else if (STATE.activeSport === 'bowling') Bowling.render(ctx);
+        else if (STATE.activeSport === 'baseball') Baseball.render(ctx);
+        else if (STATE.activeSport === 'boxing') Boxing.render(ctx);
+      }
+
       requestAnimationFrame(loop);
     }
     requestAnimationFrame(loop);

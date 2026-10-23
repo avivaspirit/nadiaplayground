@@ -441,7 +441,11 @@
     facing: 1, // 1 = right, -1 = left
     kickAngle: 0,
     isKicking: false,
-    kickTimer: 0
+    kickTimer: 0,
+    scaleX: 1,
+    scaleY: 1,
+    tilt: 0,
+    bob: 0
   };
 
   var p2 = {
@@ -454,7 +458,11 @@
     facing: -1,
     kickAngle: 0,
     isKicking: false,
-    kickTimer: 0
+    kickTimer: 0,
+    scaleX: 1,
+    scaleY: 1,
+    tilt: 0,
+    bob: 0
   };
 
   // Input states
@@ -472,11 +480,13 @@
     p1.y = GROUND_Y;
     p1.vx = 0; p1.vy = 0;
     p1.facing = 1;
+    p1.scaleX = 1; p1.scaleY = 1; p1.tilt = 0; p1.bob = 0;
 
     p2.x = W - 220;
     p2.y = GROUND_Y;
     p2.vx = 0; p2.vy = 0;
     p2.facing = -1;
+    p2.scaleX = 1; p2.scaleY = 1; p2.tilt = 0; p2.bob = 0;
 
     ball.x = W / 2;
     ball.y = 200;
@@ -546,13 +556,25 @@
     var curChar = getSelectedChar();
 
     // 1. Player 1 Movement (Local Mac or Solo Player)
-    if (keys.left) p1.vx = -curChar.speed;
-    else if (keys.right) p1.vx = curChar.speed;
-    else p1.vx *= 0.75;
+    var targetVx = 0;
+    if (keys.left) {
+      targetVx = -curChar.speed;
+      p1.facing = -1;
+    } else if (keys.right) {
+      targetVx = curChar.speed;
+      p1.facing = 1;
+    }
+
+    // Smooth responsive acceleration & friction (buttery motion on phone)
+    var accel = p1.isGrounded ? (targetVx !== 0 ? 0.38 : 0.26) : 0.20;
+    p1.vx += (targetVx - p1.vx) * accel;
+    if (Math.abs(p1.vx) < 0.04) p1.vx = 0;
 
     if (keys.jump && p1.isGrounded) {
       p1.vy = -curChar.jumpForce;
       p1.isGrounded = false;
+      p1.scaleX = 0.88;
+      p1.scaleY = 1.15;
       Snd.play('jump');
     }
 
@@ -561,10 +583,29 @@
     p1.x += p1.vx;
     p1.y += p1.vy;
 
+    var wasGroundedP1 = p1.isGrounded;
     if (p1.y >= GROUND_Y) {
       p1.y = GROUND_Y;
       p1.vy = 0;
       p1.isGrounded = true;
+      if (!wasGroundedP1) {
+        // Landing elastic squash
+        p1.scaleX = 1.16;
+        p1.scaleY = 0.86;
+      }
+    } else {
+      p1.isGrounded = false;
+    }
+
+    // Squash/stretch recovery & animated running lean
+    p1.scaleX += (1 - p1.scaleX) * 0.16;
+    p1.scaleY += (1 - p1.scaleY) * 0.16;
+    var targetTiltP1 = (p1.vx / Math.max(1, curChar.speed)) * 0.15;
+    p1.tilt = (p1.tilt || 0) + (targetTiltP1 - (p1.tilt || 0)) * 0.22;
+    if (p1.isGrounded && Math.abs(p1.vx) > 0.4) {
+      p1.bob = Math.sin(Date.now() * 0.02) * 2.5;
+    } else {
+      p1.bob = (p1.bob || 0) * 0.8;
     }
 
     // P1 Boundaries
@@ -591,19 +632,23 @@
     // 2. Player 2 Movement (Nadia via WebRTC if Online Host, otherwise AI Bot)
     if (ONLINE.isOnline && ONLINE.isHost) {
       var p2Char = CHARACTERS.find(function (c) { return c.id === ONLINE.remotePlayerCharId; }) || CHARACTERS[4];
+      var targetVx2 = 0;
       if (ONLINE.guestKeys.left) {
-        p2.vx = -p2Char.speed;
+        targetVx2 = -p2Char.speed;
         p2.facing = -1;
       } else if (ONLINE.guestKeys.right) {
-        p2.vx = p2Char.speed;
+        targetVx2 = p2Char.speed;
         p2.facing = 1;
-      } else {
-        p2.vx *= 0.75;
       }
+      var accel2 = p2.isGrounded ? (targetVx2 !== 0 ? 0.38 : 0.26) : 0.20;
+      p2.vx += (targetVx2 - p2.vx) * accel2;
+      if (Math.abs(p2.vx) < 0.04) p2.vx = 0;
 
       if (ONLINE.guestKeys.jump && p2.isGrounded) {
         p2.vy = -p2Char.jumpForce;
         p2.isGrounded = false;
+        p2.scaleX = 0.88;
+        p2.scaleY = 1.15;
         Snd.play('jump');
       }
 
@@ -611,10 +656,27 @@
       p2.x += p2.vx;
       p2.y += p2.vy;
 
+      var wasGroundedP2 = p2.isGrounded;
       if (p2.y >= GROUND_Y) {
         p2.y = GROUND_Y;
         p2.vy = 0;
         p2.isGrounded = true;
+        if (!wasGroundedP2) {
+          p2.scaleX = 1.16;
+          p2.scaleY = 0.86;
+        }
+      } else {
+        p2.isGrounded = false;
+      }
+
+      p2.scaleX += (1 - p2.scaleX) * 0.16;
+      p2.scaleY += (1 - p2.scaleY) * 0.16;
+      var targetTiltP2 = (p2.vx / Math.max(1, p2Char.speed)) * 0.15;
+      p2.tilt = (p2.tilt || 0) + (targetTiltP2 - (p2.tilt || 0)) * 0.22;
+      if (p2.isGrounded && Math.abs(p2.vx) > 0.4) {
+        p2.bob = Math.sin(Date.now() * 0.02) * 2.5;
+      } else {
+        p2.bob = (p2.bob || 0) * 0.8;
       }
 
       if (p2.x < GOAL_W + p2.radius) p2.x = GOAL_W + p2.radius;
@@ -839,10 +901,27 @@
     p2.x += p2.vx;
     p2.y += p2.vy;
 
+    var wasGroundedAI = p2.isGrounded;
     if (p2.y >= GROUND_Y) {
       p2.y = GROUND_Y;
       p2.vy = 0;
       p2.isGrounded = true;
+      if (!wasGroundedAI) {
+        p2.scaleX = 1.16;
+        p2.scaleY = 0.86;
+      }
+    } else {
+      p2.isGrounded = false;
+    }
+
+    p2.scaleX += (1 - p2.scaleX) * 0.16;
+    p2.scaleY += (1 - p2.scaleY) * 0.16;
+    var targetTiltAI = (p2.vx / Math.max(1, speed)) * 0.15;
+    p2.tilt = (p2.tilt || 0) + (targetTiltAI - (p2.tilt || 0)) * 0.22;
+    if (p2.isGrounded && Math.abs(p2.vx) > 0.4) {
+      p2.bob = Math.sin(Date.now() * 0.02) * 2.5;
+    } else {
+      p2.bob = (p2.bob || 0) * 0.8;
     }
 
     if (p2.x < GOAL_W + p2.radius) p2.x = GOAL_W + p2.radius;
@@ -1061,18 +1140,24 @@
   function drawPlayer(player, charDef, isP1) {
     ctx.save();
     var cx = player.x;
-    var cy = player.y - player.radius;
+    var cy = player.y - player.radius + (player.bob || 0);
 
-    // Drop shadow
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+    // Dynamic drop shadow (scales realistically with jump height)
+    var shadowScale = Math.max(0.35, 1 - (GROUND_Y - player.y) / 240);
+    ctx.fillStyle = 'rgba(0, 0, 0, ' + (0.28 * shadowScale) + ')';
     ctx.beginPath();
-    ctx.ellipse(cx, GROUND_Y - 2, player.radius * 0.85, 8, 0, 0, Math.PI * 2);
+    ctx.ellipse(player.x, GROUND_Y - 2, player.radius * 0.85 * shadowScale, 8 * shadowScale, 0, 0, Math.PI * 2);
     ctx.fill();
+
+    // Center transform for fluid squash, stretch, and lean
+    ctx.translate(cx, cy);
+    ctx.rotate(player.tilt || 0);
+    ctx.scale(player.scaleX || 1, player.scaleY || 1);
 
     // Rounded Chibi Body with Jersey
     ctx.fillStyle = charDef.jerseyColor || '#ffd166';
     ctx.beginPath();
-    ctx.arc(cx, cy, player.radius, 0, Math.PI * 2);
+    ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
     ctx.fill();
     ctx.lineWidth = 3;
     ctx.strokeStyle = '#2d232e';
@@ -1083,22 +1168,22 @@
     ctx.font = 'bold 16px "Nunito", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(isP1 ? '10' : '7', cx, cy + 8);
+    ctx.fillText(isP1 ? '10' : '7', 0, 8);
 
     // Chibi Avatar Face
     ctx.font = '28px sans-serif';
-    ctx.fillText(charDef.avatar || '🐶', cx, cy - 14);
+    ctx.fillText(charDef.avatar || '🐶', 0, -14);
 
-    // Cleats / Boots
-    var cleatX = isP1 ? (cx + player.radius * 0.4) : (cx - player.radius * 0.4);
-    var cleatY = player.y - 4;
+    // Cleats / Boots with dynamic kick swing arc
+    var cleatOffX = isP1 ? (player.radius * 0.4) : (-player.radius * 0.4);
+    var cleatOffY = player.radius - 4;
     if (player.isKicking) {
-      cleatX += isP1 ? 16 : -16;
-      cleatY -= 8;
+      cleatOffX += isP1 ? 18 : -18;
+      cleatOffY -= 10;
     }
     ctx.fillStyle = '#1d3557';
     ctx.beginPath();
-    ctx.ellipse(cleatX, cleatY, 10, 6, isP1 ? 0.3 : -0.3, 0, Math.PI * 2);
+    ctx.ellipse(cleatOffX, cleatOffY, 11, 7, isP1 ? 0.35 : -0.35, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#ffd166';
     ctx.lineWidth = 1.5;
@@ -1341,24 +1426,227 @@
       if (k === 'Shift' || k === 'c' || k === 'C' || k === 'l' || k === 'L' || k === 'e' || k === 'E') keys.super = false;
     });
 
-    // Touch Buttons
-    function bindTouch(btnId, keyName) {
-      var btn = $(btnId);
-      if (!btn) return;
-      var press = function (e) { e.preventDefault(); keys[keyName] = true; btn.classList.add('pressed'); };
-      var release = function (e) { e.preventDefault(); keys[keyName] = false; btn.classList.remove('pressed'); };
-      btn.addEventListener('touchstart', press, { passive: false });
-      btn.addEventListener('touchend', release, { passive: false });
-      btn.addEventListener('mousedown', press);
-      btn.addEventListener('mouseup', release);
-      btn.addEventListener('mouseleave', release);
+    // ========================================================================
+    // MOBILE TOUCHSCREEN CONTROLS (ULTRA-FLUID GLIDE D-PAD + MULTI-TOUCH)
+    // ========================================================================
+    var dpad = document.querySelector('.touch-dpad');
+    var btnLeft = $('touchLeft');
+    var btnRight = $('touchRight');
+    var dpadTouchId = null;
+
+    function updateDpadFromTouch(t) {
+      if (!dpad || !t) return;
+      var rect = dpad.getBoundingClientRect();
+      var midX = rect.left + rect.width * 0.5;
+      if (t.clientX < midX) {
+        keys.left = true;
+        keys.right = false;
+        btnLeft?.classList.add('pressed');
+        btnRight?.classList.remove('pressed');
+      } else {
+        keys.right = true;
+        keys.left = false;
+        btnRight?.classList.add('pressed');
+        btnLeft?.classList.remove('pressed');
+      }
     }
 
-    bindTouch('touchLeft', 'left');
-    bindTouch('touchRight', 'right');
-    bindTouch('touchJump', 'jump');
-    bindTouch('touchKick', 'kick');
-    bindTouch('touchSuper', 'super');
+    function clearDpad() {
+      dpadTouchId = null;
+      keys.left = false;
+      keys.right = false;
+      btnLeft?.classList.remove('pressed');
+      btnRight?.classList.remove('pressed');
+    }
+
+    if (dpad) {
+      dpad.addEventListener('touchstart', function (e) {
+        e.preventDefault();
+        for (var i = 0; i < e.changedTouches.length; i++) {
+          dpadTouchId = e.changedTouches[i].identifier;
+          updateDpadFromTouch(e.changedTouches[i]);
+          break;
+        }
+      }, { passive: false });
+
+      window.addEventListener('touchmove', function (e) {
+        if (dpadTouchId === null) return;
+        for (var i = 0; i < e.touches.length; i++) {
+          if (e.touches[i].identifier === dpadTouchId) {
+            updateDpadFromTouch(e.touches[i]);
+            break;
+          }
+        }
+      }, { passive: false });
+
+      window.addEventListener('touchend', function (e) {
+        if (dpadTouchId === null) return;
+        for (var i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === dpadTouchId) {
+            clearDpad();
+            break;
+          }
+        }
+      });
+
+      window.addEventListener('touchcancel', function (e) {
+        if (dpadTouchId === null) return;
+        for (var i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === dpadTouchId) {
+            clearDpad();
+            break;
+          }
+        }
+      });
+
+      // Mouse drag fallback for PC testing
+      var isMouseDownDpad = false;
+      dpad.addEventListener('mousedown', function (e) {
+        isMouseDownDpad = true;
+        updateDpadFromTouch(e);
+      });
+      window.addEventListener('mousemove', function (e) {
+        if (isMouseDownDpad) updateDpadFromTouch(e);
+      });
+      window.addEventListener('mouseup', function () {
+        if (isMouseDownDpad) {
+          isMouseDownDpad = false;
+          clearDpad();
+        }
+      });
+    }
+
+    // Independent multi-touch action buttons (Jump, Kick, Super)
+    function bindActionTouch(btnId, keyName, hapticMs) {
+      var btn = $(btnId);
+      if (!btn) return;
+      var activeTouchId = null;
+
+      btn.addEventListener('touchstart', function (e) {
+        e.preventDefault();
+        for (var i = 0; i < e.changedTouches.length; i++) {
+          activeTouchId = e.changedTouches[i].identifier;
+          keys[keyName] = true;
+          btn.classList.add('pressed');
+          if (navigator.vibrate && hapticMs) {
+            try { navigator.vibrate(hapticMs); } catch (_) {}
+          }
+          break;
+        }
+      }, { passive: false });
+
+      window.addEventListener('touchend', function (e) {
+        if (activeTouchId === null) return;
+        for (var i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === activeTouchId) {
+            activeTouchId = null;
+            keys[keyName] = false;
+            btn.classList.remove('pressed');
+            break;
+          }
+        }
+      });
+
+      window.addEventListener('touchcancel', function (e) {
+        if (activeTouchId === null) return;
+        for (var i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === activeTouchId) {
+            activeTouchId = null;
+            keys[keyName] = false;
+            btn.classList.remove('pressed');
+            break;
+          }
+        }
+      });
+
+      // Desktop click / mouse support
+      btn.addEventListener('mousedown', function (e) {
+        e.preventDefault();
+        keys[keyName] = true;
+        btn.classList.add('pressed');
+      });
+      window.addEventListener('mouseup', function () {
+        if (keys[keyName] && activeTouchId === null) {
+          keys[keyName] = false;
+          btn.classList.remove('pressed');
+        }
+      });
+    }
+
+    bindActionTouch('touchJump', 'jump', 10);
+    bindActionTouch('touchKick', 'kick', 15);
+    bindActionTouch('touchSuper', 'super', [25, 40, 30]);
+
+    // Direct pitch canvas touch controls
+    if (canvas) {
+      var pitchTouchId = null;
+      canvas.addEventListener('touchstart', function (e) {
+        e.preventDefault();
+        var rect = canvas.getBoundingClientRect();
+        var scaleX = W / rect.width;
+        var scaleY = H / rect.height;
+
+        for (var i = 0; i < e.changedTouches.length; i++) {
+          var t = e.changedTouches[i];
+          var tx = (t.clientX - rect.left) * scaleX;
+          var ty = (t.clientY - rect.top) * scaleY;
+
+          if (tx < W * 0.55) {
+            // Left side = move & jump
+            pitchTouchId = t.identifier;
+            if (tx < p1.x - 20) { keys.left = true; keys.right = false; }
+            else if (tx > p1.x + 20) { keys.right = true; keys.left = false; }
+            if (ty < p1.y - 70) {
+              keys.jump = true;
+              setTimeout(function () { keys.jump = false; }, 160);
+            }
+          } else {
+            // Right side = action
+            if (ty < H * 0.45) {
+              keys.jump = true;
+              setTimeout(function () { keys.jump = false; }, 160);
+            } else {
+              keys.kick = true;
+              setTimeout(function () { keys.kick = false; }, 140);
+            }
+          }
+          break;
+        }
+      }, { passive: false });
+
+      window.addEventListener('touchmove', function (e) {
+        if (pitchTouchId === null || !canvas) return;
+        var rect = canvas.getBoundingClientRect();
+        var scaleX = W / rect.width;
+        for (var i = 0; i < e.touches.length; i++) {
+          if (e.touches[i].identifier === pitchTouchId) {
+            var tx = (e.touches[i].clientX - rect.left) * scaleX;
+            if (tx < p1.x - 20) { keys.left = true; keys.right = false; }
+            else if (tx > p1.x + 20) { keys.right = true; keys.left = false; }
+            else { keys.left = false; keys.right = false; }
+            break;
+          }
+        }
+      }, { passive: false });
+
+      window.addEventListener('touchend', function (e) {
+        if (pitchTouchId === null) return;
+        for (var i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === pitchTouchId) {
+            pitchTouchId = null;
+            keys.left = false;
+            keys.right = false;
+            break;
+          }
+        }
+      });
+      window.addEventListener('touchcancel', function (e) {
+        if (pitchTouchId === null) return;
+        pitchTouchId = null;
+        keys.left = false;
+        keys.right = false;
+      });
+    }
 
     // UI Buttons
     $('btnAudioToggle')?.addEventListener('click', function () {
@@ -1792,9 +2080,25 @@
     $('hudCoins').textContent = STATE.coins.toLocaleString();
     $('hudTrophies').textContent = STATE.trophies.toLocaleString();
 
-    // Start 60fps Game Loop
-    function loop() {
-      updatePhysics();
+    // Fixed 60Hz Physics Timestep Loop (Buttery smooth on 60Hz / 90Hz / 120Hz phone screens)
+    var lastFrameTime = performance.now();
+    var accumulator = 0;
+    var FIXED_TIMESTEP = 1000 / 60; // 16.666ms
+
+    function loop(currentTime) {
+      if (!currentTime) currentTime = performance.now();
+      var dt = currentTime - lastFrameTime;
+      lastFrameTime = currentTime;
+
+      // Clamp dt to 100ms to avoid spiral of death on backgrounding / sleep
+      if (dt > 100) dt = 100;
+      accumulator += dt;
+
+      while (accumulator >= FIXED_TIMESTEP) {
+        updatePhysics();
+        accumulator -= FIXED_TIMESTEP;
+      }
+
       renderPitch();
       requestAnimationFrame(loop);
     }
