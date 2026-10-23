@@ -1808,10 +1808,31 @@
     // Game Mode Switcher
     $('tabModeSolo')?.addEventListener('click', function () {
       if (ONLINE.isOnline) leaveOnlineMode();
+      setOnlineModeUI(false);
     });
-    $('tabModeOnline')?.addEventListener('click', openOnlineModal);
+    $('tabModeOnline')?.addEventListener('click', function () {
+      if (!ONLINE.isOnline) {
+        var barSolo = $('tabModeSolo');
+        var barOnline = $('tabModeOnline');
+        var diffSelector = $('quickDiffSelector');
+        var coupleBar = $('coupleQuickBar');
+        barSolo?.classList.remove('active');
+        barOnline?.classList.add('active');
+        if (diffSelector) diffSelector.style.display = 'none';
+        if (coupleBar) coupleBar.style.display = 'flex';
+      } else {
+        openOnlineModal();
+      }
+    });
     $('btnOnlineNav')?.addEventListener('click', openOnlineModal);
     $('closeOnlineModal')?.addEventListener('click', closeOnlineModal);
+
+    // Couple 1-Click Fast Buttons
+    $('btnBarMacInvite')?.addEventListener('click', quickHostForMac);
+    $('btnModalFastMac')?.addEventListener('click', quickHostForMac);
+    $('btnBarNadiaJoin')?.addEventListener('click', quickJoinForNadia);
+    $('btnModalFastNadia')?.addEventListener('click', quickJoinForNadia);
+    $('btnOpenAdvancedLobby')?.addEventListener('click', openOnlineModal);
 
     // Online Lobby Buttons
     $('btnStartHost')?.addEventListener('click', function () {
@@ -1855,6 +1876,32 @@
     iceCandidatePoolSize: 10
   };
 
+  function getInviteUrl(code) {
+    var room = code || ONLINE.roomCode || 'mac-nadia';
+    return window.location.origin + window.location.pathname + '?room=' + encodeURIComponent(room) + '&auth=larny';
+  }
+
+  function updateQRCode(url) {
+    var img = $('qrCodeImg');
+    if (img) {
+      img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=' + encodeURIComponent(url);
+      img.style.display = 'block';
+    }
+  }
+
+  function quickHostForMac() {
+    startHost('mac-nadia');
+    openOnlineModal();
+    setTimeout(function () {
+      shareRoomLink(ONLINE.roomCode || 'mac-nadia');
+    }, 450);
+  }
+
+  function quickJoinForNadia() {
+    openOnlineModal();
+    startJoin('mac-nadia', 0, 0);
+  }
+
   function ensurePeerJS(callback) {
     if (typeof Peer !== 'undefined') {
       callback();
@@ -1883,6 +1930,7 @@
     var barSolo = $('tabModeSolo');
     var barOnline = $('tabModeOnline');
     var diffSelector = $('quickDiffSelector');
+    var coupleBar = $('coupleQuickBar');
     var onlineStrip = $('onlineMatchStrip');
     var statusEl = $('onlineStatusText');
     var copyBtn = $('btnCopyRoomLinkInline');
@@ -1891,6 +1939,7 @@
       barSolo?.classList.remove('active');
       barOnline?.classList.add('active');
       if (diffSelector) diffSelector.style.display = 'none';
+      if (coupleBar) coupleBar.style.display = 'none';
       if (onlineStrip) onlineStrip.style.display = 'flex';
       if (statusEl) statusEl.textContent = statusText || '🟢 ออนไลน์: แมค vs นาเดีย';
       if (copyBtn) copyBtn.style.display = ONLINE.isHost ? 'inline-block' : 'none';
@@ -1898,6 +1947,7 @@
       barSolo?.classList.add('active');
       barOnline?.classList.remove('active');
       if (diffSelector) diffSelector.style.display = 'flex';
+      if (coupleBar) coupleBar.style.display = 'none';
       if (onlineStrip) onlineStrip.style.display = 'none';
     }
   }
@@ -1927,6 +1977,9 @@
       $('lblRoomCode').textContent = cleanCode;
       if ($('hostRoomInput')) $('hostRoomInput').value = cleanCode;
 
+      var fullInviteUrl = getInviteUrl(cleanCode);
+      updateQRCode(fullInviteUrl);
+
       setOnlineModeUI(true, '⏳ กำลังเปิดห้อง ' + cleanCode + ' กับเครือข่ายกลาง...');
       if ($('hostWaitingText')) {
         $('hostWaitingText').innerHTML = '⏳ กำลังเปิดห้อง <strong>"' + cleanCode + '"</strong>...';
@@ -1934,14 +1987,13 @@
 
       // Sync window URL
       if (window.history && window.history.replaceState) {
-        var newUrl = window.location.pathname + '?room=' + encodeURIComponent(cleanCode);
-        window.history.replaceState({}, '', newUrl);
+        window.history.replaceState({}, '', fullInviteUrl);
       }
 
       ONLINE.peer.on('open', function (id) {
-        setOnlineModeUI(true, '⏳ ห้องพร้อมแล้ว: กำลังรอนาเดียเข้าห้อง (' + cleanCode + ')...');
+        setOnlineModeUI(true, '⏳ ห้องพร้อมแล้ว: รอนาเดียเข้าห้อง (' + cleanCode + ')...');
         if ($('hostWaitingText')) {
-          $('hostWaitingText').innerHTML = '⏳ ห้อง <strong>"' + cleanCode + '"</strong> พร้อมแล้ว! ส่งลิงก์ให้นาเดียกดเปิดในเครื่องได้เลย';
+          $('hostWaitingText').innerHTML = '⏳ ห้อง <strong>"' + cleanCode + '"</strong> พร้อมแล้ว! ส่งลิงก์ให้นาเดียเปิดใน LINE หรือเปิดกล้องสแกน QR Code ด้านบนได้เลย';
         }
       });
 
@@ -2006,8 +2058,9 @@
           if ($('hostWaitingText')) {
             $('hostWaitingText').innerHTML = '⚠️ รหัสเดิมยังติดค้างในระบบ จึงเปลี่ยนเป็น <strong>"' + altCode + '"</strong> ให้อัตโนมัติ (กรุณาส่งลิงก์ใหม่นี้นะคะ)';
           }
+          var altUrl = getInviteUrl(altCode);
+          updateQRCode(altUrl);
           if (window.history && window.history.replaceState) {
-            var altUrl = window.location.pathname + '?room=' + encodeURIComponent(altCode);
             window.history.replaceState({}, '', altUrl);
           }
           startHost(altCode);
@@ -2020,17 +2073,24 @@
     });
   }
 
-  function startJoin(roomCode, retryCount) {
+  function startJoin(roomCode, retryCount, probeIndex) {
     ensurePeerJS(function () {
-      var cleanCode = (roomCode || 'mac-nadia').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'mac-nadia';
-      ONLINE.roomCode = cleanCode;
+      var rawCode = (roomCode || 'mac-nadia').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'mac-nadia';
       var retries = retryCount || 0;
+      var probe = probeIndex || 0;
       var MAX_RETRIES = 3;
+
+      var probeList = [rawCode];
+      if (rawCode === 'mac-nadia') {
+        probeList = ['mac-nadia', 'mac-nadia-1', 'mac-nadia-2', 'mac-nadia-3', 'mac-nadia-4'];
+      }
+      var cleanCode = probeList[probe] || rawCode;
+      ONLINE.roomCode = cleanCode;
 
       var statusEl = $('joinStatusDisplay');
       if (statusEl) {
         statusEl.style.display = 'block';
-        statusEl.innerHTML = '<div class="online-connecting-box">⏳ กำลังเชื่อมต่อไปยังห้องของแมค <strong>"' + cleanCode + '"</strong>... ' + (retries > 0 ? '(รอบที่ ' + (retries + 1) + '/' + (MAX_RETRIES + 1) + ')' : '') + '</div>';
+        statusEl.innerHTML = '<div class="online-connecting-box">💖 กำลังเชื่อมต่อไปยังห้องของแมค <strong>"' + cleanCode + '"</strong>... ' + (retries > 0 ? '(รอบที่ ' + (retries + 1) + '/' + (MAX_RETRIES + 1) + ')' : '') + '</div>';
       }
 
       if (ONLINE.peer) {
@@ -2148,13 +2208,20 @@
       });
 
       ONLINE.peer.on('error', function (err) {
+        if (probe < probeList.length - 1) {
+          setTimeout(function () {
+            startJoin(rawCode, retries, probe + 1);
+          }, 1000);
+          return;
+        }
+
         if (retries < MAX_RETRIES) {
           if (statusEl) {
-            statusEl.innerHTML = '<div class="online-connecting-box">⏳ ยังไม่พบห้องของแมค กำลังลองเชื่อมต่อใหม่ (รอบที่ ' + (retries + 1) + '/' + MAX_RETRIES + ')...</div>';
+            statusEl.innerHTML = '<div class="online-connecting-box">⏳ กำลังรอห้องของแมค... จะลองใหม่อัตโนมัติ (ครั้งที่ ' + (retries + 1) + '/' + MAX_RETRIES + ')...</div>';
           }
           setTimeout(function () {
-            startJoin(cleanCode, retries + 1);
-          }, 2200);
+            startJoin(rawCode, retries + 1, 0);
+          }, 2000);
           return;
         }
 
@@ -2162,15 +2229,15 @@
           statusEl.innerHTML = '<div class="online-error-box">' +
             '<div style="font-size:1.02rem;font-weight:900;color:#dc2626;margin-bottom:6px;">❌ ยังไม่พบห้อง "' + cleanCode + '"</div>' +
             '<div style="font-size:0.83rem;color:#475569;margin-bottom:10px;line-height:1.5;">' +
-              '• แมคอาจจะยังไม่ได้กดปุ่ม <strong>"⚽ สร้างห้องแข่ง"</strong><br>' +
-              '• หรือรหัสห้องไม่ตรงกัน (ลองเช็ครหัสที่แมคส่งมา)' +
+              '• แมคอาจจะยังไม่ได้กดปุ่ม <strong>"👑 แมคเปิดห้อง"</strong><br>' +
+              '• หรือให้นาเดียเปิดจากลิงก์ที่แมคส่งให้ใน LINE' +
             '</div>' +
             '<button class="btn-retry-join" id="btnManualRetryJoin">🔄 ลองเชื่อมต่อใหม่อีกครั้ง</button>' +
           '</div>';
 
           $('btnManualRetryJoin')?.addEventListener('click', function () {
             var code = ($('joinRoomInput')?.value || cleanCode).trim();
-            startJoin(code, 0);
+            startJoin(code, 0, 0);
           });
         }
       });
@@ -2193,9 +2260,7 @@
   }
 
   function copyRoomLink(code) {
-    var room = code || ONLINE.roomCode || 'mac-nadia';
-    var url = window.location.origin + window.location.pathname + '?room=' + encodeURIComponent(room);
-    
+    var url = getInviteUrl(code);
     function onSuccess() {
       var a = $('copyAlert');
       if (a) {
@@ -2226,12 +2291,11 @@
   }
 
   function shareRoomLink(code) {
-    var room = code || ONLINE.roomCode || 'mac-nadia';
-    var url = window.location.origin + window.location.pathname + '?room=' + encodeURIComponent(room);
+    var url = getInviteUrl(code);
     if (navigator.share) {
       navigator.share({
-        title: 'The Dojibos - ดวลฟุตบอล 1 ต่อ 1!',
-        text: 'แมคชวนเล่นฟุตบอล The Dojibos เข้าห้องมาแข่งกันเลย! (รหัสห้อง: ' + room + ')',
+        title: 'The Dojibos - แมคชวนนาเดียดวลฟุตบอล!',
+        text: '⚽ ที่รักเข้าห้องมาดวลฟุตบอลกัน! (คลิกลิงก์นี้เข้าเล่นได้เลย ไม่ต้องกรอกรหัสผ่าน)',
         url: url
       }).catch(function () {});
     } else {
@@ -2246,6 +2310,12 @@
 
   function isGateAuthed() {
     try {
+      // Auto-unlock immediately if arriving via invite link (?room=, ?join=, ?auth=larny)
+      var p = new URLSearchParams(window.location.search);
+      if (p.get('room') || p.get('join') || (p.get('auth') || '').toLowerCase() === 'larny') {
+        localStorage.setItem('nadiaplayground_auth', 'larny');
+        return true;
+      }
       return (localStorage.getItem('nadiaplayground_auth') || '').toLowerCase() === 'larny';
     } catch (e) {
       return false;

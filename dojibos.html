@@ -104,6 +104,18 @@
       </div>
     </div>
 
+    <!-- Couple 1-Click Fast Bar (เล่นกับแฟนง่ายๆ ไม่ต้องพิมพ์รหัส) -->
+    <div class="couple-quick-bar" id="coupleQuickBar" style="display:none">
+      <div class="couple-bar-desc">
+        <span>❤️</span> <strong>แมค & นาเดีย ดวล 1v1:</strong>
+      </div>
+      <div class="couple-bar-btns">
+        <button class="btn-fast-mac" id="btnBarMacInvite" type="button">👑 แมคเปิดห้อง (ส่ง LINE)</button>
+        <button class="btn-fast-nadia" id="btnBarNadiaJoin" type="button">💖 นาเดียเข้าห้องแมค</button>
+        <button class="btn-fast-gear" id="btnOpenAdvancedLobby" type="button" title="ตั้งรหัสห้องเอง หรือดู QR Code">⚙️ รายละเอียด</button>
+      </div>
+    </div>
+
     <!-- Online Match Info Strip (Visible in Online Mode) -->
     <div class="online-match-strip" id="onlineMatchStrip" style="display:none">
       <div class="online-status-badge">
@@ -187,6 +199,25 @@
       <p>ดวลแข้ง 1 ต่อ 1 ผ่านคอมคนละเครื่องแบบ Real-Time ด้วย WebRTC</p>
     </div>
 
+    <!-- 1-CLICK COUPLE FAST-LANE (เล่นง่ายสุดๆ สำหรับแมค & นาเดีย) -->
+    <div class="couple-fast-lane">
+      <div class="couple-fast-header">
+        <span class="couple-heart">❤️</span>
+        <strong>เล่นด้วยกันง่ายที่สุด (แมค & นาเดีย)</strong>
+      </div>
+      <div class="couple-fast-buttons">
+        <button class="btn-fast-mac" id="btnModalFastMac" type="button">
+          👑 แมคเปิดห้อง (ส่ง LINE ให้นาเดีย)
+        </button>
+        <button class="btn-fast-nadia" id="btnModalFastNadia" type="button">
+          💖 นาเดียเข้าห้องแมค (กดปุ่มเดียว)
+        </button>
+      </div>
+      <div class="couple-fast-tip">
+        ⚡ นาเดียกดลิงก์ที่แมคส่งให้แล้วเล่นได้ทันที <strong>ไม่ต้องกรอกรหัสผ่าน!</strong>
+      </div>
+    </div>
+
     <div class="online-lobby-grid">
       <!-- 1. HOST ROOM (สำหรับแมค) -->
       <div class="online-card host-card">
@@ -210,7 +241,14 @@
             <button class="btn-copy-link" id="btnCopyRoomLink">📋 คัดลอกลิงก์ส่งให้นาเดีย</button>
             <button class="btn-copy-link" id="btnShareRoomLink" style="background:#059669;">📲 แชร์ลิงก์ห้อง</button>
           </div>
-          <div class="copy-alert" id="copyAlert" style="display:none">✅ คัดลอกลิงก์แล้ว! ส่งให้นาเดียเปิดในคอมหรือมือถือได้ทันที</div>
+          <div class="copy-alert" id="copyAlert" style="display:none">✅ คัดลอกลิงก์แล้ว! ส่งให้นาเดียเปิดในคอมหรือมือถือได้ทันที (ไม่ต้องพิมพ์รหัส)</div>
+
+          <!-- QR Code for instant phone scan -->
+          <div class="qr-box" id="qrBox" style="margin-top:10px;">
+            <div style="font-size:0.78rem;color:#475569;font-weight:700;margin-bottom:4px;">📷 หรือให้นาเดียเปิดกล้องมือถือสแกน QR Code นี้:</div>
+            <img id="qrCodeImg" class="qr-code-img" src="" alt="QR Code สแกนเข้าห้อง" style="display:none;width:130px;height:130px;border-radius:10px;border:2px solid #0284c7;margin:0 auto;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+          </div>
+
           <div class="waiting-indicator" id="hostWaitingIndicator">
             <span class="spin-icon">⏳</span> <span id="hostWaitingText">กำลังรอนาเดียกดลิงก์เข้าห้อง...</span>
           </div>

@@ -29,6 +29,10 @@ assert.ok(html.includes('data-lvl="5"'), 'Must have quick button for Level 5');
 assert.ok(html.includes('data-lvl="10"'), 'Must have quick button for Level 10');
 assert.ok(html.includes('diff-godlike'), 'Must have godlike badge for Level 10');
 assert.ok(html.includes('id="onlineModal"'), 'Must have online 2-player modal');
+assert.ok(html.includes('id="coupleQuickBar"'), 'Must have on-screen couple quick bar');
+assert.ok(html.includes('id="btnBarMacInvite"'), 'Must have Mac invite button in toolbar');
+assert.ok(html.includes('id="btnBarNadiaJoin"'), 'Must have Nadia join button in toolbar');
+assert.ok(html.includes('id="qrCodeImg"'), 'Must have QR Code scan image for instant phone scan');
 assert.ok(html.includes('id="btnStartHost"'), 'Must have host room button for Mac');
 assert.ok(html.includes('id="btnStartJoin"'), 'Must have join room button for Nadia');
 assert.ok(html.includes('id="btnCopyRoomLink"'), 'Must have 1-click shareable link copy button for Nadia');
@@ -87,7 +91,11 @@ assert.ok(js.includes('reliable: true'), 'Must configure reliable WebRTC data ch
 assert.ok(js.includes('PENDING_ROOM_JOIN'), 'Must handle password gate deferral on join query');
 assert.ok(js.includes('getP1CharDef'), 'Must correctly map P1 character definitions');
 assert.ok(js.includes('getP2CharDef'), 'Must correctly map P2 character definitions');
-console.log('✔ dojibos.js engine, 5 difficulty levels & online WebRTC + TURN validated');
+assert.ok(js.includes('quickHostForMac'), 'Must have 1-click quickHostForMac function');
+assert.ok(js.includes('quickJoinForNadia'), 'Must have 1-click quickJoinForNadia function');
+assert.ok(js.includes('getInviteUrl'), 'Must generate magic invite URL with auto-auth');
+assert.ok(js.includes('&auth=larny'), 'Must auto-authenticate invite link without password prompt');
+console.log('✔ dojibos.js engine, couple fast-lane, auto-auth & online WebRTC + TURN validated');
 
 // 4. Verify index.html portal
 const indexHtml = fs.readFileSync(dir + '\\index.html', 'utf8');

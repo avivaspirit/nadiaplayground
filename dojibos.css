@@ -788,6 +788,107 @@ kbd {
 .roster-trait { font-size: 0.76rem; font-weight: 700; color: #2b9348; margin-top: 2px; }
 .roster-super { font-size: 0.72rem; color: var(--ink-soft); margin-top: 4px; }
 
+/* COUPLE QUICK BAR ON SCREEN */
+.couple-quick-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: linear-gradient(135deg, #eff6ff, #fdf2f8);
+  border: 2px solid #fbcfe8;
+  border-radius: 14px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  box-shadow: 0 4px 12px rgba(219, 39, 119, 0.08);
+}
+.couple-bar-desc {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #831843;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.couple-bar-btns {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.btn-fast-mac {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 900;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(2, 132, 199, 0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-fast-mac:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(2, 132, 199, 0.4);
+}
+.btn-fast-nadia {
+  background: linear-gradient(135deg, #ec4899, #db2777);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 900;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(236, 72, 153, 0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-fast-nadia:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(236, 72, 153, 0.4);
+}
+.btn-fast-gear {
+  background: #f1f5f9;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+/* COUPLE FAST LANE IN MODAL */
+.couple-fast-lane {
+  background: linear-gradient(135deg, #f0fdf4, #fdf2f8);
+  border: 2px dashed #f472b6;
+  border-radius: 16px;
+  padding: 14px;
+  margin-top: 12px;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.couple-fast-header {
+  font-size: 0.98rem;
+  font-weight: 900;
+  color: #9d174d;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.couple-fast-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.couple-fast-tip {
+  font-size: 0.78rem;
+  color: #059669;
+  font-weight: 800;
+  margin-top: 8px;
+}
+
 /* ONLINE 2-PLAYER MODAL LOBBY */
 .online-modal-card {
   max-width: 680px;
