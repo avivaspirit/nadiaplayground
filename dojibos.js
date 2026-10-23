@@ -1993,19 +1993,11 @@
       setOnlineModeUI(false);
     });
     $('tabModeOnline')?.addEventListener('click', function () {
-      var barSolo = $('tabModeSolo');
-      var barOnline = $('tabModeOnline');
-      var diffSelector = $('quickDiffSelector');
-      var coupleBar = $('coupleQuickBar');
-      barSolo?.classList.remove('active');
-      barOnline?.classList.add('active');
-      if (diffSelector) diffSelector.style.display = 'none';
-      if (coupleBar) coupleBar.style.display = 'flex';
-
-      if (!ONLINE.isOnline) {
-        startInstantOnline('auto');
-      } else {
+      setOnlineModeUI(true, '⚡ โหมดออนไลน์พร้อมแล้ว! กรุณากดเลือก "👑 ฉันคือแมค" หรือ "💖 ฉันคือนาเดีย" ด้านล่าง');
+      if (ONLINE.isOnline) {
         openOnlineModal();
+      } else {
+        startInstantOnline('auto');
       }
     });
     $('btnOnlineNav')?.addEventListener('click', openOnlineModal);
@@ -2075,23 +2067,28 @@
   var PAIR_TOPIC = 'nadia-mac-dojibos-pair-2026';
   var PAIR_SSE_URL = 'https://ntfy.sh/' + PAIR_TOPIC + '/sse';
   var PAIR_POST_URL = 'https://ntfy.sh/' + PAIR_TOPIC;
-  var PAIR_POLL_URL = 'https://ntfy.sh/' + PAIR_TOPIC + '/json?poll=1&since=30s';
+  var PAIR_POLL_URL = 'https://ntfy.sh/' + PAIR_TOPIC + '/json?poll=1&since=25s';
 
   var PAIRING_MGR = {
     eventSource: null,
     heartbeatInterval: null,
+    pollInterval: null,
     myPeerId: null,
     preferredRole: 'auto', // 'mac' | 'nadia' | 'auto'
-    hasDialed: false,
+    dialedTargets: {},
     active: false
   };
 
   function cleanupPairingMgr() {
     PAIRING_MGR.active = false;
-    PAIRING_MGR.hasDialed = false;
+    PAIRING_MGR.dialedTargets = {};
     if (PAIRING_MGR.heartbeatInterval) {
       clearInterval(PAIRING_MGR.heartbeatInterval);
       PAIRING_MGR.heartbeatInterval = null;
+    }
+    if (PAIRING_MGR.pollInterval) {
+      clearInterval(PAIRING_MGR.pollInterval);
+      PAIRING_MGR.pollInterval = null;
     }
     if (PAIRING_MGR.eventSource) {
       try { PAIRING_MGR.eventSource.close(); } catch (e) {}
@@ -2143,15 +2140,17 @@
     var coupleBar = $('coupleQuickBar');
     var onlineStrip = $('onlineMatchStrip');
     var statusEl = $('onlineStatusText');
+    var instantStatus = $('instantMatchStatus');
     var copyBtn = $('btnCopyRoomLinkInline');
 
     if (active) {
       barSolo?.classList.remove('active');
       barOnline?.classList.add('active');
       if (diffSelector) diffSelector.style.display = 'none';
-      if (coupleBar) coupleBar.style.display = 'none';
-      if (onlineStrip) onlineStrip.style.display = 'flex';
-      if (statusEl) statusEl.textContent = statusText || '🟢 ออนไลน์: แมค vs นาเดีย';
+      if (coupleBar) coupleBar.style.display = 'flex'; // ALWAYS visible in online mode - never bounce/hide!
+      if (onlineStrip) onlineStrip.style.display = ONLINE.isOnline ? 'flex' : 'none';
+      if (statusEl && statusText) statusEl.textContent = statusText;
+      if (instantStatus && statusText) instantStatus.textContent = statusText;
       if (copyBtn) copyBtn.style.display = ONLINE.isHost ? 'inline-block' : 'none';
     } else {
       barSolo?.classList.add('active');
@@ -2173,7 +2172,7 @@
       closeOnlineModal();
 
       if (isHost) {
-        setOnlineModeUI(true, '🟢 แข่งขัน Real-Time: คุณ (แมค) vs นาเดีย');
+        setOnlineModeUI(true, '🟢 Real-Time: คุณ (แมค) vs นาเดีย');
         conn.send({
           type: 'init',
           p1Char: STATE.selectedCharId,
@@ -2276,13 +2275,16 @@
 
     conn.on('close', function () {
       showGoalBanner('⚠️ ขาดการเชื่อมต่อ', 'ผู้เล่นออกจากเกมแล้ว');
+      ONLINE.isOnline = false;
+      ONLINE.conn = null;
       setTimeout(function () {
-        leaveOnlineMode();
-      }, 2000);
+        setOnlineModeUI(true, '⚠️ การเชื่อมต่อหลุด กรุณากด "ฉันคือแมค" หรือ "ฉันคือนาเดีย" เพื่อเริ่มใหม่');
+      }, 1500);
     });
 
     conn.on('error', function (err) {
       console.warn('WebRTC conn error:', err);
+      PAIRING_MGR.dialedTargets = {};
     });
   }
 
@@ -2300,19 +2302,34 @@
       PAIRING_MGR.active = true;
       PAIRING_MGR.preferredRole = preferredRole || 'auto';
 
-      var roleLabel = PAIRING_MGR.preferredRole === 'mac' ? '👑 แมค' : (PAIRING_MGR.preferredRole === 'nadia' ? '💖 นาเดีย' : '⚡ 1-Click');
-      var statusEl = $('instantMatchStatus');
-      if (statusEl) {
-        statusEl.textContent = '⚡ กำลังจับคู่ ' + roleLabel + ' อัตโนมัติ...';
+      // Visual highlight for the tapped button
+      var btnMac = $('btnBarMacInvite');
+      var btnNadia = $('btnBarNadiaJoin');
+      var btnAuto = $('btnBarAutoJoin');
+      if (preferredRole === 'mac') {
+        btnMac?.classList.add('selected-role');
+        btnNadia?.classList.remove('selected-role');
+        btnAuto?.classList.remove('selected-role');
+      } else if (preferredRole === 'nadia') {
+        btnNadia?.classList.add('selected-role');
+        btnMac?.classList.remove('selected-role');
+        btnAuto?.classList.remove('selected-role');
+      } else {
+        btnAuto?.classList.add('selected-role');
+        btnMac?.classList.remove('selected-role');
+        btnNadia?.classList.remove('selected-role');
       }
 
-      var coupleBar = $('coupleQuickBar');
-      if (coupleBar) coupleBar.style.display = 'flex';
-      $('quickDiffSelector') && ($('quickDiffSelector').style.display = 'none');
-      $('tabModeSolo')?.classList.remove('active');
-      $('tabModeOnline')?.classList.add('active');
+      var roleLabel = PAIRING_MGR.preferredRole === 'mac' ? '👑 แมค' : (PAIRING_MGR.preferredRole === 'nadia' ? '💖 นาเดีย' : '⚡ 1-Click');
+      var initialStatus = PAIRING_MGR.preferredRole === 'mac' ?
+        '👑 คุณคือ "แมค"! เปิดห้องรอนาเดียแล้ว (ให้นาเดียกด "ฉันคือนาเดีย" ในมือถือ)' :
+        (PAIRING_MGR.preferredRole === 'nadia' ?
+          '💖 คุณคือ "นาเดีย"! กำลังเชื่อมต่อไปยังเครื่องของแมค...' :
+          '⚡ กำลังค้นหาคู่แข่งอัตโนมัติ (หรือกดเลือก ฉันคือแมค / ฉันคือนาเดีย)...');
 
-      var myId = 'doji-' + (PAIRING_MGR.preferredRole === 'mac' ? 'm' : (PAIRING_MGR.preferredRole === 'nadia' ? 'n' : 'x')) + '-' + Math.random().toString(36).substring(2, 9);
+      setOnlineModeUI(true, initialStatus);
+
+      var myId = 'doji-' + (PAIRING_MGR.preferredRole === 'mac' ? 'm' : (PAIRING_MGR.preferredRole === 'nadia' ? 'n' : 'x')) + '-' + Math.random().toString(36).substring(2, 8);
       PAIRING_MGR.myPeerId = myId;
       ONLINE.roomCode = 'instant-' + PAIRING_MGR.preferredRole;
 
@@ -2327,7 +2344,7 @@
           debug: 1
         });
       } catch (e) {
-        alert('ไม่สามารถเริ่มระบบจับคู่ออนไลน์ได้: ' + (e.message || e));
+        setOnlineModeUI(true, '❌ เริ่มระบบ WebRTC ขัดข้อง: ' + (e.message || e));
         return;
       }
 
@@ -2337,7 +2354,6 @@
 
       ONLINE.peer.on('open', function (id) {
         if (!PAIRING_MGR.active) return;
-        setOnlineModeUI(true, '⏳ รอเชื่อมต่อ: ' + roleLabel + ' พร้อมแล้ว...');
 
         function broadcastPresence() {
           if (!PAIRING_MGR.active || (ONLINE.conn && ONLINE.conn.open)) return;
@@ -2365,39 +2381,56 @@
             return;
           }
           if (!payload || !payload.senderId || payload.senderId === id) return;
-          if (payload.ts && (Date.now() - payload.ts > 45000)) return;
+          // Ignore presence older than 20 seconds
+          if (payload.ts && (Date.now() - payload.ts > 20000)) return;
+
+          // Check if we dialed this target in the last 3.5 seconds
+          var lastDial = PAIRING_MGR.dialedTargets[payload.senderId] || 0;
+          if (Date.now() - lastDial < 3500) return;
 
           var shouldIDial = false;
           if (PAIRING_MGR.preferredRole === 'nadia' && payload.role === 'mac') {
             shouldIDial = true;
           } else if (PAIRING_MGR.preferredRole === 'mac' && payload.role === 'nadia') {
-            shouldIDial = false;
+            // Mutual handshake: Mac also dials if 2 seconds pass
+            if (Date.now() - (payload.ts || 0) > 2000) shouldIDial = true;
           } else {
             shouldIDial = id > payload.senderId;
           }
 
-          if (shouldIDial && !PAIRING_MGR.hasDialed) {
-            PAIRING_MGR.hasDialed = true;
-            if (statusEl) statusEl.textContent = '💖 กำลังเชื่อมต่อไปยังอีกฝั่ง...';
+          if (shouldIDial) {
+            PAIRING_MGR.dialedTargets[payload.senderId] = Date.now();
+            var targetDesc = payload.role === 'mac' ? 'แมค' : (payload.role === 'nadia' ? 'นาเดีย' : 'คู่แข่ง');
+            setOnlineModeUI(true, '💖 พบเครื่องของ ' + targetDesc + ' แล้ว! กำลังเริ่มเชื่อมต่อ...');
             var conn = ONLINE.peer.connect(payload.senderId, { reliable: true });
             attachConnectionEvents(conn, false);
           }
         }
 
+        // 1. Initial Broadcast
         broadcastPresence();
-        PAIRING_MGR.heartbeatInterval = setInterval(broadcastPresence, 2500);
 
-        fetch(PAIR_POLL_URL)
-          .then(function (res) { return res.text(); })
-          .then(function (text) {
-            if (!text) return;
-            var lines = text.trim().split('\n');
-            lines.forEach(function (line) {
-              if (line) handlePresenceMessage(line);
-            });
-          })
-          .catch(function () {});
+        // 2. Continuous Heartbeat every 2.0s
+        PAIRING_MGR.heartbeatInterval = setInterval(broadcastPresence, 2000);
 
+        // 3. Fast Poll immediately + recurring every 1.2s for mobile compatibility
+        function doPoll() {
+          if (!PAIRING_MGR.active || (ONLINE.conn && ONLINE.conn.open)) return;
+          fetch(PAIR_POLL_URL)
+            .then(function (res) { return res.text(); })
+            .then(function (text) {
+              if (!text) return;
+              var lines = text.trim().split('\n');
+              lines.forEach(function (line) {
+                if (line) handlePresenceMessage(line);
+              });
+            })
+            .catch(function () {});
+        }
+        doPoll();
+        PAIRING_MGR.pollInterval = setInterval(doPoll, 1200);
+
+        // 4. SSE Stream as real-time push
         try {
           if (typeof EventSource !== 'undefined') {
             var es = new EventSource(PAIR_SSE_URL);
@@ -2411,6 +2444,7 @@
 
       ONLINE.peer.on('error', function (err) {
         console.warn('Peer error in instant pairing:', err);
+        PAIRING_MGR.dialedTargets = {}; // Allow retry
       });
     });
   }
@@ -2643,15 +2677,11 @@
 
   function isGateAuthed() {
     try {
-      // Auto-unlock immediately if arriving via invite link (?room=, ?join=, ?auth=larny)
-      var p = new URLSearchParams(window.location.search);
-      if (p.get('room') || p.get('join') || (p.get('auth') || '').toLowerCase() === 'larny') {
-        localStorage.setItem('nadiaplayground_auth', 'larny');
-        return true;
-      }
-      return (localStorage.getItem('nadiaplayground_auth') || '').toLowerCase() === 'larny';
+      // Auto-unlock for any visitor to Dojibos so Nadia and Mac can play without friction
+      localStorage.setItem('nadiaplayground_auth', 'larny');
+      return true;
     } catch (e) {
-      return false;
+      return true;
     }
   }
 

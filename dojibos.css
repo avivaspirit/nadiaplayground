@@ -889,9 +889,14 @@ kbd {
   box-shadow: 0 3px 8px rgba(2, 132, 199, 0.3);
   transition: transform 0.15s, box-shadow 0.15s;
 }
-.btn-fast-mac:hover {
+.btn-fast-mac:hover, .btn-fast-mac:active {
   transform: translateY(-1px);
   box-shadow: 0 5px 12px rgba(2, 132, 199, 0.4);
+}
+.btn-fast-mac.selected-role {
+  outline: 3px solid #38bdf8 !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.9) !important;
+  transform: scale(1.05);
 }
 .btn-fast-nadia {
   background: linear-gradient(135deg, #ec4899, #db2777);
@@ -905,9 +910,14 @@ kbd {
   box-shadow: 0 3px 8px rgba(236, 72, 153, 0.3);
   transition: transform 0.15s, box-shadow 0.15s;
 }
-.btn-fast-nadia:hover {
+.btn-fast-nadia:hover, .btn-fast-nadia:active {
   transform: translateY(-1px);
   box-shadow: 0 5px 12px rgba(236, 72, 153, 0.4);
+}
+.btn-fast-nadia.selected-role {
+  outline: 3px solid #f472b6 !important;
+  box-shadow: 0 0 16px rgba(244, 114, 182, 0.9) !important;
+  transform: scale(1.05);
 }
 .btn-fast-gear {
   background: #f1f5f9;
@@ -916,6 +926,34 @@ kbd {
   padding: 7px 10px;
   cursor: pointer;
   font-size: 0.95rem;
+}
+
+@media (max-width: 600px) {
+  .couple-quick-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px;
+  }
+  .couple-bar-desc {
+    text-align: center;
+    justify-content: center;
+    font-size: 0.88rem;
+  }
+  .couple-bar-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    width: 100%;
+  }
+  .btn-fast-mac, .btn-fast-nadia {
+    flex: 1 1 42%;
+    min-width: 120px;
+    padding: 10px 8px;
+    font-size: 0.88rem;
+    text-align: center;
+  }
 }
 
 /* COUPLE FAST LANE IN MODAL */
