@@ -175,78 +175,148 @@
   var AI_NAMES = ['Robo-Bibo 🤖', 'Captain Bounce 🦘', 'Professor Kick 🦉', 'Striker Cat 🐱', 'Super Doji 🦁'];
 
   /* ==========================================================================
-     3. 5-LEVEL DIFFICULTY SETTINGS
+     3. 10-LEVEL DIFFICULTY SETTINGS (ระดับ 1 ถึง 10 โหดนรกแตก)
      ========================================================================== */
   var DIFFICULTIES = [
     {
       level: 1,
       name: 'ระดับ 1 (ง่ายมาก - Beginner)',
-      shortName: '🟢 ระดับ 1 (ง่ายมาก)',
+      shortName: '🟢 เลเวล 1 (ง่ายมาก)',
       icon: '🟢',
       badgeColor: '#2b9348',
       tagText: 'ง่ายมาก',
-      aiSpeed: 2.2,
-      aiJumpChance: 0.04,
-      aiKickPower: 7.0,
-      aiKickChance: 0.20,
+      aiSpeed: 2.0,
+      aiJumpChance: 0.03,
+      aiKickPower: 6.5,
+      aiKickChance: 0.15,
       aiSuperChance: 0.0,
-      desc: 'เหมาะสำหรับทุกคน ยิงสบาย AI ตอบสนองช้าและแทบไม่กระโดดขวาง'
+      desc: 'เหมาะสำหรับทุกคน ยิงสบาย AI เดินช้าและแทบไม่กระโดดขวาง'
     },
     {
       level: 2,
-      name: 'ระดับ 2 (ง่าย - Amateur)',
-      shortName: '🟡 ระดับ 2 (ง่าย)',
-      icon: '🟡',
-      badgeColor: '#d97706',
-      tagText: 'ง่าย',
-      aiSpeed: 3.0,
-      aiJumpChance: 0.12,
-      aiKickPower: 9.0,
-      aiKickChance: 0.30,
-      aiSuperChance: 0.10,
-      desc: 'เริ่มมีการสกัดบอลเบาๆ ขยับตามบอลพอดีๆ เหมาะกับฝึกซ้อม'
+      name: 'ระดับ 2 (มือใหม่ - Novice)',
+      shortName: '🟢 เลเวล 2 (มือใหม่)',
+      icon: '🟢',
+      badgeColor: '#10b981',
+      tagText: 'มือใหม่',
+      aiSpeed: 2.6,
+      aiJumpChance: 0.08,
+      aiKickPower: 7.6,
+      aiKickChance: 0.22,
+      aiSuperChance: 0.05,
+      desc: 'AI เริ่มขยับตามบอลช้าๆ เว้นระยะห่างสบายๆ เหมาะกับการวอร์มอัป'
     },
     {
       level: 3,
-      name: 'ระดับ 3 (ปานกลาง - Semi-Pro)',
-      shortName: '🟠 ระดับ 3 (ปานกลาง)',
-      icon: '🟠',
-      badgeColor: '#ea580c',
-      tagText: 'ปานกลาง',
-      aiSpeed: 3.8,
-      aiJumpChance: 0.22,
-      aiKickPower: 11.0,
-      aiKickChance: 0.40,
-      aiSuperChance: 0.35,
-      desc: 'ความท้าทายมาตรฐาน สู้กันสูสี มีทั้งบล็อกและยิงสวนกลับ'
+      name: 'ระดับ 3 (ง่าย - Amateur)',
+      shortName: '🟡 เลเวล 3 (ง่าย)',
+      icon: '🟡',
+      badgeColor: '#eab308',
+      tagText: 'ง่าย',
+      aiSpeed: 3.2,
+      aiJumpChance: 0.14,
+      aiKickPower: 8.8,
+      aiKickChance: 0.30,
+      aiSuperChance: 0.12,
+      desc: 'เริ่มมีการสกัดบอลเบาๆ ขยับตามบอลพอดีๆ เหมาะกับฝึกซ้อม'
     },
     {
       level: 4,
-      name: 'ระดับ 4 (ยาก - Professional)',
-      shortName: '🔴 ระดับ 4 (ยาก)',
-      icon: '🔴',
-      badgeColor: '#dc2626',
-      tagText: 'ยาก',
-      aiSpeed: 4.6,
-      aiJumpChance: 0.34,
-      aiKickPower: 13.5,
-      aiKickChance: 0.55,
-      aiSuperChance: 0.65,
-      desc: 'AI ว่องไว สกัดลูกโด่งแม่นยำ และใช้ท่าไม้ตายเมื่อมีโอกาส'
+      name: 'ระดับ 4 (ทั่วไป - Casual)',
+      shortName: '🟡 เลเวล 4 (ทั่วไป)',
+      icon: '🟡',
+      badgeColor: '#f59e0b',
+      tagText: 'ทั่วไป',
+      aiSpeed: 3.8,
+      aiJumpChance: 0.20,
+      aiKickPower: 10.0,
+      aiKickChance: 0.38,
+      aiSuperChance: 0.22,
+      desc: 'ระดับมาตรฐานเล่นสบาย มีทั้งรับและรุกพอเหมาะ'
     },
     {
       level: 5,
-      name: 'ระดับ 5 (ระดับโลก - World Class Legend)',
-      shortName: '🟣 ระดับ 5 (ระดับโลก)',
+      name: 'ระดับ 5 (ปานกลาง - Semi-Pro)',
+      shortName: '🟠 เลเวล 5 (ปานกลาง)',
+      icon: '🟠',
+      badgeColor: '#f97316',
+      tagText: 'ปานกลาง',
+      aiSpeed: 4.4,
+      aiJumpChance: 0.26,
+      aiKickPower: 11.2,
+      aiKickChance: 0.45,
+      aiSuperChance: 0.35,
+      desc: 'ความท้าทายระดับปานกลาง สู้กันสูสี มีทั้งบล็อกและยิงสวนกลับ'
+    },
+    {
+      level: 6,
+      name: 'ระดับ 6 (ชำนาญ - Veteran)',
+      shortName: '🟠 เลเวล 6 (ชำนาญ)',
+      icon: '🟠',
+      badgeColor: '#ea580c',
+      tagText: 'ชำนาญ',
+      aiSpeed: 5.0,
+      aiJumpChance: 0.33,
+      aiKickPower: 12.5,
+      aiKickChance: 0.52,
+      aiSuperChance: 0.48,
+      desc: 'บอทวิ่งไวเท่าผู้เล่น อ่านทิศทางบอลไว สกัดลูกโด่งแม่นยำ'
+    },
+    {
+      level: 7,
+      name: 'ระดับ 7 (ยาก - Professional)',
+      shortName: '🔴 เลเวล 7 (ยาก)',
+      icon: '🔴',
+      badgeColor: '#ef4444',
+      tagText: 'ยาก',
+      aiSpeed: 5.6,
+      aiJumpChance: 0.40,
+      aiKickPower: 13.8,
+      aiKickChance: 0.60,
+      aiSuperChance: 0.62,
+      desc: 'AI ว่องไว ดักสกัดลูกโด่งฉับไว ยิงสวนกลับอันตราย'
+    },
+    {
+      level: 8,
+      name: 'ระดับ 8 (ยากมาก - World Class)',
+      shortName: '🔴 เลเวล 8 (ยากมาก)',
+      icon: '🔴',
+      badgeColor: '#dc2626',
+      tagText: 'ยากมาก',
+      aiSpeed: 6.2,
+      aiJumpChance: 0.48,
+      aiKickPower: 15.2,
+      aiKickChance: 0.68,
+      aiSuperChance: 0.75,
+      desc: 'ระดับโลก วิ่งไวกว่าผู้เล่น ดักโหม่งกลางอากาศ ซัดเต็มข้อ'
+    },
+    {
+      level: 9,
+      name: 'ระดับ 9 (ตำนาน - Legend)',
+      shortName: '🟣 เลเวล 9 (ตำนาน)',
       icon: '🟣',
       badgeColor: '#7c3aed',
-      tagText: 'ระดับโลก',
-      aiSpeed: 5.4,
-      aiJumpChance: 0.48,
-      aiKickPower: 15.5,
-      aiKickChance: 0.70,
-      aiSuperChance: 0.85,
-      desc: 'บอสระดับตำนาน วิ่งไว สกัดแน่น และยิงเต็มข้อแบบไม่ปรานี!'
+      tagText: 'ตำนาน',
+      aiSpeed: 6.8,
+      aiJumpChance: 0.58,
+      aiKickPower: 16.8,
+      aiKickChance: 0.78,
+      aiSuperChance: 0.88,
+      desc: 'บอสระดับตำนาน ไวปานสายฟ้า ดักทุกลูก เล็งมุมแม่นยำ!'
+    },
+    {
+      level: 10,
+      name: 'ระดับ 10 (ไร้เทียมทาน - Godlike 💀)',
+      shortName: '💀 เลเวล 10 (ไร้เทียมทาน)',
+      icon: '💀',
+      badgeColor: '#0f172a',
+      tagText: 'โหดนรกแตก 💀',
+      aiSpeed: 7.5,
+      aiJumpChance: 0.70,
+      aiKickPower: 18.5,
+      aiKickChance: 0.90,
+      aiSuperChance: 0.98,
+      desc: 'โหดนรกแตก! สปีดปีศาจ ดักสกัดทุกลูกเตะ โหม่งพุ่งชน และซัดไม้ตายทะลวงตาข่าย!'
     }
   ];
 
@@ -287,7 +357,7 @@
         if (typeof d.coins === 'number') STATE.coins = d.coins;
         if (typeof d.trophies === 'number') STATE.trophies = d.trophies;
         if (d.selectedCharId) STATE.selectedCharId = d.selectedCharId;
-        if (typeof d.difficulty === 'number' && d.difficulty >= 1 && d.difficulty <= 5) {
+        if (typeof d.difficulty === 'number' && d.difficulty >= 1 && d.difficulty <= 10) {
           STATE.difficulty = d.difficulty;
         }
       } catch (e) {}
@@ -721,30 +791,45 @@
     }
   }
 
-  /* SMART AI OPPONENT BEHAVIOR WITH 5 DIFFICULTY LEVELS */
+  /* SMART AI OPPONENT BEHAVIOR WITH 10 DIFFICULTY LEVELS */
   function updateAI() {
     var diff = getCurrentDifficulty();
     var speed = diff.aiSpeed;
 
-    // AI positioning logic scaled by difficulty
-    var targetOffset = diff.level <= 2 ? 60 : 30;
-    var targetX = ball.x + targetOffset; // Position behind ball to defend or shoot
+    // AI positioning logic scaled by difficulty (1 to 10)
     var distToBall = Math.hypot(ball.x - p2.x, ball.y - p2.y);
+    var targetOffset = diff.level <= 2 ? 65 : (diff.level <= 5 ? 40 : 20);
+    var targetX = ball.x + targetOffset;
 
-    // Stay on own half unless attacking (Level 1/2 gives generous breathing room to player)
+    // Advanced ball trajectory prediction at high difficulties (Level 6-10)
+    if (diff.level >= 6) {
+      targetX = ball.x + targetOffset + (ball.vx * (diff.level >= 8 ? 3.5 : 2.0));
+    }
+
+    // Defensive positioning on own half
     if (ball.x < W / 2) {
-      var retreatBound = diff.level <= 2 ? (W - 190) : (W - 240);
-      var roomOffset = diff.level <= 2 ? 110 : 80;
+      var retreatBound = diff.level <= 2 ? (W - 180) : (diff.level <= 5 ? (W - 220) : (W - 250));
+      var roomOffset = diff.level <= 2 ? 110 : (diff.level <= 5 ? 80 : 50);
       targetX = Math.max(retreatBound, ball.x + roomOffset);
     }
 
-    if (p2.x < targetX - 12) p2.vx = speed;
-    else if (p2.x > targetX + 12) p2.vx = -speed;
+    // Emergency goal-line save for high levels (7-10)
+    if (diff.level >= 7 && ball.x > W - GOAL_W - 130 && ball.y > GOAL_TOP_Y - 20) {
+      targetX = ball.x + 10;
+    }
+
+    if (p2.x < targetX - 10) p2.vx = speed;
+    else if (p2.x > targetX + 10) p2.vx = -speed;
     else p2.vx *= 0.65;
 
-    // AI Jump when ball is overhead (scaled strictly by difficulty)
-    if (distToBall < 110 && ball.y < p2.y - 30 && p2.isGrounded && Math.random() < diff.aiJumpChance) {
-      p2.vy = -(9.2 + diff.level * 0.45);
+    // AI Jump / Header when ball is overhead (scaled strictly by difficulty)
+    var jumpDistThreshold = diff.level >= 8 ? 135 : 110;
+    if (distToBall < jumpDistThreshold && ball.y < p2.y - 25 && p2.isGrounded && Math.random() < diff.aiJumpChance) {
+      p2.vy = -(9.2 + diff.level * 0.42);
+      // High level AI adds extra forward thrust on jump!
+      if (diff.level >= 7 && ball.x < p2.x) {
+        p2.vx = -speed * 1.15;
+      }
       p2.isGrounded = false;
       Snd.play('jump');
     }
@@ -763,8 +848,9 @@
     if (p2.x < GOAL_W + p2.radius) p2.x = GOAL_W + p2.radius;
     if (p2.x > W - GOAL_W - p2.radius) p2.x = W - GOAL_W - p2.radius;
 
-    // AI Kick (scaled by difficulty)
-    if (distToBall < p2.radius + 32 && ball.x < p2.x && Math.random() < diff.aiKickChance) {
+    // AI Kick (scaled by difficulty 1 to 10)
+    var kickRange = p2.radius + (diff.level >= 8 ? 40 : 32);
+    if (distToBall < kickRange && ball.x < p2.x && Math.random() < diff.aiKickChance) {
       if (STATE.p2SuperEnergy >= 100 && Math.random() < diff.aiSuperChance) {
         STATE.p2SuperEnergy = 0;
         updateSuperBars();

@@ -32,7 +32,7 @@
       <span class="hud-icon">🏆</span>
       <span id="hudTrophies">0</span>
     </div>
-    <button class="nav-btn btn-diff" id="btnDiffToggle" title="เลือกระดับความยาก (5 ระดับ)">
+    <button class="nav-btn btn-diff" id="btnDiffToggle" title="เลือกระดับความยาก (10 ระดับ)">
       <span id="diffPillIcon">🟢</span>
       <span id="diffPillText">ระดับ 1 (ง่ายมาก)</span>
     </button>
@@ -87,15 +87,20 @@
       </button>
     </div>
 
-    <!-- 5 Difficulty Levels Quick Buttons (ชัดเจนตรงหน้าจอ ไม่ต้องหา) -->
+    <!-- 10 Difficulty Levels Quick Buttons (ระดับ 1 ถึง 10 โหดนรกแตก) -->
     <div class="quick-diff-selector" id="quickDiffSelector">
-      <span class="diff-title-tag">🎯 ปรับระดับความยาก:</span>
+      <span class="diff-title-tag">🎯 เลเวลความยาก:</span>
       <div class="diff-buttons-group">
-        <button class="quick-diff-btn active" data-lvl="1" title="ระดับ 1: ง่ายมาก เล่นสบาย ยิงเข้าง่าย">🟢 เลเวล 1 (ง่ายมาก)</button>
-        <button class="quick-diff-btn" data-lvl="2" title="ระดับ 2: ง่าย เริ่มสกัดบอลเบาๆ">🟡 เลเวล 2 (ง่าย)</button>
-        <button class="quick-diff-btn" data-lvl="3" title="ระดับ 3: ปานกลาง สูสี ท้าทาย">🟠 เลเวล 3 (ปานกลาง)</button>
-        <button class="quick-diff-btn" data-lvl="4" title="ระดับ 4: ยาก ว่องไว ดักทางแม่น">🔴 เลเวล 4 (ยาก)</button>
-        <button class="quick-diff-btn" data-lvl="5" title="ระดับ 5: บอสระดับโลก ซัดหนัก ไวปานสายฟ้า">🟣 เลเวล 5 (ระดับโลก)</button>
+        <button class="quick-diff-btn active" data-lvl="1" title="เลเวล 1: ง่ายมาก เล่นสบาย ยิงเข้าง่าย">🟢 1 ง่ายมาก</button>
+        <button class="quick-diff-btn" data-lvl="2" title="เลเวล 2: มือใหม่ บอทเริ่มขยับตามบอล">🟢 2 มือใหม่</button>
+        <button class="quick-diff-btn" data-lvl="3" title="เลเวล 3: ง่าย สกัดบอลเบาๆ">🟡 3 ง่าย</button>
+        <button class="quick-diff-btn" data-lvl="4" title="เลเวล 4: ทั่วไป รับส่งพอเหมาะ">🟡 4 ทั่วไป</button>
+        <button class="quick-diff-btn" data-lvl="5" title="เลเวล 5: ปานกลาง สูสี แลกหมัดสนุก">🟠 5 ปานกลาง</button>
+        <button class="quick-diff-btn" data-lvl="6" title="เลเวล 6: ชำนาญ บอทวิ่งไวเท่าผู้เล่น">🟠 6 ชำนาญ</button>
+        <button class="quick-diff-btn" data-lvl="7" title="เลเวล 7: ยาก สปีดสูง สกัดบอลแม่น">🔴 7 ยาก</button>
+        <button class="quick-diff-btn" data-lvl="8" title="เลเวล 8: ยากมาก ระดับโลก ดักโหม่งกลางอากาศ">🔴 8 ยากมาก</button>
+        <button class="quick-diff-btn" data-lvl="9" title="เลเวล 9: ตำนาน ไวปานสายฟ้า ซัดเต็มข้อ">🟣 9 ตำนาน</button>
+        <button class="quick-diff-btn diff-godlike" data-lvl="10" title="เลเวล 10: ไร้เทียมทาน โหดนรกแตก สปีดปีศาจ ดักทุกลูก!">💀 10 ไร้เทียมทาน</button>
       </div>
     </div>
 
@@ -232,7 +237,7 @@
     <div class="modal-header">
       <span class="modal-icon">⚙️</span>
       <h2>เลือกระดับความยาก (Difficulty)</h2>
-      <p>เลือกความเก่งของคู่แข่ง AI ตามที่คุณต้องการ (เปลี่ยนได้ตลอดเวลา)</p>
+      <p>เลือกความเก่งของคู่แข่ง AI จากระดับ 1 (ง่ายมาก) ถึงระดับ 10 (โหดนรกแตก!)</p>
     </div>
 
     <div class="diff-grid" id="diffGrid">
@@ -263,7 +268,7 @@
 
     <div class="result-buttons">
       <button class="btn-primary" id="btnPlayAgain">⚽ แข่งอีกแมตช์ (Rematch)</button>
-      <button class="btn-sec" id="btnChangeDiff">⚙️ เลือกระดับความยาก (5 ระดับ)</button>
+      <button class="btn-sec" id="btnChangeDiff">⚙️ เลือกระดับความยาก (10 ระดับ)</button>
       <button class="btn-sec" id="btnNextOpponent">🥊 คู่แข่งคนต่อไป</button>
     </div>
   </div>

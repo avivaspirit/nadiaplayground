@@ -370,24 +370,61 @@ body {
   box-shadow: 0 0 14px rgba(43, 147, 72, 0.6);
 }
 .quick-diff-btn[data-lvl="2"].active {
-  background: #d97706;
-  border-color: #fbbf24;
-  box-shadow: 0 0 14px rgba(217, 119, 6, 0.6);
+  background: #10b981;
+  border-color: #34d399;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.6);
 }
 .quick-diff-btn[data-lvl="3"].active {
+  background: #eab308;
+  border-color: #fde047;
+  color: #1e293b;
+  box-shadow: 0 0 14px rgba(234, 179, 8, 0.6);
+}
+.quick-diff-btn[data-lvl="4"].active {
+  background: #f59e0b;
+  border-color: #fcd34d;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.6);
+}
+.quick-diff-btn[data-lvl="5"].active {
+  background: #f97316;
+  border-color: #fdba74;
+  box-shadow: 0 0 14px rgba(249, 115, 22, 0.6);
+}
+.quick-diff-btn[data-lvl="6"].active {
   background: #ea580c;
   border-color: #fb923c;
   box-shadow: 0 0 14px rgba(234, 88, 12, 0.6);
 }
-.quick-diff-btn[data-lvl="4"].active {
+.quick-diff-btn[data-lvl="7"].active {
+  background: #ef4444;
+  border-color: #fca5a5;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.6);
+}
+.quick-diff-btn[data-lvl="8"].active {
   background: #dc2626;
   border-color: #f87171;
   box-shadow: 0 0 14px rgba(220, 38, 38, 0.6);
 }
-.quick-diff-btn[data-lvl="5"].active {
+.quick-diff-btn[data-lvl="9"].active {
   background: #7c3aed;
-  border-color: #a78bfa;
+  border-color: #c4b5fd;
   box-shadow: 0 0 14px rgba(124, 58, 237, 0.6);
+}
+.quick-diff-btn[data-lvl="10"].active,
+.diff-godlike.active {
+  background: linear-gradient(135deg, #09090b 0%, #450a0a 50%, #991b1b 100%) !important;
+  border-color: #ef4444 !important;
+  color: #fee2e2 !important;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.9), 0 0 30px rgba(185, 28, 28, 0.6) !important;
+  animation: godlikePulse 1.2s ease-in-out infinite alternate !important;
+}
+.diff-godlike {
+  border-color: #b91c1c;
+  color: #fca5a5;
+}
+@keyframes godlikePulse {
+  from { box-shadow: 0 0 12px rgba(239, 68, 68, 0.7); }
+  to { box-shadow: 0 0 24px rgba(239, 68, 68, 1), 0 0 45px rgba(220, 38, 38, 0.7); }
 }
 
 /* Online match strip */
