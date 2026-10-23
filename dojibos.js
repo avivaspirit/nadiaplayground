@@ -494,7 +494,7 @@
     super: false
   };
 
-  /* RESET BALL & POSITIONS */
+  /* RESET BALL & POSITIONS - ALWAYS FAIR DEAD-CENTER DROP */
   function resetPositions(scorer) {
     p1.x = 220;
     p1.y = GROUND_Y;
@@ -508,10 +508,13 @@
     p2.facing = -1;
     p2.scaleX = 1; p2.scaleY = 1; p2.tilt = 0; p2.bob = 0;
 
+    // ponytail: Drop strictly dead center (x = W/2 = 480) with zero horizontal velocity (vx = 0)
+    // so both players have an equal, completely neutral sprint to the ball without any bias.
     ball.x = W / 2;
-    ball.y = 200;
-    ball.vx = scorer === 1 ? -1.5 : (scorer === 2 ? 1.5 : 0);
-    ball.vy = -3;
+    ball.y = 120;
+    ball.vx = 0;
+    ball.vy = 0;
+    ball.rotation = 0;
     ball.isSuper = false;
     ball.trail = [];
   }

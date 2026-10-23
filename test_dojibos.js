@@ -95,7 +95,9 @@ assert.ok(js.includes('quickHostForMac'), 'Must have 1-click quickHostForMac fun
 assert.ok(js.includes('quickJoinForNadia'), 'Must have 1-click quickJoinForNadia function');
 assert.ok(js.includes('getInviteUrl'), 'Must generate magic invite URL with auto-auth');
 assert.ok(js.includes('&auth=larny'), 'Must auto-authenticate invite link without password prompt');
-console.log('✔ dojibos.js engine, couple fast-lane, auto-auth & online WebRTC + TURN validated');
+assert.ok(js.includes('ball.vx = 0'), 'Must reset ball with zero horizontal velocity (fair center drop)');
+assert.ok(js.includes('ball.x = W / 2'), 'Must reset ball strictly in dead-center');
+console.log('✔ dojibos.js engine, fair dead-center drop, auto-auth & online WebRTC + TURN validated');
 
 // 4. Verify index.html portal
 const indexHtml = fs.readFileSync(dir + '\\index.html', 'utf8');
