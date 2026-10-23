@@ -27,7 +27,10 @@ assert.ok(html.includes('id="quickDiffSelector"'), 'Must have quick 10 difficult
 assert.ok(html.includes('data-lvl="1"'), 'Must have quick button for Level 1');
 assert.ok(html.includes('data-lvl="5"'), 'Must have quick button for Level 5');
 assert.ok(html.includes('data-lvl="10"'), 'Must have quick button for Level 10');
+assert.ok(html.includes('data-lvl="15"'), 'Must have quick button for Level 15');
+assert.ok(html.includes('data-lvl="20"'), 'Must have quick button for Level 20');
 assert.ok(html.includes('diff-godlike'), 'Must have godlike badge for Level 10');
+assert.ok(html.includes('diff-infinity'), 'Must have infinity badge for Level 20');
 assert.ok(html.includes('id="onlineModal"'), 'Must have online 2-player modal');
 assert.ok(html.includes('id="coupleQuickBar"'), 'Must have on-screen couple quick bar');
 assert.ok(html.includes('id="btnBarMacInvite"'), 'Must have Mac invite button in toolbar');
@@ -68,7 +71,10 @@ assert.ok(js.includes('ระดับ 1 (ง่ายมาก - Beginner)'), '
 assert.ok(js.includes('ระดับ 5 (ปานกลาง - Semi-Pro)'), 'Must have Level 5 Semi-Pro');
 assert.ok(js.includes('ระดับ 8 (ยากมาก - World Class)'), 'Must have Level 8 World Class');
 assert.ok(js.includes('ระดับ 10 (ไร้เทียมทาน - Godlike 💀)'), 'Must have Level 10 Godlike');
+assert.ok(js.includes('ระดับ 15 (มหาเทพฟุตบอล - Demi-God 🔱)'), 'Must have Level 15 Demi-God');
+assert.ok(js.includes('ระดับ 20 (อนันต์ไร้ขีดจำกัด - Ultimate Infinity ∞ ☠️⚡🔥)'), 'Must have Level 20 Ultimate Infinity');
 assert.ok(js.includes('level: 10'), 'Must define Level 10 in DIFFICULTIES');
+assert.ok(js.includes('level: 20'), 'Must define Level 20 in DIFFICULTIES');
 assert.ok(js.includes('ONLINE'), 'Must have ONLINE engine object');
 assert.ok(js.includes('startHost'), 'Must have startHost function for Mac');
 assert.ok(js.includes('startJoin'), 'Must have startJoin function for Nadia');

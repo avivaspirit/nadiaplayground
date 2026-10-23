@@ -175,7 +175,7 @@
   var AI_NAMES = ['Robo-Bibo 🤖', 'Captain Bounce 🦘', 'Professor Kick 🦉', 'Striker Cat 🐱', 'Super Doji 🦁'];
 
   /* ==========================================================================
-     3. 10-LEVEL DIFFICULTY SETTINGS (ระดับ 1 ถึง 10 โหดนรกแตก)
+     3. 20-LEVEL DIFFICULTY SETTINGS (ระดับ 1 ถึง 20 อนันต์ไร้ขีดจำกัด)
      ========================================================================== */
   var DIFFICULTIES = [
     {
@@ -310,13 +310,153 @@
       shortName: '💀 เลเวล 10 (ไร้เทียมทาน)',
       icon: '💀',
       badgeColor: '#0f172a',
-      tagText: 'โหดนรกแตก 💀',
+      tagText: 'ไร้เทียมทาน 💀',
       aiSpeed: 7.5,
       aiJumpChance: 0.70,
       aiKickPower: 18.5,
       aiKickChance: 0.90,
       aiSuperChance: 0.98,
-      desc: 'โหดนรกแตก! สปีดปีศาจ ดักสกัดทุกลูกเตะ โหม่งพุ่งชน และซัดไม้ตายทะลวงตาข่าย!'
+      desc: 'สปีดปีศาจ ดักสกัดทุกลูกเตะ โหม่งพุ่งชน และซัดไม้ตายทะลวงตาข่าย!'
+    },
+    {
+      level: 11,
+      name: 'ระดับ 11 (มหาโหด - Overlord 😈)',
+      shortName: '😈 เลเวล 11 (มหาโหด)',
+      icon: '😈',
+      badgeColor: '#9333ea',
+      tagText: 'มหาโหด 😈',
+      aiSpeed: 8.4,
+      aiJumpChance: 0.80,
+      aiKickPower: 20.5,
+      aiKickChance: 0.95,
+      aiSuperChance: 0.98,
+      desc: 'เริ่มคำนวณวิถีตกของลูกบอลล่วงหน้า พุ่งดักตัดจังหวะกลางอากาศอย่างไร้ปรานี!'
+    },
+    {
+      level: 12,
+      name: 'ระดับ 12 (นรกแตก - Hellfire 🔥)',
+      shortName: '🔥 เลเวล 12 (นรกแตก)',
+      icon: '🔥',
+      badgeColor: '#c026d3',
+      tagText: 'นรกแตก 🔥',
+      aiSpeed: 9.2,
+      aiJumpChance: 0.86,
+      aiKickPower: 22.5,
+      aiKickChance: 0.96,
+      aiSuperChance: 0.99,
+      desc: 'กระโดดเทกตัวสูงลิบลิ่ว ซัดลูกบอลด้วยแรงอัดมหาศาล บล็อกหน้าปากประตูอย่างเหนียวแน่น'
+    },
+    {
+      level: 13,
+      name: 'ระดับ 13 (ความเร็วแสง - Flash ⚡)',
+      shortName: '⚡ เลเวล 13 (สปีดแสง)',
+      icon: '⚡',
+      badgeColor: '#0284c7',
+      tagText: 'สปีดแสง ⚡',
+      aiSpeed: 10.2,
+      aiJumpChance: 0.90,
+      aiKickPower: 24.5,
+      aiKickChance: 0.98,
+      aiSuperChance: 0.99,
+      desc: 'สปีดไวกว่าผู้เล่นเท่าตัว โฉบแย่งบอลจากเท้าทันทีที่แตะพื้น!'
+    },
+    {
+      level: 14,
+      name: 'ระดับ 14 (ปีศาจลูกหนัง - Demon King 👹)',
+      shortName: '👹 เลเวล 14 (ราชาปีศาจ)',
+      icon: '👹',
+      badgeColor: '#b91c1c',
+      tagText: 'ราชาปีศาจ 👹',
+      aiSpeed: 11.2,
+      aiJumpChance: 0.94,
+      aiKickPower: 26.5,
+      aiKickChance: 0.99,
+      aiSuperChance: 1.0,
+      desc: 'พุ่งกระแทกแย่งบอลกลางอากาศ ยิงลูกฮาล์ฟวอลเลย์เฉียบคมเสียบเสาไกล!'
+    },
+    {
+      level: 15,
+      name: 'ระดับ 15 (มหาเทพฟุตบอล - Demi-God 🔱)',
+      shortName: '🔱 เลเวล 15 (มหาเทพ)',
+      icon: '🔱',
+      badgeColor: '#d97706',
+      tagText: 'มหาเทพ 🔱',
+      aiSpeed: 12.4,
+      aiJumpChance: 0.98,
+      aiKickPower: 29.0,
+      aiKickChance: 1.0,
+      aiSuperChance: 1.0,
+      desc: 'สะสมพลัง Super ชาร์จไวอัตโนมัติ ยิงลูกไซด์กึ่งชิปข้ามหัวเข้าสามเหลี่ยม!'
+    },
+    {
+      level: 16,
+      name: 'ระดับ 16 (จักรพรรดิไร้พ่าย - Emperor 👑)',
+      shortName: '👑 เลเวล 16 (จักรพรรดิ)',
+      icon: '👑',
+      badgeColor: '#e11d48',
+      tagText: 'จักรพรรดิ 👑',
+      aiSpeed: 13.6,
+      aiJumpChance: 1.0,
+      aiKickPower: 31.5,
+      aiKickChance: 1.0,
+      aiSuperChance: 1.0,
+      desc: 'คำนวณจุดตกของลูกแบบเป๊ะ 100% บินโหม่งสะบัด และยิงกระหน่ำไม่เปิดโอกาสให้หายใจ'
+    },
+    {
+      level: 17,
+      name: 'ระดับ 17 (พลังเหนือธรรมชาติ - Cosmic 🌌)',
+      shortName: '🌌 เลเวล 17 (คอสมิก)',
+      icon: '🌌',
+      badgeColor: '#4f46e5',
+      tagText: 'พลังคอสมิก 🌌',
+      aiSpeed: 15.0,
+      aiJumpChance: 1.0,
+      aiKickPower: 34.0,
+      aiKickChance: 1.0,
+      aiSuperChance: 1.0,
+      desc: 'วาร์ปดักทางบอล ความเร็วสูงระดับคอสมิก ยิงลูกเลียดติดไซด์โค้งทะลุการป้องกัน!'
+    },
+    {
+      level: 18,
+      name: 'ระดับ 18 (หลุมดำดูดบอล - Singularity 🌀)',
+      shortName: '🌀 เลเวล 18 (หลุมดำ)',
+      icon: '🌀',
+      badgeColor: '#1e1b4b',
+      tagText: 'หลุมดำ 🌀',
+      aiSpeed: 16.5,
+      aiJumpChance: 1.0,
+      aiKickPower: 37.0,
+      aiKickChance: 1.0,
+      aiSuperChance: 1.0,
+      desc: 'ปฏิกิริยาตอบสนองระดับ 0 มิลลิวินาที สกัดลูกยิงทุกลูกบนเส้นประตูแบบ 100%!'
+    },
+    {
+      level: 19,
+      name: 'ระดับ 19 (สุริยะเทพฟุตบอล - Solar God ☀️)',
+      shortName: '☀️ เลเวล 19 (สุริยะเทพ)',
+      icon: '☀️',
+      badgeColor: '#ea580c',
+      tagText: 'สุริยะเทพ ☀️',
+      aiSpeed: 18.0,
+      aiJumpChance: 1.0,
+      aiKickPower: 40.0,
+      aiKickChance: 1.0,
+      aiSuperChance: 1.0,
+      desc: 'ปล่อยพลัง Super Shot ต่อเนื่อง ปิดทุกช่องว่างในสนาม บอทตัวตึงระดับพระเจ้า!'
+    },
+    {
+      level: 20,
+      name: 'ระดับ 20 (อนันต์ไร้ขีดจำกัด - Ultimate Infinity ∞ ☠️⚡🔥)',
+      shortName: '☠️ เลเวล 20 (อนันต์ ∞)',
+      icon: '☠️',
+      badgeColor: '#000000',
+      tagText: 'ไร้พ่ายอันลิมิต ∞ ☠️',
+      aiSpeed: 20.0,
+      aiJumpChance: 1.0,
+      aiKickPower: 45.0,
+      aiKickChance: 1.0,
+      aiSuperChance: 1.0,
+      desc: 'ขีดสุดแห่งความยากระดับ 20! สปีดแสงเหนือมนุษย์ ลูกเตะปืนใหญ่ทำลายล้าง หลบหลีกและสกัดได้ทุกลูกบนโลกใบนี้!'
     }
   ];
 
@@ -890,44 +1030,77 @@
     }
   }
 
-  /* SMART AI OPPONENT BEHAVIOR WITH 10 DIFFICULTY LEVELS */
+  /* SMART AI OPPONENT BEHAVIOR WITH 20 DIFFICULTY LEVELS */
   function updateAI() {
     var diff = getCurrentDifficulty();
     var speed = diff.aiSpeed;
 
-    // AI positioning logic scaled by difficulty (1 to 10)
+    // AI positioning logic scaled by difficulty (1 to 20)
     var distToBall = Math.hypot(ball.x - p2.x, ball.y - p2.y);
-    var targetOffset = diff.level <= 2 ? 65 : (diff.level <= 5 ? 40 : 20);
+    var targetOffset = diff.level <= 2 ? 65 : (diff.level <= 5 ? 40 : (diff.level <= 10 ? 20 : 10));
     var targetX = ball.x + targetOffset;
 
-    // Advanced ball trajectory prediction at high difficulties (Level 6-10)
-    if (diff.level >= 6) {
+    // Advanced ball trajectory prediction at high difficulties (Level 6-20)
+    if (diff.level >= 11) {
+      // Kinematic flight path extrapolation (Physics prediction)
+      var lookAhead = Math.min(26, 4 + (diff.level - 10) * 2.2);
+      targetX = ball.x + targetOffset + (ball.vx * lookAhead);
+
+      // Passive Super Energy Accumulation for Boss Levels (13-20)
+      if (diff.level >= 13 && STATE.p2SuperEnergy < 100) {
+        STATE.p2SuperEnergy = Math.min(100, STATE.p2SuperEnergy + (diff.level - 12) * 0.28);
+        updateSuperBars();
+      }
+    } else if (diff.level >= 6) {
       targetX = ball.x + targetOffset + (ball.vx * (diff.level >= 8 ? 3.5 : 2.0));
     }
 
     // Defensive positioning on own half
     if (ball.x < W / 2) {
-      var retreatBound = diff.level <= 2 ? (W - 180) : (diff.level <= 5 ? (W - 220) : (W - 250));
-      var roomOffset = diff.level <= 2 ? 110 : (diff.level <= 5 ? 80 : 50);
-      targetX = Math.max(retreatBound, ball.x + roomOffset);
+      var retreatBound = diff.level <= 2 ? (W - 180) : (diff.level <= 5 ? (W - 220) : (diff.level <= 10 ? (W - 250) : (W - 320)));
+      var roomOffset = diff.level <= 2 ? 110 : (diff.level <= 5 ? 80 : (diff.level <= 10 ? 50 : 20));
+      if (diff.level >= 14) {
+        targetX = ball.x + 15; // Aggressive forward press to dispossess player!
+      } else {
+        targetX = Math.max(retreatBound, ball.x + roomOffset);
+      }
     }
 
-    // Emergency goal-line save for high levels (7-10)
-    if (diff.level >= 7 && ball.x > W - GOAL_W - 130 && ball.y > GOAL_TOP_Y - 20) {
-      targetX = ball.x + 10;
+    // Emergency goal-line save for high levels (7-20)
+    if (diff.level >= 7 && ball.x > W - GOAL_W - 140 && ball.y > GOAL_TOP_Y - 30) {
+      targetX = ball.x + 8;
+      if (diff.level >= 12) speed *= 1.35; // Hyper defense burst
     }
 
-    if (p2.x < targetX - 10) p2.vx = speed;
-    else if (p2.x > targetX + 10) p2.vx = -speed;
-    else p2.vx *= 0.65;
+    // Horizontal Movement
+    if (p2.x < targetX - 6) {
+      p2.vx = speed;
+      p2.facing = 1;
+    } else if (p2.x > targetX + 6) {
+      p2.vx = -speed;
+      p2.facing = -1;
+    } else {
+      p2.vx *= 0.5;
+    }
+
+    // Facing direction: always face ball when close
+    if (distToBall < 120) {
+      p2.facing = (ball.x < p2.x) ? -1 : 1;
+    }
+
+    // Mid-air tracking at high levels (11-20): maneuver in the air towards the ball
+    if (diff.level >= 11 && !p2.isGrounded) {
+      if (ball.x < p2.x - 10) p2.vx = -speed * 1.1;
+      else if (ball.x > p2.x + 10) p2.vx = speed * 1.1;
+    }
 
     // AI Jump / Header when ball is overhead (scaled strictly by difficulty)
-    var jumpDistThreshold = diff.level >= 8 ? 135 : 110;
-    if (distToBall < jumpDistThreshold && ball.y < p2.y - 25 && p2.isGrounded && Math.random() < diff.aiJumpChance) {
-      p2.vy = -(9.2 + diff.level * 0.42);
-      // High level AI adds extra forward thrust on jump!
+    var jumpDistThreshold = diff.level >= 11 ? (140 + (diff.level - 10) * 4) : (diff.level >= 8 ? 135 : 110);
+    if (distToBall < jumpDistThreshold && ball.y < p2.y - 20 && p2.isGrounded && Math.random() < diff.aiJumpChance) {
+      p2.vy = -(9.2 + Math.min(diff.level, 20) * 0.45);
+      // Extra forward thrust on jump
       if (diff.level >= 7 && ball.x < p2.x) {
-        p2.vx = -speed * 1.15;
+        p2.vx = -speed * 1.25;
       }
       p2.isGrounded = false;
       Snd.play('jump');
@@ -964,15 +1137,20 @@
     if (p2.x < GOAL_W + p2.radius) p2.x = GOAL_W + p2.radius;
     if (p2.x > W - GOAL_W - p2.radius) p2.x = W - GOAL_W - p2.radius;
 
-    // AI Kick (scaled by difficulty 1 to 10)
-    var kickRange = p2.radius + (diff.level >= 8 ? 40 : 32);
-    if (distToBall < kickRange && ball.x < p2.x && Math.random() < diff.aiKickChance) {
+    // AI Kick (scaled by difficulty 1 to 20)
+    var kickRange = p2.radius + (diff.level >= 15 ? 55 : (diff.level >= 10 ? 42 : 32));
+    if (distToBall < kickRange && ball.x < p2.x + 18 && Math.random() < diff.aiKickChance) {
       if (STATE.p2SuperEnergy >= 100 && Math.random() < diff.aiSuperChance) {
         STATE.p2SuperEnergy = 0;
         updateSuperBars();
         performKick(p2, true, diff.aiKickPower);
       } else {
         performKick(p2, false, diff.aiKickPower);
+      }
+
+      // At levels 12-20: If player P1 is in the way, AI adds vertical chip kick!
+      if (diff.level >= 12 && p1.x < ball.x && (ball.x - p1.x) < 95) {
+        ball.vy = -Math.min(18, 6 + (diff.level - 10) * 1.1); // High arc chip shot over P1!
       }
     }
   }
