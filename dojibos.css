@@ -132,6 +132,16 @@ body {
   color: #2b9348;
   transform: translateY(-1px);
 }
+.btn-diff {
+  background: #f0fff4;
+  border-color: #bbf7d0;
+  color: #166534;
+  font-weight: 800;
+}
+.btn-diff:hover {
+  border-color: #22c55e;
+  background: #dcfce7;
+}
 .btn-lock { color: #d90429; border-color: #ffccd5; }
 
 /* ==========================================================================
@@ -372,6 +382,61 @@ body {
 }
 
 /* ==========================================================================
+   PC KEYBOARD CONTROLS GUIDE
+   ========================================================================== */
+.pc-controls-guide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 10px 16px;
+  font-size: 0.84rem;
+  color: #e2e8f0;
+  backdrop-filter: blur(4px);
+  margin-top: 6px;
+}
+.guide-title {
+  font-weight: 800;
+  color: #ffd166;
+  letter-spacing: 0.2px;
+}
+.guide-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+.guide-item.highlight-jump kbd {
+  background: #2b9348;
+  border-color: #55a630;
+  color: #fff;
+  box-shadow: 0 2px 0 #1e7033;
+}
+.guide-item.highlight-kick kbd {
+  background: #ff5400;
+  border-color: #ff8500;
+  color: #fff;
+  box-shadow: 0 2px 0 #b33900;
+}
+kbd {
+  display: inline-block;
+  background: #1e293b;
+  color: #f8fafc;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  box-shadow: 0 2px 0 #0f172a;
+  padding: 2px 8px;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+/* ==========================================================================
    MODALS (ROSTER & RESULTS)
    ========================================================================== */
 .modal-overlay {
@@ -449,6 +514,94 @@ body {
 .roster-name { font-weight: 900; font-size: 0.95rem; color: var(--ink-dark); }
 .roster-trait { font-size: 0.76rem; font-weight: 700; color: #2b9348; margin-top: 2px; }
 .roster-super { font-size: 0.72rem; color: var(--ink-soft); margin-top: 4px; }
+
+/* DIFFICULTY SELECTOR MODAL */
+.diff-modal-card {
+  max-width: 640px;
+}
+.diff-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+.diff-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: #f8f9fa;
+  border: 2.5px solid #e9ecef;
+  border-radius: 16px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+  text-align: left;
+}
+.diff-card:hover {
+  transform: translateY(-2px);
+  border-color: #2b9348;
+  background: #f0fdf4;
+}
+.diff-card.active {
+  border-color: #2b9348;
+  background: #e8f5e9;
+  box-shadow: 0 4px 14px rgba(43, 147, 72, 0.18);
+}
+.diff-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+.diff-icon {
+  font-size: 2rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  flex-shrink: 0;
+}
+.diff-info {
+  flex: 1;
+}
+.diff-title {
+  font-weight: 900;
+  font-size: 1rem;
+  color: var(--ink-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.diff-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: #fff;
+}
+.diff-desc {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin-top: 3px;
+  line-height: 1.35;
+}
+.diff-check {
+  font-size: 1.4rem;
+  color: #2b9348;
+  font-weight: 900;
+  opacity: 0;
+  transition: opacity 0.2s;
+  padding-right: 6px;
+}
+.diff-card.active .diff-check {
+  opacity: 1;
+}
 
 /* RESULT MODAL */
 .result-badge { font-size: 54px; margin-bottom: 4px; }

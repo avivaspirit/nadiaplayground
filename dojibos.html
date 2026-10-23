@@ -32,6 +32,10 @@
       <span class="hud-icon">🏆</span>
       <span id="hudTrophies">0</span>
     </div>
+    <button class="nav-btn btn-diff" id="btnDiffToggle" title="เลือกระดับความยาก (5 ระดับ)">
+      <span id="diffPillIcon">🟢</span>
+      <span id="diffPillText">ระดับ 1 (ง่ายมาก)</span>
+    </button>
     <button class="nav-btn" id="btnAudioToggle" title="เปิด/ปิดเสียง">🔊</button>
     <button class="nav-btn" id="btnRosterModal" title="เลือกตัวละคร">🐾 เปลี่ยนตัว</button>
     <button class="nav-btn btn-lock" id="btnRelock" title="ออกจากระบบ / ล็อกรหัสผ่าน">🔒 ล็อก</button>
@@ -100,6 +104,15 @@
     </div>
   </div>
 
+  <!-- PC KEYBOARD CONTROLS HELPER GUIDE -->
+  <div class="pc-controls-guide" id="pcControlsGuide">
+    <span class="guide-title">⌨️ เล่นผ่านคีย์บอร์ด PC:</span>
+    <span class="guide-item"><kbd>◀</kbd><kbd>▶</kbd> หรือ <kbd>A</kbd><kbd>D</kbd> วิ่ง</span>
+    <span class="guide-item highlight-jump"><kbd>Spacebar</kbd> หรือ <kbd>▲</kbd> กระโดด</span>
+    <span class="guide-item highlight-kick"><kbd>▼</kbd> หรือ <kbd>Enter</kbd> หรือ <kbd>X</kbd> เตะบอล</span>
+    <span class="guide-item"><kbd>Shift</kbd> หรือ <kbd>C</kbd> ไม้ตาย</span>
+  </div>
+
 </div> <!-- End doji-viewport -->
 
 <!-- ========================================================================= -->
@@ -115,6 +128,24 @@
     </div>
 
     <div class="roster-grid" id="rosterGrid">
+      <!-- Rendered dynamically by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- MODAL: DIFFICULTY SELECTOR (เลือกระดับความยาก 5 ระดับ) -->
+<!-- ========================================================================= -->
+<div class="modal-overlay" id="diffModal">
+  <div class="modal-card diff-modal-card">
+    <button class="modal-close" id="closeDiffModal">&times;</button>
+    <div class="modal-header">
+      <span class="modal-icon">⚙️</span>
+      <h2>เลือกระดับความยาก (Difficulty)</h2>
+      <p>เลือกความเก่งของคู่แข่ง AI ตามที่คุณต้องการ (เปลี่ยนได้ตลอดเวลา)</p>
+    </div>
+
+    <div class="diff-grid" id="diffGrid">
       <!-- Rendered dynamically by JS -->
     </div>
   </div>
@@ -142,6 +173,7 @@
 
     <div class="result-buttons">
       <button class="btn-primary" id="btnPlayAgain">⚽ แข่งอีกแมตช์ (Rematch)</button>
+      <button class="btn-sec" id="btnChangeDiff">⚙️ เลือกระดับความยาก (5 ระดับ)</button>
       <button class="btn-sec" id="btnNextOpponent">🥊 คู่แข่งคนต่อไป</button>
     </div>
   </div>

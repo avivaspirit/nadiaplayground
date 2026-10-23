@@ -175,12 +175,89 @@
   var AI_NAMES = ['Robo-Bibo 🤖', 'Captain Bounce 🦘', 'Professor Kick 🦉', 'Striker Cat 🐱', 'Super Doji 🦁'];
 
   /* ==========================================================================
-     3. GAME STATE
+     3. 5-LEVEL DIFFICULTY SETTINGS
+     ========================================================================== */
+  var DIFFICULTIES = [
+    {
+      level: 1,
+      name: 'ระดับ 1 (ง่ายมาก - Beginner)',
+      shortName: '🟢 ระดับ 1 (ง่ายมาก)',
+      icon: '🟢',
+      badgeColor: '#2b9348',
+      tagText: 'ง่ายมาก',
+      aiSpeed: 2.2,
+      aiJumpChance: 0.04,
+      aiKickPower: 7.0,
+      aiKickChance: 0.20,
+      aiSuperChance: 0.0,
+      desc: 'เหมาะสำหรับทุกคน ยิงสบาย AI ตอบสนองช้าและแทบไม่กระโดดขวาง'
+    },
+    {
+      level: 2,
+      name: 'ระดับ 2 (ง่าย - Amateur)',
+      shortName: '🟡 ระดับ 2 (ง่าย)',
+      icon: '🟡',
+      badgeColor: '#d97706',
+      tagText: 'ง่าย',
+      aiSpeed: 3.0,
+      aiJumpChance: 0.12,
+      aiKickPower: 9.0,
+      aiKickChance: 0.30,
+      aiSuperChance: 0.10,
+      desc: 'เริ่มมีการสกัดบอลเบาๆ ขยับตามบอลพอดีๆ เหมาะกับฝึกซ้อม'
+    },
+    {
+      level: 3,
+      name: 'ระดับ 3 (ปานกลาง - Semi-Pro)',
+      shortName: '🟠 ระดับ 3 (ปานกลาง)',
+      icon: '🟠',
+      badgeColor: '#ea580c',
+      tagText: 'ปานกลาง',
+      aiSpeed: 3.8,
+      aiJumpChance: 0.22,
+      aiKickPower: 11.0,
+      aiKickChance: 0.40,
+      aiSuperChance: 0.35,
+      desc: 'ความท้าทายมาตรฐาน สู้กันสูสี มีทั้งบล็อกและยิงสวนกลับ'
+    },
+    {
+      level: 4,
+      name: 'ระดับ 4 (ยาก - Professional)',
+      shortName: '🔴 ระดับ 4 (ยาก)',
+      icon: '🔴',
+      badgeColor: '#dc2626',
+      tagText: 'ยาก',
+      aiSpeed: 4.6,
+      aiJumpChance: 0.34,
+      aiKickPower: 13.5,
+      aiKickChance: 0.55,
+      aiSuperChance: 0.65,
+      desc: 'AI ว่องไว สกัดลูกโด่งแม่นยำ และใช้ท่าไม้ตายเมื่อมีโอกาส'
+    },
+    {
+      level: 5,
+      name: 'ระดับ 5 (ระดับโลก - World Class Legend)',
+      shortName: '🟣 ระดับ 5 (ระดับโลก)',
+      icon: '🟣',
+      badgeColor: '#7c3aed',
+      tagText: 'ระดับโลก',
+      aiSpeed: 5.4,
+      aiJumpChance: 0.48,
+      aiKickPower: 15.5,
+      aiKickChance: 0.70,
+      aiSuperChance: 0.85,
+      desc: 'บอสระดับตำนาน วิ่งไว สกัดแน่น และยิงเต็มข้อแบบไม่ปรานี!'
+    }
+  ];
+
+  /* ==========================================================================
+     4. GAME STATE
      ========================================================================== */
   var STATE = {
     coins: 500,
     trophies: 0,
     selectedCharId: 'doji_dog',
+    difficulty: 1, // Default Level 1 (Beginner) for an easy, fun experience
     p1Score: 0,
     p2Score: 0,
     timer: 60,
@@ -199,6 +276,9 @@
         if (typeof d.coins === 'number') STATE.coins = d.coins;
         if (typeof d.trophies === 'number') STATE.trophies = d.trophies;
         if (d.selectedCharId) STATE.selectedCharId = d.selectedCharId;
+        if (typeof d.difficulty === 'number' && d.difficulty >= 1 && d.difficulty <= 5) {
+          STATE.difficulty = d.difficulty;
+        }
       } catch (e) {}
     }
   }
@@ -207,12 +287,25 @@
     lsSet('dojibos_save_v1', JSON.stringify({
       coins: STATE.coins,
       trophies: STATE.trophies,
-      selectedCharId: STATE.selectedCharId
+      selectedCharId: STATE.selectedCharId,
+      difficulty: STATE.difficulty
     }));
   }
 
   function getSelectedChar() {
     return CHARACTERS.find(function (c) { return c.id === STATE.selectedCharId; }) || CHARACTERS[0];
+  }
+
+  function getCurrentDifficulty() {
+    return DIFFICULTIES.find(function (d) { return d.level === STATE.difficulty; }) || DIFFICULTIES[0];
+  }
+
+  function updateDifficultyUI() {
+    var diff = getCurrentDifficulty();
+    var iconEl = $('diffPillIcon');
+    var textEl = $('diffPillText');
+    if (iconEl) iconEl.textContent = diff.icon;
+    if (textEl) textEl.textContent = diff.name.split(' (')[0] + ' (' + diff.tagText + ')';
   }
 
   /* ==========================================================================
@@ -488,7 +581,7 @@
   }
 
   /* KICK ACTION */
-  function performKick(player, isSuperShot) {
+  function performKick(player, isSuperShot, customPower) {
     var kickDir = player.facing;
     var kickRange = player.radius + 38;
     var dx = ball.x - player.x;
@@ -498,12 +591,12 @@
     // Kick reaches if ball is in front of player
     if (dist < kickRange + ball.radius && (dx * kickDir > -10)) {
       var curChar = getSelectedChar();
-      var power = curChar.kickPower;
+      var power = (typeof customPower === 'number') ? customPower : curChar.kickPower;
 
       if (isSuperShot) {
         power *= 1.8;
         ball.isSuper = true;
-        ball.superColor = curChar.superColor;
+        ball.superColor = (player === p1) ? curChar.superColor : '#00f5d4';
         Snd.play('super');
       } else {
         Snd.play('kick');
@@ -514,23 +607,30 @@
     }
   }
 
-  /* SMART AI OPPONENT BEHAVIOR */
+  /* SMART AI OPPONENT BEHAVIOR WITH 5 DIFFICULTY LEVELS */
   function updateAI() {
-    var targetX = ball.x + 30; // Position behind ball to defend or shoot
+    var diff = getCurrentDifficulty();
+    var speed = diff.aiSpeed;
+
+    // AI positioning logic scaled by difficulty
+    var targetOffset = diff.level <= 2 ? 60 : 30;
+    var targetX = ball.x + targetOffset; // Position behind ball to defend or shoot
     var distToBall = Math.hypot(ball.x - p2.x, ball.y - p2.y);
 
-    // Stay on own half unless attacking
+    // Stay on own half unless attacking (Level 1/2 gives generous breathing room to player)
     if (ball.x < W / 2) {
-      targetX = Math.max(W - 240, ball.x + 80);
+      var retreatBound = diff.level <= 2 ? (W - 190) : (W - 240);
+      var roomOffset = diff.level <= 2 ? 110 : 80;
+      targetX = Math.max(retreatBound, ball.x + roomOffset);
     }
 
-    if (p2.x < targetX - 10) p2.vx = 4.4;
-    else if (p2.x > targetX + 10) p2.vx = -4.4;
-    else p2.vx *= 0.7;
+    if (p2.x < targetX - 12) p2.vx = speed;
+    else if (p2.x > targetX + 12) p2.vx = -speed;
+    else p2.vx *= 0.65;
 
-    // AI Jump when ball is overhead
-    if (distToBall < 110 && ball.y < p2.y - 30 && p2.isGrounded && Math.random() < 0.25) {
-      p2.vy = -10.8;
+    // AI Jump when ball is overhead (scaled strictly by difficulty)
+    if (distToBall < 110 && ball.y < p2.y - 30 && p2.isGrounded && Math.random() < diff.aiJumpChance) {
+      p2.vy = -(9.2 + diff.level * 0.45);
       p2.isGrounded = false;
       Snd.play('jump');
     }
@@ -549,14 +649,14 @@
     if (p2.x < GOAL_W + p2.radius) p2.x = GOAL_W + p2.radius;
     if (p2.x > W - GOAL_W - p2.radius) p2.x = W - GOAL_W - p2.radius;
 
-    // AI Kick
-    if (distToBall < p2.radius + 32 && ball.x < p2.x && Math.random() < 0.4) {
-      if (STATE.p2SuperEnergy >= 100 && Math.random() < 0.7) {
+    // AI Kick (scaled by difficulty)
+    if (distToBall < p2.radius + 32 && ball.x < p2.x && Math.random() < diff.aiKickChance) {
+      if (STATE.p2SuperEnergy >= 100 && Math.random() < diff.aiSuperChance) {
         STATE.p2SuperEnergy = 0;
         updateSuperBars();
-        performKick(p2, true);
+        performKick(p2, true, diff.aiKickPower);
       } else {
-        performKick(p2, false);
+        performKick(p2, false, diff.aiKickPower);
       }
     }
   }
@@ -852,10 +952,12 @@
     $('resP1Score').textContent = STATE.p1Score;
     $('resP2Score').textContent = STATE.p2Score;
 
+    var diffObj = getCurrentDifficulty();
+
     if (isWin) {
       $('resultBadge').textContent = '🏆';
       $('resultTitle').textContent = 'ชัยชนะอันยอดเยี่ยม!';
-      $('resultSub').textContent = 'คุณเอาชนะแมตช์นี้ได้อย่างสมศักดิ์ศรี!';
+      $('resultSub').textContent = 'คุณเอาชนะ ' + AI_NAMES[STATE.aiOpponentIndex] + ' ใน ' + diffObj.name.split(' (')[0] + ' (' + diffObj.tagText + ') ได้สำเร็จ!';
       var winCoins = 150 + (STATE.p1Score * 25);
       STATE.coins += winCoins;
       STATE.trophies += 1;
@@ -865,14 +967,14 @@
     } else if (isDraw) {
       $('resultBadge').textContent = '🤝';
       $('resultTitle').textContent = 'เสมอกันอย่างดุเดือด!';
-      $('resultSub').textContent = 'ทั้งสองทีมสูสีกันมาก แข่งใหม่อีกนัดเพื่อตัดสิน!';
+      $('resultSub').textContent = 'สูสีกันมากใน ' + diffObj.name.split(' (')[0] + ' (' + diffObj.tagText + ') แข่งใหม่อีกนัดเพื่อตัดสิน!';
       STATE.coins += 60;
       $('rewardCoins').textContent = '+60';
       $('rewardTrophies').textContent = '+0';
     } else {
       $('resultBadge').textContent = '😢';
       $('resultTitle').textContent = 'พ่ายแพ้ในนัดนี้!';
-      $('resultSub').textContent = 'อย่าเพิ่งท้อ! ปรับแผนแล้วแข่งใหม่อีกรอบ!';
+      $('resultSub').textContent = 'แข่งใน ' + diffObj.name.split(' (')[0] + ' (' + diffObj.tagText + ') อย่าเพิ่งท้อ ลองปรับระดับความยากหรือแข่งใหม่!';
       STATE.coins += 30;
       $('rewardCoins').textContent = '+30';
       $('rewardTrophies').textContent = '+0';
@@ -921,27 +1023,76 @@
   };
 
   /* ==========================================================================
-     8. CONTROLS & EVENT LISTENERS
+     8. DIFFICULTY MODAL (5 ระดับความยาก)
+     ========================================================================== */
+  function openDiffModal() {
+    var modal = $('diffModal');
+    if (!modal) return;
+
+    var grid = $('diffGrid');
+    if (grid) {
+      var html = '';
+      DIFFICULTIES.forEach(function (d) {
+        var isAct = d.level === STATE.difficulty;
+        html += '<div class="diff-card ' + (isAct ? 'active' : '') + '" onclick="window.selectDifficulty(' + d.level + ')">';
+        html += '  <div class="diff-left">';
+        html += '    <div class="diff-icon">' + d.icon + '</div>';
+        html += '    <div class="diff-info">';
+        html += '      <div class="diff-title">' + d.name + ' <span class="diff-tag" style="background:' + d.badgeColor + '">' + d.tagText + '</span></div>';
+        html += '      <div class="diff-desc">' + d.desc + '</div>';
+        html += '    </div>';
+        html += '  </div>';
+        html += '  <div class="diff-check">✔</div>';
+        html += '</div>';
+      });
+      grid.innerHTML = html;
+    }
+
+    modal.classList.add('open');
+  }
+
+  window.selectDifficulty = function (lvl) {
+    STATE.difficulty = parseInt(lvl, 10) || 1;
+    saveGameData();
+    updateDifficultyUI();
+    Snd.play('whistle');
+    var modal = $('diffModal');
+    if (modal) modal.classList.remove('open');
+  };
+
+  /* ==========================================================================
+     9. CONTROLS & EVENT LISTENERS
      ========================================================================== */
   function setupInputs() {
-    // Keyboard
+    // Keyboard Controls:
+    // - Spacebar / Up Arrow / W = Jump
+    // - Left / Right / A / D = Move
+    // - Down Arrow / Enter / X / Z / S / K = Kick
+    // - Shift / C / L / E = Super Kick
     window.addEventListener('keydown', function (e) {
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+      var k = e.key;
+      var c = e.code;
+
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(k) || c === 'Space') {
         e.preventDefault();
       }
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
-      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
-      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === ' ') keys.jump = true;
-      if (e.key === 'k' || e.key === 'K' || e.key === 'z' || e.key === 'Z' || e.key === 'Enter') keys.kick = true;
-      if (e.key === 'l' || e.key === 'L' || e.key === 'x' || e.key === 'X') keys.super = true;
+
+      if (k === 'ArrowLeft' || k === 'a' || k === 'A') keys.left = true;
+      if (k === 'ArrowRight' || k === 'd' || k === 'D') keys.right = true;
+      if (c === 'Space' || k === ' ' || k === 'ArrowUp' || k === 'w' || k === 'W') keys.jump = true;
+      if (k === 'ArrowDown' || k === 'Enter' || k === 'x' || k === 'X' || k === 'z' || k === 'Z' || k === 's' || k === 'S' || k === 'k' || k === 'K') keys.kick = true;
+      if (k === 'Shift' || k === 'c' || k === 'C' || k === 'l' || k === 'L' || k === 'e' || k === 'E') keys.super = true;
     });
 
     window.addEventListener('keyup', function (e) {
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
-      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
-      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === ' ') keys.jump = false;
-      if (e.key === 'k' || e.key === 'K' || e.key === 'z' || e.key === 'Z' || e.key === 'Enter') keys.kick = false;
-      if (e.key === 'l' || e.key === 'L' || e.key === 'x' || e.key === 'X') keys.super = false;
+      var k = e.key;
+      var c = e.code;
+
+      if (k === 'ArrowLeft' || k === 'a' || k === 'A') keys.left = false;
+      if (k === 'ArrowRight' || k === 'd' || k === 'D') keys.right = false;
+      if (c === 'Space' || k === ' ' || k === 'ArrowUp' || k === 'w' || k === 'W') keys.jump = false;
+      if (k === 'ArrowDown' || k === 'Enter' || k === 'x' || k === 'X' || k === 'z' || k === 'Z' || k === 's' || k === 'S' || k === 'k' || k === 'K') keys.kick = false;
+      if (k === 'Shift' || k === 'c' || k === 'C' || k === 'l' || k === 'L' || k === 'e' || k === 'E') keys.super = false;
     });
 
     // Touch Buttons
@@ -981,10 +1132,19 @@
       startMatch();
     });
 
+    $('btnChangeDiff')?.addEventListener('click', function () {
+      openDiffModal();
+    });
+
     $('btnNextOpponent')?.addEventListener('click', function () {
       STATE.aiOpponentIndex = (STATE.aiOpponentIndex + 1) % AI_NAMES.length;
       $('resultModal').classList.remove('open');
       startMatch();
+    });
+
+    $('btnDiffToggle')?.addEventListener('click', openDiffModal);
+    $('closeDiffModal')?.addEventListener('click', function () {
+      $('diffModal').classList.remove('open');
     });
   }
 
@@ -1070,6 +1230,7 @@
     }
 
     loadSavedData();
+    updateDifficultyUI();
     setupPasswordGate();
     setupInputs();
 
